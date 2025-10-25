@@ -24,20 +24,17 @@
     --dark: #333;
     --border: #ddd;
     --shadow: rgba(0, 0, 0, 0.1);
-    
-    /* Variables responsivas que cambian según el dispositivo */
     --container-width: 500px;
     --padding: 10px;
     --font-base: 14px;
     --header-size: 24px;
   }
   
-  /* Estilos para laptop/desktop */
   @media (min-width: 768px) {
     :root {
-      --container-width: 900px;
+      --container-width: 1000px;
       --padding: 20px;
-      --font-base: 16px;
+      --font-base: 15px;
       --header-size: 28px;
     }
   }
@@ -64,7 +61,6 @@
     max-height: 95vh;
   }
   
-  /* Header optimizado */
   .header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
@@ -84,7 +80,6 @@
     opacity: 0.95;
   }
   
-  /* Navegación con scroll horizontal mejorado */
   .nav-tabs {
     display: flex;
     overflow-x: auto;
@@ -95,18 +90,9 @@
     scrollbar-color: var(--primary) var(--light);
   }
   
-  .nav-tabs::-webkit-scrollbar {
-    height: 6px;
-  }
-  
-  .nav-tabs::-webkit-scrollbar-track {
-    background: var(--light);
-  }
-  
-  .nav-tabs::-webkit-scrollbar-thumb {
-    background: var(--primary);
-    border-radius: 3px;
-  }
+  .nav-tabs::-webkit-scrollbar { height: 6px; }
+  .nav-tabs::-webkit-scrollbar-track { background: var(--light); }
+  .nav-tabs::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
   
   .nav-tabs button {
     flex: 0 0 auto;
@@ -128,11 +114,8 @@
     border-bottom: 3px solid var(--primary);
   }
   
-  .nav-tabs button:hover {
-    background: rgba(255, 255, 255, 0.5);
-  }
+  .nav-tabs button:hover { background: rgba(255, 255, 255, 0.5); }
   
-  /* Contenido con scroll mejorado */
   .content {
     padding: clamp(12px, 3vw, 20px);
     overflow-y: auto;
@@ -141,20 +124,10 @@
     scrollbar-color: var(--primary) var(--light);
   }
   
-  .content::-webkit-scrollbar {
-    width: 8px;
-  }
+  .content::-webkit-scrollbar { width: 8px; }
+  .content::-webkit-scrollbar-track { background: var(--light); }
+  .content::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
   
-  .content::-webkit-scrollbar-track {
-    background: var(--light);
-  }
-  
-  .content::-webkit-scrollbar-thumb {
-    background: var(--primary);
-    border-radius: 4px;
-  }
-  
-  /* Selectores de torneo responsivos */
   .tournament-selector {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -180,12 +153,6 @@
     transform: scale(1.05);
   }
   
-  .tournament-selector button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow);
-  }
-  
-  /* Formularios optimizados */
   .form-group {
     margin-bottom: clamp(12px, 2.5vw, 18px);
   }
@@ -215,7 +182,6 @@
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
   
-  /* Grid responsivo mejorado */
   .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -223,12 +189,9 @@
   }
   
   @media (min-width: 768px) {
-    .form-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
   }
   
-  /* Botones mejorados */
   .btn {
     width: 100%;
     padding: clamp(10px, 2vw, 14px);
@@ -246,10 +209,7 @@
     box-shadow: 0 4px 12px var(--shadow);
   }
   
-  .btn:active {
-    transform: translateY(0);
-  }
-  
+  .btn:active { transform: translateY(0); }
   .btn-primary { background: var(--primary); color: white; }
   .btn-primary:hover { background: var(--primary-dark); }
   .btn-success { background: var(--success); color: white; }
@@ -261,7 +221,172 @@
   .btn-info { background: var(--info); color: white; }
   .btn-info:hover { background: #138496; }
   
-  /* Tarjetas de jugador responsivas */
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: calc(var(--font-base) * 0.85);
+    width: auto;
+    margin: 0;
+  }
+  
+  /* Estilos de tabla */
+  .table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+  
+  .table thead {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+  }
+  
+  .table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: calc(var(--font-base) * 0.95);
+    white-space: nowrap;
+  }
+  
+  .table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: calc(var(--font-base) * 0.9);
+  }
+  
+  .table tbody tr:hover {
+    background: var(--light);
+  }
+  
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .table .actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .table .progress-bar {
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  
+  .table .progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: calc(var(--font-base) * 0.8);
+    font-weight: 600;
+  }
+  
+  .badge-success { background: var(--success); color: white; }
+  .badge-warning { background: var(--warning); color: var(--dark); }
+  .badge-info { background: var(--info); color: white; }
+  
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .modal.active { display: flex; align-items: center; justify-content: center; }
+  
+  .modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border);
+  }
+  
+  .modal-header h3 {
+    color: var(--primary);
+    font-size: calc(var(--font-base) * 1.3);
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.3s ease;
+  }
+  
+  .modal-close:hover { color: var(--danger); }
+  
+  .payment-history {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 10px;
+  }
+  
+  .payment-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    margin-bottom: 8px;
+    background: var(--light);
+    border-radius: 4px;
+    align-items: center;
+  }
+  
+  .payment-item:last-child { margin-bottom: 0; }
+  
+  .payment-item-date {
+    font-size: calc(var(--font-base) * 0.85);
+    color: #666;
+  }
+  
+  .payment-item-amount {
+    font-weight: 600;
+    color: var(--success);
+  }
+  
+  .payment-item-actions {
+    display: flex;
+    gap: 6px;
+  }
+  
   .player-card {
     background: var(--light);
     border-radius: 10px;
@@ -283,14 +408,6 @@
     word-break: break-word;
   }
   
-  .player-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: clamp(8px, 2vw, 12px);
-    font-size: calc(var(--font-base) * 0.9);
-    margin-bottom: clamp(8px, 2vw, 12px);
-  }
-  
   .player-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -307,7 +424,6 @@
     transition: all 0.3s ease;
   }
   
-  /* Grid de estadísticas optimizado */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -316,9 +432,7 @@
   }
   
   @media (min-width: 768px) {
-    .stats-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
   }
   
   .stat-card {
@@ -346,7 +460,6 @@
     opacity: 0.95;
   }
   
-  /* Tarjetas de partido */
   .match-card {
     background: var(--light);
     border-radius: 10px;
@@ -361,7 +474,6 @@
     font-size: calc(var(--font-base) * 1.05);
   }
   
-  /* Alertas */
   .alert {
     padding: clamp(10px, 2vw, 14px);
     border-radius: 8px;
@@ -370,25 +482,10 @@
     line-height: 1.5;
   }
   
-  .alert-info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-  }
+  .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+  .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
   
-  .alert-warning {
-    background: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
-  }
-  
-  .alert-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-  
-  /* Selector de fases */
   .phase-selector {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -408,16 +505,9 @@
     transition: all 0.3s ease;
   }
   
-  .phase-btn.active {
-    background: var(--primary);
-    color: white;
-  }
+  .phase-btn.active { background: var(--primary); color: white; }
+  .phase-btn:hover { transform: scale(1.05); }
   
-  .phase-btn:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Grupo de checkboxes mejorado */
   .checkbox-group {
     max-height: 250px;
     overflow-y: auto;
@@ -429,45 +519,76 @@
     scrollbar-color: var(--primary) var(--light);
   }
   
-  .checkbox-group::-webkit-scrollbar {
-    width: 6px;
-  }
+  .checkbox-group::-webkit-scrollbar { width: 6px; }
+  .checkbox-group::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
   
-  .checkbox-group::-webkit-scrollbar-thumb {
-    background: var(--primary);
-    border-radius: 3px;
-  }
-  
-  .checkbox-item {
-    display: flex;
+  .checkbox-item-payment {
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
     padding: clamp(8px, 1.5vw, 10px);
     margin-bottom: 6px;
     background: white;
     border-radius: 6px;
     transition: all 0.2s ease;
+    gap: 10px;
   }
   
-  .checkbox-item:hover {
-    background: var(--light);
+  .checkbox-item-payment:hover { background: var(--light); }
+  
+  .checkbox-item-payment .player-name-wrapper {
+    display: flex;
+    align-items: center;
   }
   
-  .checkbox-item input {
+  .checkbox-item-payment .player-name-wrapper input[type="checkbox"] {
     margin-right: 10px;
     width: 20px;
     height: 20px;
     cursor: pointer;
   }
   
-  .checkbox-item label {
+  .checkbox-item-payment .player-name-wrapper label {
     margin: 0;
-    font-weight: normal;
+    font-weight: 500;
     cursor: pointer;
-    flex: 1;
     font-size: var(--font-base);
   }
   
-  /* Resumen */
+  .checkbox-item-payment .payment-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: #e9ecef;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  
+  .checkbox-item-payment .payment-checkbox-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  .checkbox-item-payment .payment-checkbox-wrapper label {
+    margin: 0;
+    font-size: calc(var(--font-base) * 0.9);
+    font-weight: 600;
+    cursor: pointer;
+    color: #495057;
+  }
+  
+  .checkbox-item-payment.paid {
+    background: #d4edda;
+    border-left: 3px solid var(--success);
+  }
+  
+  .checkbox-item-payment.not-paid {
+    background: #fff3cd;
+    border-left: 3px solid var(--warning);
+  }
+  
   .summary {
     background: #e9ecef;
     padding: clamp(12px, 3vw, 18px);
@@ -483,16 +604,30 @@
     gap: 10px;
   }
   
-  .summary-row:last-child {
-    margin-bottom: 0;
+  .summary-row:last-child { margin-bottom: 0; }
+  .summary-row strong { color: var(--primary); font-weight: 700; }
+  
+  .summary-extended {
+    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+    padding: clamp(12px, 3vw, 18px);
+    border-radius: 8px;
+    margin-top: clamp(12px, 2.5vw, 18px);
+    border: 2px solid var(--border);
   }
   
-  .summary-row strong {
-    color: var(--primary);
+  .payment-status-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid var(--border);
+  }
+  
+  .payment-status-title {
     font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: calc(var(--font-base) * 1.05);
   }
   
-  /* Tarjeta de ajuste */
   .adjustment-card {
     background: #fff3cd;
     border: 2px solid var(--warning);
@@ -510,10 +645,7 @@
     font-size: calc(var(--font-base) * 1.1);
   }
   
-  /* Utilidades */
-  .hidden { 
-    display: none !important; 
-  }
+  .hidden { display: none !important; }
   
   .section-divider {
     border-top: 2px solid var(--border);
@@ -521,14 +653,6 @@
     padding-top: clamp(20px, 4vw, 30px);
   }
   
-  .loading {
-    text-align: center;
-    padding: clamp(15px, 3vw, 25px);
-    color: var(--primary);
-    font-size: calc(var(--font-base) * 1.1);
-  }
-  
-  /* Títulos de sección */
   h3.section-title {
     margin-top: clamp(20px, 4vw, 30px);
     margin-bottom: clamp(12px, 2.5vw, 18px);
@@ -537,51 +661,55 @@
     font-weight: 700;
   }
   
-  h3.section-title:first-child {
-    margin-top: 0;
+  h3.section-title:first-child { margin-top: 0; }
+  
+  .payment-detail {
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid var(--border);
   }
   
-  /* Ajustes específicos para móviles pequeños */
-  @media (max-width: 360px) {
-    .tournament-selector {
-      grid-template-columns: 1fr;
-    }
-    
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .phase-selector {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .payment-detail-title {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-size: calc(var(--font-base) * 0.95);
   }
   
-  /* Mejoras para tablets */
-  @media (min-width: 768px) and (max-width: 1024px) {
-    .stats-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
+  .payment-list { display: grid; gap: 5px; }
+  
+  .payment-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    font-size: calc(var(--font-base) * 0.85);
   }
   
-  /* Indicador de dispositivo (opcional, para debug) */
-  .device-indicator {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 11px;
-    z-index: 9999;
-    display: none; /* Oculto por defecto */
+  .payment-list-item .player-name { flex: 1; }
+  
+  .payment-list-item .payment-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: calc(var(--font-base) * 0.75);
+    font-weight: 600;
   }
   
-  /* Animaciones suaves */
+  .payment-badge.paid { background: var(--success); color: white; }
+  .payment-badge.pending { background: var(--warning); color: var(--dark); }
+  
   @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -589,14 +717,25 @@
     }
   }
   
-  .tab-content {
-    animation: fadeIn 0.3s ease;
+  .tab-content { animation: fadeIn 0.3s ease; }
+  
+  @media (max-width: 360px) {
+    .tournament-selector { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .phase-selector { grid-template-columns: repeat(2, 1fr); }
+    .checkbox-item-payment { grid-template-columns: 1fr; }
+    .checkbox-item-payment .payment-checkbox-wrapper {
+      justify-self: start;
+      margin-left: 30px;
+    }
+  }
+  
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
   }
 </style>
 </head>
 <body>
-<!-- Indicador de dispositivo (descomentar para debug) -->
-<!-- <div class="device-indicator" id="deviceIndicator"></div> -->
 
 <div class="container">
   <div class="header">
@@ -670,8 +809,24 @@
       
       <button class="btn btn-primary" onclick="registerPayment()">💰 Registrar Abono</button>
       
-      <h3 class="section-title">Estado de Pagos</h3>
-      <div id="paymentsList"></div>
+      <h3 class="section-title">Estado de Pagos de Inscripción</h3>
+      <div class="table-container">
+        <table class="table" id="paymentsTable">
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>#</th>
+              <th>Debe Pagar</th>
+              <th>Ha Pagado</th>
+              <th>Pendiente</th>
+              <th>Progreso</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTableBody">
+          </tbody>
+        </table>
+      </div>
     </div>
     
     <!-- PARTIDOS -->
@@ -717,10 +872,13 @@
         <input type="number" id="refereeValue" placeholder="Ej: 80000" min="0" />
       </div>
       
-      <h4 style="margin-bottom: 10px; color: var(--primary); font-size: calc(var(--font-base) * 1.05);">Jugadores Presentes</h4>
+      <h4 style="margin-bottom: 10px; color: var(--primary); font-size: calc(var(--font-base) * 1.05);">Jugadores Presentes y Control de Cobro</h4>
+      <p style="font-size: calc(var(--font-base) * 0.9); color: #666; margin-bottom: 12px; line-height: 1.5;">
+        Marque los jugadores que asistieron al partido y registre si pagaron el arbitraje.
+      </p>
       <div class="checkbox-group" id="playersPresent"></div>
       
-      <div class="summary" id="refereeSummary">
+      <div class="summary-extended" id="refereeSummary">
         <div class="summary-row">
           <span>Total Arbitraje:</span>
           <strong>$0 COP</strong>
@@ -732,6 +890,25 @@
         <div class="summary-row">
           <span>Por Jugador:</span>
           <strong>$0 COP</strong>
+        </div>
+        <div class="payment-status-section">
+          <div class="payment-status-title">Estado de Cobro:</div>
+          <div class="summary-row">
+            <span>Jugadores que Pagaron:</span>
+            <strong id="playersPaidCount">0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Jugadores Pendientes:</span>
+            <strong id="playersPendingCount">0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total Recaudado:</span>
+            <strong id="totalCollectedReferee">$0 COP</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total Pendiente:</span>
+            <strong id="totalPendingReferee">$0 COP</strong>
+          </div>
         </div>
       </div>
       
@@ -830,7 +1007,7 @@
       <div class="match-card">
         <h4>💼 Finanzas</h4>
         <div class="summary-row">
-          <span>💰 Total Recaudado:</span>
+          <span>💰 Total Recaudado (Inscripciones):</span>
           <strong id="totalCollected">$0</strong>
         </div>
         <div class="summary-row">
@@ -838,8 +1015,16 @@
           <strong id="totalInscriptionNeeded">$0</strong>
         </div>
         <div class="summary-row">
-          <span>⚽ Total Arbitrajes:</span>
+          <span>⚽ Total Arbitrajes Gastados:</span>
           <strong id="totalRefereeSpent">$0</strong>
+        </div>
+        <div class="summary-row">
+          <span>💵 Total Arbitrajes Recaudados:</span>
+          <strong id="totalRefereeCollected">$0</strong>
+        </div>
+        <div class="summary-row">
+          <span>⏳ Total Arbitrajes Pendientes:</span>
+          <strong id="totalRefereePending">$0</strong>
         </div>
       </div>
     </div>
@@ -947,7 +1132,7 @@
       
       <h3 class="section-title">Reiniciar Torneo</h3>
       <p style="margin-bottom: 15px; font-size: var(--font-base); color: #666; line-height: 1.6;">
-        Esta acción reiniciará todos los valores del torneo actual (puntos, goles, pagos, partidos) pero mantendrá la lista de jugadores.
+        Esta acción reiniciará todos los valores del torneo actual, incluyendo puntos, goles, pagos, partidos y registros de cobro de arbitraje, pero mantendrá la lista de jugadores.
       </p>
       <button class="btn btn-danger" onclick="confirmResetTournament()">🔄 Reiniciar Torneo</button>
       
@@ -956,6 +1141,21 @@
         Esta acción eliminará todos los jugadores del torneo actual junto con sus datos.
       </p>
       <button class="btn btn-danger" onclick="confirmDeleteAllPlayers()">🗑️ Eliminar Todos los Jugadores</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para gestionar abonos -->
+<div id="paymentModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>💰 Gestionar Abonos</h3>
+      <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+    </div>
+    <div id="modalPlayerInfo" style="margin-bottom: 20px; padding: 12px; background: var(--light); border-radius: 6px;">
+    </div>
+    <h4 style="margin-bottom: 10px; color: var(--primary);">Historial de Abonos</h4>
+    <div class="payment-history" id="paymentHistoryList">
     </div>
   </div>
 </div>
@@ -975,7 +1175,6 @@
     where,
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // Configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
     authDomain: "crm-futbol.firebaseapp.com",
@@ -988,37 +1187,11 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Variables globales
   let currentTournament = "torneo1";
   let players = [];
   let tournamentData = {};
+  let currentEditingPlayer = null;
 
-  // Detección de dispositivo (opcional para debug)
-  function detectDevice() {
-    const width = window.innerWidth;
-    let device = 'Móvil';
-    
-    if (width >= 1024) {
-      device = 'Desktop';
-    } else if (width >= 768) {
-      device = 'Tablet';
-    }
-    
-    // Descomentar para ver el indicador
-    // const indicator = document.getElementById('deviceIndicator');
-    // if (indicator) {
-    //   indicator.textContent = `${device} (${width}px)`;
-    //   indicator.style.display = 'block';
-    // }
-    
-    return device;
-  }
-
-  // Llamar a la detección al cargar y al redimensionar
-  detectDevice();
-  window.addEventListener('resize', detectDevice);
-
-  // Funciones de navegación
   window.showTab = function (tabName) {
     document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.add("hidden"));
     document.getElementById(tabName).classList.remove("hidden");
@@ -1033,22 +1206,14 @@
   window.selectTournament = async function (tournament) {
     currentTournament = tournament;
     
-    // Actualizar botones activos
     document.querySelectorAll(".tournament-selector button").forEach((btn) => {
       btn.classList.remove("active");
     });
     
     [
-      "torneo1Btn",
-      "torneo2Btn",
-      "torneo1BtnPagos",
-      "torneo2BtnPagos",
-      "torneo1BtnPartidos",
-      "torneo2BtnPartidos",
-      "torneo1BtnStats",
-      "torneo2BtnStats",
-      "torneo1BtnConfig",
-      "torneo2BtnConfig",
+      "torneo1Btn", "torneo2Btn", "torneo1BtnPagos", "torneo2BtnPagos",
+      "torneo1BtnPartidos", "torneo2BtnPartidos", "torneo1BtnStats", "torneo2BtnStats",
+      "torneo1BtnConfig", "torneo2BtnConfig",
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.classList.toggle("active", id.includes(tournament));
@@ -1059,7 +1224,6 @@
     updateAllViews();
   };
 
-  // Cargar datos del torneo
   async function loadTournamentData() {
     const docRef = doc(db, "tournaments", currentTournament);
     const docSnap = await getDoc(docRef);
@@ -1075,15 +1239,9 @@
         matches: [],
         manualMatches: 0,
         stats: {
-          points: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-          goalsScored: 0,
-          goalsConceded: 0,
-          yellowCards: 0,
-          blueCards: 0,
-          redCards: 0,
+          points: 0, wins: 0, draws: 0, losses: 0,
+          goalsScored: 0, goalsConceded: 0,
+          yellowCards: 0, blueCards: 0, redCards: 0,
           totalReferee: 0,
         },
       };
@@ -1096,7 +1254,6 @@
     document.getElementById("phaseInfo").innerHTML = `<strong>Fase Actual:</strong> ${tournamentData.phase}`;
   }
 
-  // Cargar jugadores
   async function loadPlayers() {
     const q = query(collection(db, "players"), where("tournament", "==", currentTournament));
     const querySnapshot = await getDocs(q);
@@ -1106,7 +1263,6 @@
     });
   }
 
-  // Agregar jugador
   window.addPlayer = async function () {
     const name = document.getElementById("playerName").value.trim();
     const number = document.getElementById("playerNumber").value;
@@ -1132,7 +1288,6 @@
     updateAllViews();
   };
 
-  // Eliminar jugador
   window.deletePlayer = async function (playerId) {
     if (confirm("¿Estás seguro de eliminar este jugador?")) {
       await deleteDoc(doc(db, "players", playerId));
@@ -1141,7 +1296,6 @@
     }
   };
 
-  // Editar jugador
   window.editPlayer = async function (playerId) {
     const player = players.find((p) => p.id === playerId);
     if (!player) return;
@@ -1159,7 +1313,6 @@
     }
   };
 
-  // Establecer valor de inscripción
   window.setInscriptionValue = async function () {
     const total = parseFloat(document.getElementById("totalInscription").value);
     
@@ -1181,7 +1334,6 @@
     alert(`Inscripción calculada: $${perPlayer.toFixed(0)} COP por jugador`);
   };
 
-  // Registrar pago
   window.registerPayment = async function () {
     const playerId = document.getElementById("playerSelectPayment").value;
     const amount = parseFloat(document.getElementById("paymentAmount").value);
@@ -1192,7 +1344,11 @@
     }
     
     const player = players.find((p) => p.id === playerId);
-    const newPayments = [...(player.payments || []), { amount, date: new Date().toISOString() }];
+    const newPayments = [...(player.payments || []), { 
+      id: Date.now().toString(),
+      amount, 
+      date: new Date().toISOString() 
+    }];
     const newTotal = (player.totalPaid || 0) + amount;
     
     await updateDoc(doc(db, "players", playerId), {
@@ -1206,7 +1362,117 @@
     alert("Abono registrado exitosamente");
   };
 
-  // Registrar partido
+  window.openPaymentModal = function(playerId) {
+    currentEditingPlayer = players.find(p => p.id === playerId);
+    if (!currentEditingPlayer) return;
+    
+    const perPlayer = tournamentData.inscriptionPerPlayer || 0;
+    const paid = currentEditingPlayer.totalPaid || 0;
+    const pending = perPlayer - paid;
+    
+    document.getElementById("modalPlayerInfo").innerHTML = `
+      <strong style="font-size: 1.1em; color: var(--primary);">${currentEditingPlayer.name} - #${currentEditingPlayer.number}</strong><br>
+      <div style="margin-top: 8px;">
+        <span>Debe pagar: <strong>$${perPlayer.toFixed(0)}</strong></span> | 
+        <span>Ha pagado: <strong style="color: var(--success);">$${paid.toFixed(0)}</strong></span> | 
+        <span>Pendiente: <strong style="color: var(--warning);">$${pending.toFixed(0)}</strong></span>
+      </div>
+    `;
+    
+    updatePaymentHistory();
+    document.getElementById("paymentModal").classList.add("active");
+  };
+
+  window.closePaymentModal = function() {
+    document.getElementById("paymentModal").classList.remove("active");
+    currentEditingPlayer = null;
+  };
+
+  function updatePaymentHistory() {
+    if (!currentEditingPlayer) return;
+    
+    const payments = currentEditingPlayer.payments || [];
+    const historyList = document.getElementById("paymentHistoryList");
+    
+    if (payments.length === 0) {
+      historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay abonos registrados</p>';
+      return;
+    }
+    
+    historyList.innerHTML = payments.map(payment => {
+      const date = new Date(payment.date).toLocaleDateString("es-CO", {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      return `
+        <div class="payment-item">
+          <div>
+            <div class="payment-item-date">${date}</div>
+            <div class="payment-item-amount">$${payment.amount.toFixed(0)} COP</div>
+          </div>
+          <div class="payment-item-actions">
+            <button class="btn btn-sm btn-warning" onclick="editPayment('${payment.id}')">✏️</button>
+            <button class="btn btn-sm btn-danger" onclick="deletePayment('${payment.id}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.editPayment = async function(paymentId) {
+    if (!currentEditingPlayer) return;
+    
+    const payment = currentEditingPlayer.payments.find(p => p.id === paymentId);
+    if (!payment) return;
+    
+    const newAmount = prompt(`Editar monto del abono:\nFecha: ${new Date(payment.date).toLocaleDateString("es-CO")}`, payment.amount);
+    
+    if (newAmount === null) return;
+    
+    const amount = parseFloat(newAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Monto inválido");
+      return;
+    }
+    
+    const updatedPayments = currentEditingPlayer.payments.map(p => 
+      p.id === paymentId ? { ...p, amount } : p
+    );
+    
+    const newTotal = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
+    
+    await updateDoc(doc(db, "players", currentEditingPlayer.id), {
+      payments: updatedPayments,
+      totalPaid: newTotal,
+    });
+    
+    await loadPlayers();
+    currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
+    updatePaymentHistory();
+    updateAllViews();
+  };
+
+  window.deletePayment = async function(paymentId) {
+    if (!currentEditingPlayer) return;
+    
+    if (!confirm("¿Estás seguro de eliminar este abono?")) return;
+    
+    const updatedPayments = currentEditingPlayer.payments.filter(p => p.id !== paymentId);
+    const newTotal = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
+    
+    await updateDoc(doc(db, "players", currentEditingPlayer.id), {
+      payments: updatedPayments,
+      totalPaid: newTotal,
+    });
+    
+    await loadPlayers();
+    currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
+    updatePaymentHistory();
+    updateAllViews();
+  };
+
   window.registerMatch = async function () {
     const goalsScored = parseInt(document.getElementById("goalsScored").value) || 0;
     const goalsConceded = parseInt(document.getElementById("goalsConceded").value) || 0;
@@ -1216,8 +1482,17 @@
     const refereeValue = parseFloat(document.getElementById("refereeValue").value) || 0;
     
     const presentPlayers = [];
-    document.querySelectorAll("#playersPresent input[type='checkbox']:checked").forEach((cb) => {
-      presentPlayers.push(cb.value);
+    const refereePayments = {};
+    
+    document.querySelectorAll("#playersPresent .checkbox-item-payment").forEach((item) => {
+      const attendanceCheckbox = item.querySelector('input[name^="attendance_"]');
+      const paymentCheckbox = item.querySelector('input[name^="payment_"]');
+      
+      if (attendanceCheckbox && attendanceCheckbox.checked) {
+        const playerId = attendanceCheckbox.value;
+        presentPlayers.push(playerId);
+        refereePayments[playerId] = paymentCheckbox ? paymentCheckbox.checked : false;
+      }
     });
     
     if (presentPlayers.length === 0) {
@@ -1243,16 +1518,11 @@
     
     const matchData = {
       date: new Date().toISOString(),
-      goalsScored,
-      goalsConceded,
-      yellowCards,
-      blueCards,
-      redCards,
-      refereeValue,
-      presentPlayers,
-      refereePerPlayer,
-      points,
-      result,
+      goalsScored, goalsConceded,
+      yellowCards, blueCards, redCards,
+      refereeValue, presentPlayers,
+      refereePerPlayer, refereePayments,
+      points, result,
     };
     
     const newMatches = [...(tournamentData.matches || []), matchData];
@@ -1274,7 +1544,6 @@
       stats: newStats,
     });
     
-    // Limpiar formulario
     document.getElementById("goalsScored").value = "0";
     document.getElementById("goalsConceded").value = "0";
     document.getElementById("yellowCards").value = "0";
@@ -1285,10 +1554,13 @@
     
     await loadTournamentData();
     updateAllViews();
-    alert(`Partido registrado - Resultado: ${result} (${points} puntos)`);
+    
+    const paidCount = Object.values(refereePayments).filter(paid => paid).length;
+    const pendingCount = presentPlayers.length - paidCount;
+    
+    alert(`Partido registrado exitosamente\n\nResultado: ${result} (${points} puntos)\nJugadores que pagaron arbitraje: ${paidCount}\nJugadores con pago pendiente: ${pendingCount}`);
   };
 
-  // Actualizar nombre del torneo
   window.updateTournamentName = async function () {
     const name = document.getElementById("tournamentName").value.trim();
     
@@ -1297,26 +1569,18 @@
       return;
     }
     
-    await updateDoc(doc(db, "tournaments", currentTournament), {
-      name: name,
-    });
-    
+    await updateDoc(doc(db, "tournaments", currentTournament), { name });
     await loadTournamentData();
     alert("Nombre actualizado");
   };
 
-  // Establecer fase
   window.setPhase = async function (phase) {
-    await updateDoc(doc(db, "tournaments", currentTournament), {
-      phase: phase,
-    });
-    
+    await updateDoc(doc(db, "tournaments", currentTournament), { phase });
     await loadTournamentData();
     updateAllViews();
     alert(`Fase actualizada a: ${phase}`);
   };
 
-  // Cargar estadísticas actuales
   window.loadCurrentStats = function () {
     const stats = tournamentData.stats || {};
     const manualMatches = tournamentData.manualMatches || 0;
@@ -1336,10 +1600,8 @@
     alert("Valores actuales cargados en el formulario");
   };
 
-  // Guardar estadísticas ajustadas
   window.saveAdjustedStats = async function () {
-    const confirmation = confirm("¿Estás seguro de ajustar las estadísticas? Esto sobrescribirá los valores actuales.");
-    if (!confirmation) return;
+    if (!confirm("¿Estás seguro de ajustar las estadísticas? Esto sobrescribirá los valores actuales.")) return;
     
     const newStats = {
       points: parseInt(document.getElementById("adjustPoints").value) || 0,
@@ -1366,63 +1628,48 @@
     alert("✅ Estadísticas ajustadas exitosamente");
   };
 
-  // Reiniciar torneo
   window.confirmResetTournament = async function () {
-    const confirmation = confirm("¿Estás seguro de reiniciar el torneo? Se perderán todos los datos de partidos, pagos y estadísticas.");
+    if (!confirm("¿Estás seguro de reiniciar el torneo? Se perderán todos los datos de partidos, pagos, estadísticas y registros de cobro de arbitraje.")) return;
     
-    if (confirmation) {
-      // Reiniciar pagos de jugadores
-      for (const player of players) {
-        await updateDoc(doc(db, "players", player.id), {
-          payments: [],
-          totalPaid: 0,
-        });
-      }
-      
-      // Reiniciar datos del torneo
-      await updateDoc(doc(db, "tournaments", currentTournament), {
-        totalInscription: 0,
-        inscriptionPerPlayer: 0,
-        phase: "Fase de Grupos",
-        matches: [],
-        manualMatches: 0,
-        stats: {
-          points: 0,
-          wins: 0,
-          draws: 0,
-          losses: 0,
-          goalsScored: 0,
-          goalsConceded: 0,
-          yellowCards: 0,
-          blueCards: 0,
-          redCards: 0,
-          totalReferee: 0,
-        },
+    for (const player of players) {
+      await updateDoc(doc(db, "players", player.id), {
+        payments: [],
+        totalPaid: 0,
       });
-      
-      await loadTournamentData();
-      await loadPlayers();
-      updateAllViews();
-      alert("Torneo reiniciado exitosamente");
     }
-  };
-
-  // Eliminar todos los jugadores
-  window.confirmDeleteAllPlayers = async function () {
-    const confirmation = confirm("¿Estás seguro de eliminar TODOS los jugadores del torneo actual?");
     
-    if (confirmation) {
-      for (const player of players) {
-        await deleteDoc(doc(db, "players", player.id));
-      }
-      
-      await loadPlayers();
-      updateAllViews();
-      alert("Todos los jugadores han sido eliminados");
-    }
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      totalInscription: 0,
+      inscriptionPerPlayer: 0,
+      phase: "Fase de Grupos",
+      matches: [],
+      manualMatches: 0,
+      stats: {
+        points: 0, wins: 0, draws: 0, losses: 0,
+        goalsScored: 0, goalsConceded: 0,
+        yellowCards: 0, blueCards: 0, redCards: 0,
+        totalReferee: 0,
+      },
+    });
+    
+    await loadTournamentData();
+    await loadPlayers();
+    updateAllViews();
+    alert("Torneo reiniciado exitosamente");
   };
 
-  // Actualizar todas las vistas
+  window.confirmDeleteAllPlayers = async function () {
+    if (!confirm("¿Estás seguro de eliminar TODOS los jugadores del torneo actual?")) return;
+    
+    for (const player of players) {
+      await deleteDoc(doc(db, "players", player.id));
+    }
+    
+    await loadPlayers();
+    updateAllViews();
+    alert("Todos los jugadores han sido eliminados");
+  };
+
   function updateAllViews() {
     updatePlayersList();
     updatePaymentsList();
@@ -1432,7 +1679,6 @@
     updateInscriptionInfo();
   }
 
-  // Actualizar lista de jugadores
   function updatePlayersList() {
     const container = document.getElementById("playersList");
     
@@ -1456,42 +1702,50 @@
       .join("");
   }
 
-  // Actualizar lista de pagos
   function updatePaymentsList() {
-    const container = document.getElementById("paymentsList");
+    const tbody = document.getElementById("paymentsTableBody");
     
     if (players.length === 0) {
-      container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</p>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</td></tr>';
       return;
     }
     
     const perPlayer = tournamentData.inscriptionPerPlayer || 0;
     
-    container.innerHTML = players
+    tbody.innerHTML = players
       .map((player) => {
         const paid = player.totalPaid || 0;
         const pending = perPlayer - paid;
         const percentage = perPlayer > 0 ? ((paid / perPlayer) * 100).toFixed(1) : 0;
+        const statusBadge = pending <= 0 
+          ? '<span class="badge badge-success">Completo</span>'
+          : '<span class="badge badge-warning">Pendiente</span>';
         
         return `
-      <div class="player-card">
-        <h3>${player.name} - #${player.number}</h3>
-        <div class="player-info">
-          <div><strong>Debe pagar:</strong> $${perPlayer.toFixed(0)}</div>
-          <div><strong>Ha pagado:</strong> $${paid.toFixed(0)}</div>
-          <div><strong>Pendiente:</strong> $${pending.toFixed(0)}</div>
-          <div><strong>Progreso:</strong> ${percentage}%</div>
-        </div>
-        <div style="background: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px;">
-          <div style="background: ${pending <= 0 ? "#28a745" : "#ffc107"}; width: ${percentage}%; height: 100%;"></div>
-        </div>
-      </div>
+      <tr>
+        <td><strong>${player.name}</strong></td>
+        <td>${player.number}</td>
+        <td>$${perPlayer.toFixed(0)}</td>
+        <td style="color: var(--success); font-weight: 600;">$${paid.toFixed(0)}</td>
+        <td style="color: var(--warning); font-weight: 600;">$${pending.toFixed(0)}</td>
+        <td>
+          ${statusBadge}
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${percentage}%; background: ${pending <= 0 ? 'var(--success)' : 'var(--warning)'};"></div>
+          </div>
+          <small>${percentage}%</small>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-info" onclick="openPaymentModal('${player.id}')">📝 Gestionar</button>
+          </div>
+        </td>
+      </tr>
     `;
       })
       .join("");
   }
 
-  // Actualizar selectores de jugadores
   function updatePlayerSelectors() {
     const select = document.getElementById("playerSelectPayment");
     select.innerHTML =
@@ -1502,20 +1756,54 @@
     checkboxContainer.innerHTML = players
       .map(
         (p) => `
-      <div class="checkbox-item">
-        <input type="checkbox" id="player_${p.id}" value="${p.id}" onchange="updateRefereeSummary()" />
-        <label for="player_${p.id}">${p.name} - #${p.number}</label>
+      <div class="checkbox-item-payment">
+        <div class="player-name-wrapper">
+          <input type="checkbox" id="attendance_${p.id}" name="attendance_${p.id}" value="${p.id}" onchange="updateRefereeSummary()" />
+          <label for="attendance_${p.id}">${p.name} - #${p.number}</label>
+        </div>
+        <div class="payment-checkbox-wrapper">
+          <input type="checkbox" id="payment_${p.id}" name="payment_${p.id}" onchange="updateRefereeSummary()" />
+          <label for="payment_${p.id}">💵 Pagó</label>
+        </div>
       </div>
     `
       )
       .join("");
   }
 
-  // Actualizar resumen de arbitraje
   window.updateRefereeSummary = function () {
     const refereeValue = parseFloat(document.getElementById("refereeValue").value) || 0;
-    const presentCount = document.querySelectorAll("#playersPresent input[type='checkbox']:checked").length;
+    
+    let presentCount = 0;
+    let paidCount = 0;
+    
+    document.querySelectorAll("#playersPresent .checkbox-item-payment").forEach((item) => {
+      const attendanceCheckbox = item.querySelector('input[name^="attendance_"]');
+      const paymentCheckbox = item.querySelector('input[name^="payment_"]');
+      
+      if (attendanceCheckbox && attendanceCheckbox.checked) {
+        presentCount++;
+        
+        if (paymentCheckbox && paymentCheckbox.checked) {
+          paidCount++;
+          item.classList.add('paid');
+          item.classList.remove('not-paid');
+        } else {
+          item.classList.add('not-paid');
+          item.classList.remove('paid');
+        }
+      } else {
+        item.classList.remove('paid', 'not-paid');
+        if (paymentCheckbox) {
+          paymentCheckbox.checked = false;
+        }
+      }
+    });
+    
     const perPlayer = presentCount > 0 ? refereeValue / presentCount : 0;
+    const pendingCount = presentCount - paidCount;
+    const totalCollected = paidCount * perPlayer;
+    const totalPending = pendingCount * perPlayer;
     
     const summary = document.getElementById("refereeSummary");
     summary.innerHTML = `
@@ -1531,13 +1819,30 @@
         <span>Por Jugador:</span>
         <strong>$${perPlayer.toFixed(0)} COP</strong>
       </div>
+      <div class="payment-status-section">
+        <div class="payment-status-title">Estado de Cobro:</div>
+        <div class="summary-row">
+          <span>Jugadores que Pagaron:</span>
+          <strong id="playersPaidCount">${paidCount}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Jugadores Pendientes:</span>
+          <strong id="playersPendingCount">${pendingCount}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Total Recaudado:</span>
+          <strong id="totalCollectedReferee">$${totalCollected.toFixed(0)} COP</strong>
+        </div>
+        <div class="summary-row">
+          <span>Total Pendiente:</span>
+          <strong id="totalPendingReferee">$${totalPending.toFixed(0)} COP</strong>
+        </div>
+      </div>
     `;
   };
 
-  // Listener para el campo de arbitraje
   document.getElementById("refereeValue")?.addEventListener("input", updateRefereeSummary);
 
-  // Actualizar vista de partidos
   function updateMatchesView() {
     const container = document.getElementById("matchesList");
     const matches = tournamentData.matches || [];
@@ -1550,6 +1855,38 @@
     container.innerHTML = matches
       .map((match, index) => {
         const date = new Date(match.date).toLocaleDateString("es-CO");
+        
+        let paymentDetailsHTML = '';
+        if (match.refereePayments) {
+          const paymentList = match.presentPlayers.map(playerId => {
+            const player = players.find(p => p.id === playerId);
+            const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
+            const paid = match.refereePayments[playerId];
+            const badge = paid 
+              ? '<span class="payment-badge paid">✓ Pagado</span>' 
+              : '<span class="payment-badge pending">⏳ Pendiente</span>';
+            
+            return `
+              <div class="payment-list-item">
+                <span class="player-name">${playerName}</span>
+                ${badge}
+              </div>
+            `;
+          }).join('');
+          
+          const paidCount = Object.values(match.refereePayments).filter(paid => paid).length;
+          const pendingCount = match.presentPlayers.length - paidCount;
+          
+          paymentDetailsHTML = `
+            <div class="payment-detail">
+              <div class="payment-detail-title">Control de Cobro (${paidCount} pagaron / ${pendingCount} pendientes)</div>
+              <div class="payment-list">
+                ${paymentList}
+              </div>
+            </div>
+          `;
+        }
+        
         return `
       <div class="match-card">
         <h4 style="color: var(--primary); margin-bottom: 10px;">Partido #${index + 1} - ${date}</h4>
@@ -1573,13 +1910,13 @@
           <span>Por Jugador:</span>
           <strong>$${match.refereePerPlayer.toFixed(0)} (${match.presentPlayers.length} presentes)</strong>
         </div>
+        ${paymentDetailsHTML}
       </div>
     `;
       })
       .join("");
   }
 
-  // Actualizar estadísticas
   function updateStatistics() {
     const stats = tournamentData.stats || {};
     const matches = tournamentData.matches || [];
@@ -1591,7 +1928,6 @@
     document.getElementById("totalGoalsScored").textContent = stats.goalsScored || 0;
     document.getElementById("totalGoalsConceded").textContent = stats.goalsConceded || 0;
     
-    // Promedios
     const avgGoalsScored = totalMatches > 0 ? (stats.goalsScored || 0) / totalMatches : 0;
     const avgGoalsConceded = totalMatches > 0 ? (stats.goalsConceded || 0) / totalMatches : 0;
     document.getElementById("avgGoalsScored").textContent = avgGoalsScored.toFixed(2);
@@ -1601,7 +1937,6 @@
     document.getElementById("totalDraws").textContent = stats.draws || 0;
     document.getElementById("totalLosses").textContent = stats.losses || 0;
     
-    // Porcentajes
     const winPercent = totalMatches > 0 ? ((stats.wins || 0) / totalMatches) * 100 : 0;
     const drawPercent = totalMatches > 0 ? ((stats.draws || 0) / totalMatches) * 100 : 0;
     const lossPercent = totalMatches > 0 ? ((stats.losses || 0) / totalMatches) * 100 : 0;
@@ -1616,19 +1951,32 @@
     document.getElementById("totalBlue").textContent = stats.blueCards || 0;
     document.getElementById("totalRed").textContent = stats.redCards || 0;
     
-    // Promedio tarjetas por partido
     const totalCards = (stats.yellowCards || 0) + (stats.blueCards || 0) + (stats.redCards || 0);
     const avgCards = totalMatches > 0 ? totalCards / totalMatches : 0;
     document.getElementById("avgCards").textContent = avgCards.toFixed(2);
     
-    // Finanzas
     const totalPaid = players.reduce((sum, p) => sum + (p.totalPaid || 0), 0);
     document.getElementById("totalCollected").textContent = `$${totalPaid.toFixed(0)}`;
     document.getElementById("totalInscriptionNeeded").textContent = `$${(tournamentData.totalInscription || 0).toFixed(0)}`;
     document.getElementById("totalRefereeSpent").textContent = `$${(stats.totalReferee || 0).toFixed(0)}`;
+    
+    let totalRefereeCollected = 0;
+    let totalRefereePending = 0;
+    
+    matches.forEach(match => {
+      if (match.refereePayments) {
+        const paidCount = Object.values(match.refereePayments).filter(paid => paid).length;
+        const pendingCount = match.presentPlayers.length - paidCount;
+        
+        totalRefereeCollected += paidCount * match.refereePerPlayer;
+        totalRefereePending += pendingCount * match.refereePerPlayer;
+      }
+    });
+    
+    document.getElementById("totalRefereeCollected").textContent = `$${totalRefereeCollected.toFixed(0)}`;
+    document.getElementById("totalRefereePending").textContent = `$${totalRefereePending.toFixed(0)}`;
   }
 
-  // Actualizar información de inscripción
   function updateInscriptionInfo() {
     const perPlayer = tournamentData.inscriptionPerPlayer || 0;
     const total = tournamentData.totalInscription || 0;
@@ -1639,7 +1987,6 @@
     `;
   }
 
-  // Inicializar aplicación
   window.addEventListener("load", async () => {
     await selectTournament("torneo1");
   });
