@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Fútbol</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            overflow-x: auto;
+            background: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .nav-tabs button {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 15px;
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+        }
+
+        .tournament-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tournament-selector button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tournament-selector button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .player-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .player-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .player-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .player-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .match-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .phase-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .phase-btn {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .phase-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .checkbox-group {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .checkbox-item input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .summary {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-row strong {
+            color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ CRM Fútbol</h1>
+            <p id="currentTournamentName">Selecciona un torneo</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="active" onclick="showTab('jugadores')">Jugadores</button>
+            <button onclick="showTab('pagos')">Pagos</button>
+            <button onclick="showTab('partidos')">Partidos</button>
+            <button onclick="showTab('estadisticas')">Estadísticas</button>
+            <button onclick="showTab('config')">Config</button>
+        </div>
+
+        <div class="content">
+            <!-- SECCIÓN JUGADORES -->
+            <div id="jugadores" class="tab-content">
+                <div class="tournament-selector">
+                    <button id="torneo1Btn" onclick="selectTournament('torneo1')">Torneo 1</button>
+                    <button id="torneo2Btn" onclick="selectTournament('torneo2')">Torneo 2</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre del Jugador</label>
+                    <input type="text" id="playerName" placeholder="Ej: Juan Pérez">
+                </div>
+
+                <div class="form-group">
+                    <label>Número de Camiseta</label>
+                    <input type="number" id="playerNumber" placeholder="Ej: 10">
+                </div>
+
+                <button class="btn btn-primary" onclick="addPlayer()">➕ Agregar Jugador</button>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Lista de Jugadores</h3>
+                <div id="playersList"></div>
+            </div>
+
+            <!-- SECCIÓN PAGOS -->
+            <div id="pagos" class="tab-content hidden">
+                <div class="tournament-selector">
+                    <button id="torneo1BtnPagos" onclick="selectTournament('torneo1')">Torneo 1</button>
+                    <button id="torneo2BtnPagos" onclick="selectTournament('torneo2')">Torneo 2</button>
+                </div>
+
+                <div class="alert alert-info" id="inscriptionInfo">
+                    <strong>Valor de Inscripción:</strong> $0 COP por jugador
+                </div>
+
+                <div class="form-group">
+                    <label>Valor Total de Inscripción del Torneo</label>
+                    <input type="number" id="totalInscription" placeholder="Ej: 500000">
+                </div>
+
+                <button class="btn btn-success" onclick="setInscriptionValue()">Calcular Inscripción por Jugador</button>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Registrar Abono</h3>
+
+                <div class="form-group">
+                    <label>Seleccionar Jugador</label>
+                    <select id="playerSelectPayment">
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Monto del Abono (COP)</label>
+                    <input type="number" id="paymentAmount" placeholder="Ej: 50000">
+                </div>
+
+                <button class="btn btn-primary" onclick="registerPayment()">💰 Registrar Abono</button>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Estado de Pagos</h3>
+                <div id="paymentsList"></div>
+            </div>
+
+            <!-- SECCIÓN PARTIDOS -->
+            <div id="partidos" class="tab-content hidden">
+                <div class="tournament-selector">
+                    <button id="torneo1BtnPartidos" onclick="selectTournament('torneo1')">Torneo 1</button>
+                    <button id="torneo2BtnPartidos" onclick="selectTournament('torneo2')">Torneo 2</button>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #667eea;">Registrar Partido</h3>
+
+                <div class="form-group">
+                    <label>Goles Anotados</label>
+                    <input type="number" id="goalsScored" placeholder="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Goles Recibidos</label>
+                    <input type="number" id="goalsConceded" placeholder="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Tarjetas Amarillas</label>
+                    <input type="number" id="yellowCards" placeholder="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Tarjetas Azules</label>
+                    <input type="number" id="blueCards" placeholder="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Tarjetas Rojas</label>
+                    <input type="number" id="redCards" placeholder="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Valor del Arbitraje (COP)</label>
+                    <input type="number" id="refereeValue" placeholder="Ej: 80000">
+                </div>
+
+                <h4 style="margin-bottom: 10px; color: #667eea;">Jugadores Presentes</h4>
+                <div class="checkbox-group" id="playersPresent"></div>
+
+                <div class="summary" id="refereeSummary">
+                    <div class="summary-row">
+                        <span>Total Arbitraje:</span>
+                        <strong>$0 COP</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Jugadores Presentes:</span>
+                        <strong>0</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Por Jugador:</span>
+                        <strong>$0 COP</strong>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" onclick="registerMatch()">⚽ Registrar Partido</button>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Historial de Partidos</h3>
+                <div id="matchesList"></div>
+            </div>
+
+            <!-- SECCIÓN ESTADÍSTICAS -->
+            <div id="estadisticas" class="tab-content hidden">
+                <div class="tournament-selector">
+                    <button id="torneo1BtnStats" onclick="selectTournament('torneo1')">Torneo 1</button>
+                    <button id="torneo2BtnStats" onclick="selectTournament('torneo2')">Torneo 2</button>
+                </div>
+
+                <div class="alert alert-info" id="phaseInfo">
+                    <strong>Fase Actual:</strong> Fase de Grupos
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="totalPoints">0</h3>
+                        <p>Puntos</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalMatches">0</h3>
+                        <p>Partidos</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalGoalsScored">0</h3>
+                        <p>Goles Anotados</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalGoalsConceded">0</h3>
+                        <p>Goles Recibidos</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalWins">0</h3>
+                        <p>Victorias</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalDraws">0</h3>
+                        <p>Empates</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalLosses">0</h3>
+                        <p>Derrotas</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="goalDifference">0</h3>
+                        <p>Diferencia de Goles</p>
+                    </div>
+                </div>
+
+                <div class="match-card">
+                    <h4 style="margin-bottom: 10px; color: #667eea;">Tarjetas Acumuladas</h4>
+                    <div class="summary-row">
+                        <span>🟨 Amarillas:</span>
+                        <strong id="totalYellow">0</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>🟦 Azules:</span>
+                        <strong id="totalBlue">0</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>🟥 Rojas:</span>
+                        <strong id="totalRed">0</strong>
+                    </div>
+                </div>
+
+                <div class="match-card">
+                    <h4 style="margin-bottom: 10px; color: #667eea;">Finanzas</h4>
+                    <div class="summary-row">
+                        <span>💰 Total Recaudado:</span>
+                        <strong id="totalCollected">$0</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>📊 Inscripción Total:</span>
+                        <strong id="totalInscriptionNeeded">$0</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>⚽ Total Arbitrajes:</span>
+                        <strong id="totalRefereeSpent">$0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN CONFIGURACIÓN -->
+            <div id="config" class="tab-content hidden">
+                <div class="tournament-selector">
+                    <button id="torneo1BtnConfig" onclick="selectTournament('torneo1')">Torneo 1</button>
+                    <button id="torneo2BtnConfig" onclick="selectTournament('torneo2')">Torneo 2</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre del Torneo</label>
+                    <input type="text" id="tournamentName" placeholder="Ej: Liga de Verano 2025">
+                </div>
+
+                <button class="btn btn-primary" onclick="updateTournamentName()">💾 Guardar Nombre</button>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Fase del Torneo</h3>
+
+                <div class="phase-selector">
+                    <button class="phase-btn" onclick="setPhase('Fase de Grupos')">Fase de Grupos</button>
+                    <button class="phase-btn" onclick="setPhase('Octavos de Final')">Octavos</button>
+                    <button class="phase-btn" onclick="setPhase('Cuartos de Final')">Cuartos</button>
+                    <button class="phase-btn" onclick="setPhase('Semifinal')">Semifinal</button>
+                    <button class="phase-btn" onclick="setPhase('Final')">Final</button>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Fase Actual:</strong> <span id="currentPhase">Fase de Grupos</span>
+                </div>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Reiniciar Torneo</h3>
+                <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+                    Esta acción reiniciará todos los valores del torneo actual (puntos, goles, pagos, partidos) pero mantendrá la lista de jugadores.
+                </p>
+
+                <button class="btn btn-danger" onclick="confirmResetTournament()">🔄 Reiniciar Torneo</button>
+
+                <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Eliminar Todos los Jugadores</h3>
+                <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+                    Esta acción eliminará todos los jugadores del torneo actual junto con sus datos.
+                </p>
+
+                <button class="btn btn-danger" onclick="confirmDeleteAllPlayers()">🗑️ Eliminar Todos los Jugadores</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
+            authDomain: "crm-futbol.firebaseapp.com",
+            projectId: "crm-futbol",
+            storageBucket: "crm-futbol.firebasestorage.app",
+            messagingSenderId: "222709021751",
+            appId: "1:222709021751:web:94168589472c2ee938d3b2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentTournament = 'torneo1';
+        let players = [];
+        let tournamentData = {};
+
+        window.showTab = function(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-tabs button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tabName === 'estadisticas') {
+                updateStatistics();
+            }
+        };
+
+        window.selectTournament = async function(tournament) {
+            currentTournament = tournament;
+            
+            document.querySelectorAll('.tournament-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById('torneo1Btn')?.classList.toggle('active', tournament === 'torneo1');
+            document.getElementById('torneo2Btn')?.classList.toggle('active', tournament === 'torneo2');
+            document.getElementById('torneo1BtnPagos')?.classList.toggle('active', tournament === 'torneo1');
+            document.getElementById('torneo2BtnPagos')?.classList.toggle('active', tournament === 'torneo2');
+            document.getElementById('torneo1BtnPartidos')?.classList.toggle('active', tournament === 'torneo1');
+            document.getElementById('torneo2BtnPartidos')?.classList.toggle('active', tournament === 'torneo2');
+            document.getElementById('torneo1BtnStats')?.classList.toggle('active', tournament === 'torneo1');
+            document.getElementById('torneo2BtnStats')?.classList.toggle('active', tournament === 'torneo2');
+            document.getElementById('torneo1BtnConfig')?.classList.toggle('active', tournament === 'torneo1');
+            document.getElementById('torneo2BtnConfig')?.classList.toggle('active', tournament === 'torneo2');
+
+            await loadTournamentData();
+            await loadPlayers();
+            updateAllViews();
+        };
+
+        async function loadTournamentData() {
+            const docRef = doc(db, "tournaments", currentTournament);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                tournamentData = docSnap.data();
+            } else {
+                tournamentData = {
+                    name: currentTournament === 'torneo1' ? 'Torneo 1' : 'Torneo 2',
+                    totalInscription: 0,
+                    inscriptionPerPlayer: 0,
+                    phase: 'Fase de Grupos',
+                    matches: [],
+                    stats: {
+                        points: 0,
+                        wins: 0,
+                        draws: 0,
+                        losses: 0,
+                        goalsScored: 0,
+                        goalsConceded: 0,
+                        yellowCards: 0,
+                        blueCards: 0,
+                        redCards: 0,
+                        totalReferee: 0
+                    }
+                };
+                await setDoc(docRef, tournamentData);
+            }
+
+            document.getElementById('currentTournamentName').textContent = tournamentData.name;
+            document.getElementById('tournamentName').value = tournamentData.name;
+            document.getElementById('currentPhase').textContent = tournamentData.phase;
+            document.getElementById('phaseInfo').innerHTML = `<strong>Fase Actual:</strong> ${tournamentData.phase}`;
+        }
+
+        async function loadPlayers() {
+            const q = query(collection(db, "players"), where("tournament", "==", currentTournament));
+            const querySnapshot = await getDocs(q);
+            
+            players = [];
+            querySnapshot.forEach((doc) => {
+                players.push({ id: doc.id, ...doc.data() });
+            });
+        }
+
+        window.addPlayer = async function() {
+            const name = document.getElementById('playerName').value.trim();
+            const number = document.getElementById('playerNumber').value;
+
+            if (!name || !number) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            const playerData = {
+                name: name,
+                number: parseInt(number),
+                tournament: currentTournament,
+                payments: [],
+                totalPaid: 0
+            };
+
+            await setDoc(doc(collection(db, "players")), playerData);
+            
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerNumber').value = '';
+            
+            await loadPlayers();
+            updateAllViews();
+        };
+
+        window.deletePlayer = async function(playerId) {
+            if (confirm('¿Estás seguro de eliminar este jugador?')) {
+                await deleteDoc(doc(db, "players", playerId));
+                await loadPlayers();
+                updateAllViews();
+            }
+        };
+
+        window.editPlayer = async function(playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            const newName = prompt('Nuevo nombre:', player.name);
+            const newNumber = prompt('Nuevo número:', player.number);
+
+            if (newName && newNumber) {
+                await updateDoc(doc(db, "players", playerId), {
+                    name: newName,
+                    number: parseInt(newNumber)
+                });
+                await loadPlayers();
+                updateAllViews();
+            }
+        };
+
+        window.setInscriptionValue = async function() {
+            const total = parseFloat(document.getElementById('totalInscription').value);
+            
+            if (!total || players.length === 0) {
+                alert('Ingresa un valor válido y asegúrate de tener jugadores registrados');
+                return;
+            }
+
+            const perPlayer = total / players.length;
+            
+            tournamentData.totalInscription = total;
+            tournamentData.inscriptionPerPlayer = perPlayer;
+            
+            await updateDoc(doc(db, "tournaments", currentTournament), {
+                totalInscription: total,
+                inscriptionPerPlayer: perPlayer
+            });
+
+            updateAllViews();
+            alert(`Inscripción calculada: $${perPlayer.toFixed(0)} COP por jugador`);
+        };
+
+        window.registerPayment = async function() {
+            const playerId = document.getElementById('playerSelectPayment').value;
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+
+            if (!playerId || !amount) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            const player = players.find(p => p.id === playerId);
+            const newPayments = [...(player.payments || []), { amount, date: new Date().toISOString() }];
+            const newTotal = (player.totalPaid || 0) + amount;
+
+            await updateDoc(doc(db, "players", playerId), {
+                payments: newPayments,
+                totalPaid: newTotal
+            });
+
+            document.getElementById('paymentAmount').value = '';
+            
+            await loadPlayers();
+            updateAllViews();
+            alert('Abono registrado exitosamente');
+        };
+
+        window.registerMatch = async function() {
+            const goalsScored = parseInt(document.getElementById('goalsScored').value) || 0;
+            const goalsConceded = parseInt(document.getElementById('goalsConceded').value) || 0;
+            const yellowCards = parseInt(document.getElementById('yellowCards').value) || 0;
+            const blueCards = parseInt(document.getElementById('blueCards').value) || 0;
+            const redCards = parseInt(document.getElementById('redCards').value) || 0;
+            const refereeValue = parseFloat(document.getElementById('refereeValue').value) || 0;
+
+            const presentPlayers = [];
+            document.querySelectorAll('#playersPresent input[type="checkbox"]:checked').forEach(cb => {
+                presentPlayers.push(cb.value);
+            });
+
+            if (presentPlayers.length === 0) {
+                alert('Selecciona al menos un jugador presente');
+                return;
+            }
+
+            let points = 0;
+            let result = '';
+            if (goalsScored > goalsConceded) {
+                points = 2;
+                result = 'Victoria';
+            } else if (goalsScored === goalsConceded) {
+                points = 1;
+                result = 'Empate';
+            } else {
+                points = 0;
+                result = 'Derrota';
+            }
+
+            const refereePerPlayer = refereeValue / presentPlayers.length;
+
+            const matchData = {
+                date: new Date().toISOString(),
+                goalsScored,
+                goalsConceded,
+                yellowCards,
+                blueCards,
+                redCards,
+                refereeValue,
+                presentPlayers,
+                refereePerPlayer,
+                points,
+                result
+            };
+
+            const newMatches = [...(tournamentData.matches || []), matchData];
+
+            const newStats = {
+                points: (tournamentData.stats?.points || 0) + points,
+                wins: (tournamentData.stats?.wins || 0) + (result === 'Victoria' ? 1 : 0),
+                draws: (tournamentData.stats?.draws || 0) + (result === 'Empate' ? 1 : 0),
+                losses: (tournamentData.stats?.losses || 0) + (result === 'Derrota' ? 1 : 0),
+                goalsScored: (tournamentData.stats?.goalsScored || 0) + goalsScored,
+                goalsConceded: (tournamentData.stats?.goalsConceded || 0) + goalsConceded,
+                yellowCards: (tournamentData.stats?.yellowCards || 0) + yellowCards,
+                blueCards: (tournamentData.stats?.blueCards || 0) + blueCards,
+                redCards: (tournamentData.stats?.redCards || 0) + redCards,
+                totalReferee: (tournamentData.stats?.totalReferee || 0) + refereeValue
+            };
+
+            await updateDoc(doc(db, "tournaments", currentTournament), {
+                matches: newMatches,
+                stats: newStats
+            });
+
+            document.getElementById('goalsScored').value = '0';
+            document.getElementById('goalsConceded').value = '0';
+            document.getElementById('yellowCards').value = '0';
+            document.getElementById('blueCards').value = '0';
+            document.getElementById('redCards').value = '0';
+            document.getElementById('refereeValue').value = '';
+            document.querySelectorAll('#playersPresent input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+            await loadTournamentData();
+            updateAllViews();
+            alert(`Partido registrado - Resultado: ${result} (${points} puntos)`);
+        };
+
+        window.updateTournamentName = async function() {
+            const name = document.getElementById('tournamentName').value.trim();
+            
+            if (!name) {
+                alert('Ingresa un nombre válido');
+                return;
+            }
+
+            await updateDoc(doc(db, "tournaments", currentTournament), {
+                name: name
+            });
+
+            await loadTournamentData();
+            alert('Nombre actualizado');
+        };
+
+        window.setPhase = async function(phase) {
+            await updateDoc(doc(db, "tournaments", currentTournament), {
+                phase: phase
+            });
+
+            await loadTournamentData();
+            updateAllViews();
+            alert(`Fase actualizada a: ${phase}`);
+        };
+
+        window.confirmResetTournament = async function() {
+            const confirmation = confirm('¿Estás seguro de reiniciar el torneo? Se perderán todos los datos de partidos, pagos y estadísticas.');
+            
+            if (confirmation) {
+                // Reiniciar pagos de jugadores
+                for (const player of players) {
+                    await updateDoc(doc(db, "players", player.id), {
+                        payments: [],
+                        totalPaid: 0
+                    });
+                }
+
+                // Reiniciar datos del torneo
+                await updateDoc(doc(db, "tournaments", currentTournament), {
+                    totalInscription: 0,
+                    inscriptionPerPlayer: 0,
+                    phase: 'Fase de Grupos',
+                    matches: [],
+                    stats: {
+                        points: 0,
+                        wins: 0,
+                        draws: 0,
+                        losses: 0,
+                        goalsScored: 0,
+                        goalsConceded: 0,
+                        yellowCards: 0,
+                        blueCards: 0,
+                        redCards: 0,
+                        totalReferee: 0
+                    }
+                });
+
+                await loadTournamentData();
+                await loadPlayers();
+                updateAllViews();
+                alert('Torneo reiniciado exitosamente');
+            }
+        };
+
+        window.confirmDeleteAllPlayers = async function() {
+            const confirmation = confirm('¿Estás seguro de eliminar TODOS los jugadores del torneo actual?');
+            
+            if (confirmation) {
+                for (const player of players) {
+                    await deleteDoc(doc(db, "players", player.id));
+                }
+
+                await loadPlayers();
+                updateAllViews();
+                alert('Todos los jugadores han sido eliminados');
+            }
+        };
+
+        function updateAllViews() {
+            updatePlayersList();
+            updatePaymentsList();
+            updatePlayerSelectors();
+            updateMatchesView();
+            updateStatistics();
+            updateInscriptionInfo();
+        }
+
+        function updatePlayersList() {
+            const container = document.getElementById('playersList');
+            
+            if (players.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</p>';
+                return;
+            }
+
+            container.innerHTML = players.map(player => `
+                <div class="player-card">
+                    <h3>${player.name} - #${player.number}</h3>
+                    <div class="player-actions">
+                        <button class="btn-warning" onclick="editPlayer('${player.id}')">✏️ Editar</button>
+                        <button class="btn-danger" onclick="deletePlayer('${player.id}')">🗑️ Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updatePaymentsList() {
+            const container = document.getElementById('paymentsList');
+            
+            if (players.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</p>';
+                return;
+            }
+
+            const perPlayer = tournamentData.inscriptionPerPlayer || 0;
+
+            container.innerHTML = players.map(player => {
+                const paid = player.totalPaid || 0;
+                const pending = perPlayer - paid;
+                const percentage = perPlayer > 0 ? (paid / perPlayer * 100).toFixed(1) : 0;
+
+                return `
+                    <div class="player-card">
+                        <h3>${player.name} - #${player.number}</h3>
+                        <div class="player-info">
+                            <div><strong>Debe pagar:</strong> $${perPlayer.toFixed(0)}</div>
+                            <div><strong>Ha pagado:</strong> $${paid.toFixed(0)}</div>
+                            <div><strong>Pendiente:</strong> $${pending.toFixed(0)}</div>
+                            <div><strong>Progreso:</strong> ${percentage}%</div>
+                        </div>
+                        <div style="background: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px;">
+                            <div style="background: ${pending <= 0 ? '#28a745' : '#ffc107'}; width: ${percentage}%; height: 100%;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updatePlayerSelectors() {
+            const select = document.getElementById('playerSelectPayment');
+            select.innerHTML = '<option value="">-- Seleccionar --</option>' + 
+                players.map(p => `<option value="${p.id}">${p.name} - #${p.number}</option>`).join('');
+
+            const checkboxContainer = document.getElementById('playersPresent');
+            checkboxContainer.innerHTML = players.map(p => `
+                <div class="checkbox-item">
+                    <input type="checkbox" id="player_${p.id}" value="${p.id}" onchange="updateRefereeSummary()">
+                    <label for="player_${p.id}">${p.name} - #${p.number}</label>
+                </div>
+            `).join('');
+        }
+
+        window.updateRefereeSummary = function() {
+            const refereeValue = parseFloat(document.getElementById('refereeValue').value) || 0;
+            const presentCount = document.querySelectorAll('#playersPresent input[type="checkbox"]:checked').length;
+            const perPlayer = presentCount > 0 ? refereeValue / presentCount : 0;
+
+            const summary = document.getElementById('refereeSummary');
+            summary.innerHTML = `
+                <div class="summary-row">
+                    <span>Total Arbitraje:</span>
+                    <strong>$${refereeValue.toFixed(0)} COP</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Jugadores Presentes:</span>
+                    <strong>${presentCount}</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Por Jugador:</span>
+                    <strong>$${perPlayer.toFixed(0)} COP</strong>
+                </div>
+            `;
+        };
+
+        document.getElementById('refereeValue')?.addEventListener('input', updateRefereeSummary);
+
+        function updateMatchesView() {
+            const container = document.getElementById('matchesList');
+            const matches = tournamentData.matches || [];
+
+            if (matches.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay partidos registrados</p>';
+                return;
+            }
+
+            container.innerHTML = matches.map((match, index) => {
+                const date = new Date(match.date).toLocaleDateString('es-CO');
+                return `
+                    <div class="match-card">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Partido #${index + 1} - ${date}</h4>
+                        <div class="summary-row">
+                            <span>Resultado:</span>
+                            <strong>${match.result} (${match.points} pts)</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Goles:</span>
+                            <strong>${match.goalsScored} - ${match.goalsConceded}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tarjetas:</span>
+                            <strong>🟨${match.yellowCards} 🟦${match.blueCards} 🟥${match.redCards}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Arbitraje Total:</span>
+                            <strong>$${match.refereeValue.toFixed(0)}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Por Jugador:</span>
+                            <strong>$${match.refereePerPlayer.toFixed(0)} (${match.presentPlayers.length} presentes)</strong>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStatistics() {
+            const stats = tournamentData.stats || {};
+            const matches = tournamentData.matches || [];
+
+            document.getElementById('totalPoints').textContent = stats.points || 0;
+            document.getElementById('totalMatches').textContent = matches.length;
+            document.getElementById('totalGoalsScored').textContent = stats.goalsScored || 0;
+            document.getElementById('totalGoalsConceded').textContent = stats.goalsConceded || 0;
+            document.getElementById('totalWins').textContent = stats.wins || 0;
+            document.getElementById('totalDraws').textContent = stats.draws || 0;
+            document.getElementById('totalLosses').textContent = stats.losses || 0;
+            document.getElementById('goalDifference').textContent = (stats.goalsScored || 0) - (stats.goalsConceded || 0);
+            
+            document.getElementById('totalYellow').textContent = stats.yellowCards || 0;
+            document.getElementById('totalBlue').textContent = stats.blueCards || 0;
+            document.getElementById('totalRed').textContent = stats.redCards || 0;
+
+            const totalPaid = players.reduce((sum, p) => sum + (p.totalPaid || 0), 0);
+            document.getElementById('totalCollected').textContent = `$${totalPaid.toFixed(0)}`;
+            document.getElementById('totalInscriptionNeeded').textContent = `$${(tournamentData.totalInscription || 0).toFixed(0)}`;
+            document.getElementById('totalRefereeSpent').textContent = `$${(stats.totalReferee || 0).toFixed(0)}`;
+        }
+
+        function updateInscriptionInfo() {
+            const perPlayer = tournamentData.inscriptionPerPlayer || 0;
+            const total = tournamentData.totalInscription || 0;
+            document.getElementById('inscriptionInfo').innerHTML = `
+                <strong>Valor de Inscripción:</strong> $${perPlayer.toFixed(0)} COP por jugador<br>
+                <strong>Inscripción Total del Torneo:</strong> $${total.toFixed(0)} COP
+            `;
+        }
+
+        // Inicializar
+        window.addEventListener('load', async () => {
+            await selectTournament('torneo1');
+        });
+    </script>
+</body>
+</html>
