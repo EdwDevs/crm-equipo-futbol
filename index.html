@@ -1338,24 +1338,32 @@
     const playerId = document.getElementById("playerSelectPayment").value;
     const amount = parseFloat(document.getElementById("paymentAmount").value);
     
-    if (!playerId || !amount) {
-      alert("Por favor completa todos los campos");
+    if (!playerId || !amount || amount <= 0) {
+      alert("Por favor completa todos los campos con valores válidos");
       return;
     }
     
     const player = players.find((p) => p.id === playerId);
-    const newPayments = [...(player.payments || []), { 
-      id: Date.now().toString(),
-      amount, 
-      date: new Date().toISOString() 
-    }];
-    const newTotal = (player.totalPaid || 0) + amount;
+    if (!player) {
+      alert("Jugador no encontrado");
+      return;
+    }
+    
+    const newPayment = {
+      id: Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9),
+      amount: amount,
+      date: new Date().toISOString()
+    };
+    
+    const newPayments = [...(player.payments || []), newPayment];
+    const newTotal = newPayments.reduce((sum, p) => sum + p.amount, 0);
     
     await updateDoc(doc(db, "players", playerId), {
       payments: newPayments,
       totalPaid: newTotal,
     });
     
+    document.getElementById("playerSelectPayment").value = "";
     document.getElementById("paymentAmount").value = "";
     await loadPlayers();
     updateAllViews();
@@ -1422,23 +1430,35 @@
   }
 
   window.editPayment = async function(paymentId) {
-    if (!currentEditingPlayer) return;
+    if (!currentEditingPlayer) {
+      alert("Error: No hay jugador seleccionado");
+      return;
+    }
     
     const payment = currentEditingPlayer.payments.find(p => p.id === paymentId);
-    if (!payment) return;
+    if (!payment) {
+      alert("Error: Abono no encontrado");
+      return;
+    }
     
-    const newAmount = prompt(`Editar monto del abono:\nFecha: ${new Date(payment.date).toLocaleDateString("es-CO")}`, payment.amount);
+    const dateStr = new Date(payment.date).toLocaleDateString("es-CO", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
     
-    if (newAmount === null) return;
+    const newAmount = prompt(`Editar monto del abono\nFecha: ${dateStr}\nMonto actual: $${payment.amount.toFixed(0)}\n\nIngrese el nuevo monto:`, payment.amount);
+    
+    if (newAmount === null || newAmount === "") return;
     
     const amount = parseFloat(newAmount);
     if (isNaN(amount) || amount <= 0) {
-      alert("Monto inválido");
+      alert("Por favor ingrese un monto válido mayor a 0");
       return;
     }
     
     const updatedPayments = currentEditingPlayer.payments.map(p => 
-      p.id === paymentId ? { ...p, amount } : p
+      p.id === paymentId ? { ...p, amount: amount } : p
     );
     
     const newTotal = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
@@ -1452,12 +1472,23 @@
     currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
     updatePaymentHistory();
     updateAllViews();
+    alert("Abono actualizado exitosamente");
   };
 
   window.deletePayment = async function(paymentId) {
-    if (!currentEditingPlayer) return;
+    if (!currentEditingPlayer) {
+      alert("Error: No hay jugador seleccionado");
+      return;
+    }
     
-    if (!confirm("¿Estás seguro de eliminar este abono?")) return;
+    const payment = currentEditingPlayer.payments.find(p => p.id === paymentId);
+    if (!payment) {
+      alert("Error: Abono no encontrado");
+      return;
+    }
+    
+    const dateStr = new Date(payment.date).toLocaleDateString("es-CO");
+    if (!confirm(`¿Estás seguro de eliminar este abono?\n\nFecha: ${dateStr}\nMonto: $${payment.amount.toFixed(0)}`)) return;
     
     const updatedPayments = currentEditingPlayer.payments.filter(p => p.id !== paymentId);
     const newTotal = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
@@ -1471,6 +1502,7 @@
     currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
     updatePaymentHistory();
     updateAllViews();
+    alert("Abono eliminado exitosamente");
   };
 
   window.registerMatch = async function () {
