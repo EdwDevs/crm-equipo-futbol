@@ -1258,9 +1258,34 @@
     const q = query(collection(db, "players"), where("tournament", "==", currentTournament));
     const querySnapshot = await getDocs(q);
     players = [];
-    querySnapshot.forEach((doc) => {
-      players.push({ id: doc.id, ...doc.data() });
-    });
+    
+    for (const docSnap of querySnapshot.docs) {
+      const playerData = { id: docSnap.id, ...docSnap.data() };
+      
+      // Migración: agregar IDs a pagos que no los tengan
+      if (playerData.payments && playerData.payments.length > 0) {
+        let needsUpdate = false;
+        const updatedPayments = playerData.payments.map((payment, index) => {
+          if (!payment.id) {
+            needsUpdate = true;
+            return {
+              ...payment,
+              id: Date.now().toString() + "_" + index + "_" + Math.random().toString(36).substr(2, 9)
+            };
+          }
+          return payment;
+        });
+        
+        if (needsUpdate) {
+          await updateDoc(doc(db, "players", docSnap.id), {
+            payments: updatedPayments
+          });
+          playerData.payments = updatedPayments;
+        }
+      }
+      
+      players.push(playerData);
+    }
   }
 
   window.addPlayer = async function () {
