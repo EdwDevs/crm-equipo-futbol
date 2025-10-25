@@ -2,411 +2,724 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CRM Fútbol Avanzado</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>⚽ CRM Fútbol Avanzado</title>
 <style>
-  /* Estilos simplificados para claridad y adaptados a móvil */
-  * { margin:0; padding:0; box-sizing:border-box; }
+  /* Reset y configuración base */
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+  }
+  
+  :root {
+    --primary: #667eea;
+    --primary-dark: #5568d3;
+    --secondary: #764ba2;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --light: #f8f9fa;
+    --dark: #333;
+    --border: #ddd;
+    --shadow: rgba(0, 0, 0, 0.1);
+    
+    /* Variables responsivas que cambian según el dispositivo */
+    --container-width: 500px;
+    --padding: 10px;
+    --font-base: 14px;
+    --header-size: 24px;
+  }
+  
+  /* Estilos para laptop/desktop */
+  @media (min-width: 768px) {
+    :root {
+      --container-width: 900px;
+      --padding: 20px;
+      --font-base: 16px;
+      --header-size: 28px;
+    }
+  }
+  
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     min-height: 100vh;
-    padding: 10px;
-    color: #333;
+    padding: var(--padding);
+    color: var(--dark);
+    font-size: var(--font-base);
+    line-height: 1.6;
   }
+  
   .container {
-    max-width: 500px;
+    max-width: var(--container-width);
     margin: 0 auto;
     background: white;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 95vh;
   }
+  
+  /* Header optimizado */
   .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
-    padding: 20px;
+    padding: clamp(15px, 3vw, 25px);
     text-align: center;
+    flex-shrink: 0;
   }
-  .header h1 { font-size: 24px; margin-bottom: 10px; }
+  
+  .header h1 { 
+    font-size: var(--header-size);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  
+  .header p {
+    font-size: calc(var(--font-base) * 0.9);
+    opacity: 0.95;
+  }
+  
+  /* Navegación con scroll horizontal mejorado */
   .nav-tabs {
     display: flex;
     overflow-x: auto;
-    background: #f8f9fa;
-    border-bottom: 2px solid #ddd;
+    background: var(--light);
+    border-bottom: 2px solid var(--border);
+    flex-shrink: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--light);
   }
+  
+  .nav-tabs::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .nav-tabs::-webkit-scrollbar-track {
+    background: var(--light);
+  }
+  
+  .nav-tabs::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+  }
+  
   .nav-tabs button {
-    flex: 1;
-    min-width: 80px;
-    padding: 12px 8px;
+    flex: 0 0 auto;
+    min-width: 100px;
+    padding: clamp(10px, 2vw, 14px) clamp(12px, 3vw, 16px);
     border: none;
     background: transparent;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: calc(var(--font-base) * 0.95);
+    font-weight: 600;
     color: #666;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    white-space: nowrap;
   }
+  
   .nav-tabs button.active {
     background: white;
-    color: #667eea;
-    border-bottom: 3px solid #667eea;
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
   }
+  
+  .nav-tabs button:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Contenido con scroll mejorado */
   .content {
-    padding: 15px;
-    max-height: calc(100vh - 180px);
+    padding: clamp(12px, 3vw, 20px);
     overflow-y: auto;
-  }
-  .tournament-selector {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  .tournament-selector button {
     flex: 1;
-    padding: 12px;
-    border: 2px solid #667eea;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--light);
+  }
+  
+  .content::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .content::-webkit-scrollbar-track {
+    background: var(--light);
+  }
+  
+  .content::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+  }
+  
+  /* Selectores de torneo responsivos */
+  .tournament-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(15px, 3vw, 25px);
+  }
+  
+  .tournament-selector button {
+    padding: clamp(10px, 2vw, 14px);
+    border: 2px solid var(--primary);
     background: white;
-    color: #667eea;
+    color: var(--primary);
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    font-size: var(--font-base);
   }
+  
   .tournament-selector button.active {
-    background: #667eea;
+    background: var(--primary);
     color: white;
+    transform: scale(1.05);
   }
+  
+  .tournament-selector button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow);
+  }
+  
+  /* Formularios optimizados */
   .form-group {
-    margin-bottom: 15px;
+    margin-bottom: clamp(12px, 2.5vw, 18px);
   }
+  
   .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     font-weight: 600;
     color: #555;
-    font-size: 14px;
+    font-size: calc(var(--font-base) * 0.95);
   }
-  .form-group input, .form-group select {
+  
+  .form-group input, 
+  .form-group select {
     width: 100%;
-    padding: 10px;
-    border: 2px solid #ddd;
+    padding: clamp(10px, 2vw, 12px);
+    border: 2px solid var(--border);
     border-radius: 8px;
-    font-size: 14px;
-    transition: border 0.3s;
+    font-size: var(--font-base);
+    transition: all 0.3s ease;
   }
-  .form-group input:focus, .form-group select:focus {
+  
+  .form-group input:focus, 
+  .form-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
+  
+  /* Grid responsivo mejorado */
   .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(8px, 2vw, 12px);
   }
+  
+  @media (min-width: 768px) {
+    .form-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  /* Botones mejorados */
   .btn {
     width: 100%;
-    padding: 12px;
+    padding: clamp(10px, 2vw, 14px);
     border: none;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s;
-    margin-top: 10px;
+    font-size: var(--font-base);
+    transition: all 0.3s ease;
+    margin-top: clamp(8px, 2vw, 12px);
   }
-  .btn-primary { background: #667eea; color: white; }
-  .btn-primary:hover { background: #5568d3; }
-  .btn-success { background: #28a745; color: white; }
-  .btn-danger { background: #dc3545; color: white; }
-  .btn-warning { background: #ffc107; color: #333; }
-  .btn-info { background: #17a2b8; color: white; }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+  
+  .btn:active {
+    transform: translateY(0);
+  }
+  
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #218838; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #c82333; }
+  .btn-warning { background: var(--warning); color: var(--dark); }
+  .btn-warning:hover { background: #e0a800; }
+  .btn-info { background: var(--info); color: white; }
+  .btn-info:hover { background: #138496; }
+  
+  /* Tarjetas de jugador responsivas */
   .player-card {
-    background: #f8f9fa;
+    background: var(--light);
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-left: 4px solid #667eea;
+    padding: clamp(12px, 3vw, 18px);
+    margin-bottom: clamp(8px, 2vw, 12px);
+    border-left: 4px solid var(--primary);
+    transition: all 0.3s ease;
   }
+  
+  .player-card:hover {
+    box-shadow: 0 4px 12px var(--shadow);
+    transform: translateX(4px);
+  }
+  
   .player-card h3 {
-    color: #667eea;
-    margin-bottom: 10px;
-    font-size: 16px;
+    color: var(--primary);
+    margin-bottom: clamp(8px, 2vw, 12px);
+    font-size: calc(var(--font-base) * 1.1);
+    word-break: break-word;
   }
+  
   .player-info {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    font-size: 13px;
-    margin-bottom: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(8px, 2vw, 12px);
+    font-size: calc(var(--font-base) * 0.9);
+    margin-bottom: clamp(8px, 2vw, 12px);
   }
+  
   .player-actions {
-    display: flex;
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: clamp(6px, 1.5vw, 10px);
   }
+  
   .player-actions button {
-    flex: 1;
-    padding: 8px;
+    padding: clamp(8px, 1.5vw, 10px);
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: calc(var(--font-base) * 0.85);
     font-weight: bold;
+    transition: all 0.3s ease;
   }
+  
+  /* Grid de estadísticas optimizado */
   .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(15px, 3vw, 25px);
   }
+  
+  @media (min-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
   .stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
-    padding: 15px;
+    padding: clamp(12px, 3vw, 18px);
     border-radius: 10px;
     text-align: center;
+    transition: all 0.3s ease;
   }
+  
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+  
   .stat-card h3 {
-    font-size: 28px;
-    margin-bottom: 5px;
+    font-size: clamp(24px, 5vw, 32px);
+    margin-bottom: 4px;
+    font-weight: 700;
   }
+  
   .stat-card p {
-    font-size: 12px;
-    opacity: 0.9;
+    font-size: calc(var(--font-base) * 0.85);
+    opacity: 0.95;
   }
+  
+  /* Tarjetas de partido */
   .match-card {
-    background: #f8f9fa;
+    background: var(--light);
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
+    padding: clamp(12px, 3vw, 18px);
+    margin-bottom: clamp(8px, 2vw, 12px);
+    border: 1px solid var(--border);
   }
+  
+  .match-card h4 {
+    color: var(--primary);
+    margin-bottom: clamp(8px, 2vw, 12px);
+    font-size: calc(var(--font-base) * 1.05);
+  }
+  
+  /* Alertas */
   .alert {
-    padding: 12px;
+    padding: clamp(10px, 2vw, 14px);
     border-radius: 8px;
-    margin-bottom: 15px;
-    font-size: 14px;
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+    font-size: var(--font-base);
+    line-height: 1.5;
   }
+  
   .alert-info {
     background: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
   }
+  
   .alert-warning {
     background: #fff3cd;
     color: #856404;
     border: 1px solid #ffeaa7;
   }
+  
   .alert-success {
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
   }
+  
+  /* Selector de fases */
   .phase-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: clamp(6px, 1.5vw, 10px);
+    margin-bottom: clamp(12px, 2.5vw, 18px);
   }
+  
   .phase-btn {
-    padding: 8px 12px;
-    border: 2px solid #667eea;
+    padding: clamp(8px, 1.5vw, 12px);
+    border: 2px solid var(--primary);
     background: white;
-    color: #667eea;
-    border-radius: 5px;
+    color: var(--primary);
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: calc(var(--font-base) * 0.85);
     font-weight: bold;
+    transition: all 0.3s ease;
   }
+  
   .phase-btn.active {
-    background: #667eea;
+    background: var(--primary);
     color: white;
   }
-  .hidden { display: none; }
-  .checkbox-group {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 15px;
+  
+  .phase-btn:hover {
+    transform: scale(1.05);
   }
+  
+  /* Grupo de checkboxes mejorado */
+  .checkbox-group {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--light);
+  }
+  
+  .checkbox-group::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .checkbox-group::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+  }
+  
   .checkbox-item {
     display: flex;
     align-items: center;
-    padding: 8px;
-    margin-bottom: 5px;
-    background: #f8f9fa;
-    border-radius: 5px;
+    padding: clamp(8px, 1.5vw, 10px);
+    margin-bottom: 6px;
+    background: white;
+    border-radius: 6px;
+    transition: all 0.2s ease;
   }
+  
+  .checkbox-item:hover {
+    background: var(--light);
+  }
+  
   .checkbox-item input {
     margin-right: 10px;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
   }
+  
   .checkbox-item label {
     margin: 0;
     font-weight: normal;
+    cursor: pointer;
+    flex: 1;
+    font-size: var(--font-base);
   }
+  
+  /* Resumen */
   .summary {
     background: #e9ecef;
-    padding: 15px;
+    padding: clamp(12px, 3vw, 18px);
     border-radius: 8px;
-    margin-top: 15px;
+    margin-top: clamp(12px, 2.5vw, 18px);
   }
+  
   .summary-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 14px;
+    margin-bottom: clamp(6px, 1.5vw, 10px);
+    font-size: var(--font-base);
+    gap: 10px;
   }
+  
+  .summary-row:last-child {
+    margin-bottom: 0;
+  }
+  
   .summary-row strong {
-    color: #667eea;
+    color: var(--primary);
+    font-weight: 700;
   }
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: #667eea;
-  }
-  .section-divider {
-    border-top: 2px solid #ddd;
-    margin: 25px 0;
-    padding-top: 25px;
-  }
+  
+  /* Tarjeta de ajuste */
   .adjustment-card {
     background: #fff3cd;
-    border: 2px solid #ffc107;
+    border: 2px solid var(--warning);
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: clamp(12px, 3vw, 18px);
+    margin-bottom: clamp(15px, 3vw, 25px);
   }
+  
   .adjustment-card h4 {
     color: #856404;
-    margin-bottom: 15px;
+    margin-bottom: clamp(12px, 2.5vw, 18px);
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: calc(var(--font-base) * 1.1);
+  }
+  
+  /* Utilidades */
+  .hidden { 
+    display: none !important; 
+  }
+  
+  .section-divider {
+    border-top: 2px solid var(--border);
+    margin: clamp(20px, 4vw, 30px) 0;
+    padding-top: clamp(20px, 4vw, 30px);
+  }
+  
+  .loading {
+    text-align: center;
+    padding: clamp(15px, 3vw, 25px);
+    color: var(--primary);
+    font-size: calc(var(--font-base) * 1.1);
+  }
+  
+  /* Títulos de sección */
+  h3.section-title {
+    margin-top: clamp(20px, 4vw, 30px);
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+    color: var(--primary);
+    font-size: calc(var(--font-base) * 1.2);
+    font-weight: 700;
+  }
+  
+  h3.section-title:first-child {
+    margin-top: 0;
+  }
+  
+  /* Ajustes específicos para móviles pequeños */
+  @media (max-width: 360px) {
+    .tournament-selector {
+      grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .phase-selector {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  /* Mejoras para tablets */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  /* Indicador de dispositivo (opcional, para debug) */
+  .device-indicator {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    z-index: 9999;
+    display: none; /* Oculto por defecto */
+  }
+  
+  /* Animaciones suaves */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .tab-content {
+    animation: fadeIn 0.3s ease;
   }
 </style>
 </head>
 <body>
+<!-- Indicador de dispositivo (descomentar para debug) -->
+<!-- <div class="device-indicator" id="deviceIndicator"></div> -->
+
 <div class="container">
   <div class="header">
     <h1>⚽ CRM Fútbol Avanzado</h1>
     <p id="currentTournamentName">Selecciona un torneo</p>
   </div>
-
+  
   <div class="nav-tabs">
-    <button class="active" onclick="showTab('jugadores')">Jugadores</button>
-    <button onclick="showTab('pagos')">Pagos</button>
-    <button onclick="showTab('partidos')">Partidos</button>
-    <button onclick="showTab('estadisticas')">Estadísticas</button>
-    <button onclick="showTab('config')">Config</button>
+    <button class="active" onclick="showTab('jugadores')">👥 Jugadores</button>
+    <button onclick="showTab('pagos')">💰 Pagos</button>
+    <button onclick="showTab('partidos')">⚽ Partidos</button>
+    <button onclick="showTab('estadisticas')">📊 Estadísticas</button>
+    <button onclick="showTab('config')">⚙️ Config</button>
   </div>
-
+  
   <div class="content">
     <!-- JUGADORES -->
     <div id="jugadores" class="tab-content">
       <div class="tournament-selector">
-        <button id="torneo1Btn" onclick="selectTournament('torneo1')">Torneo 1</button>
-        <button id="torneo2Btn" onclick="selectTournament('torneo2')">Torneo 2</button>
+        <button id="torneo1Btn" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2Btn" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
       </div>
-
+      
       <div class="form-group">
         <label>Nombre del Jugador</label>
         <input type="text" id="playerName" placeholder="Ej: Juan Pérez" />
       </div>
-
+      
       <div class="form-group">
         <label>Número de Camiseta</label>
-        <input type="number" id="playerNumber" placeholder="Ej: 10" />
+        <input type="number" id="playerNumber" placeholder="Ej: 10" min="1" max="99" />
       </div>
-
+      
       <button class="btn btn-primary" onclick="addPlayer()">➕ Agregar Jugador</button>
-
-      <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Lista de Jugadores</h3>
+      
+      <h3 class="section-title">Lista de Jugadores</h3>
       <div id="playersList"></div>
     </div>
-
+    
     <!-- PAGOS -->
     <div id="pagos" class="tab-content hidden">
       <div class="tournament-selector">
-        <button id="torneo1BtnPagos" onclick="selectTournament('torneo1')">Torneo 1</button>
-        <button id="torneo2BtnPagos" onclick="selectTournament('torneo2')">Torneo 2</button>
+        <button id="torneo1BtnPagos" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnPagos" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
       </div>
-
+      
       <div class="alert alert-info" id="inscriptionInfo">
         <strong>Valor de Inscripción:</strong> $0 COP por jugador
       </div>
-
+      
       <div class="form-group">
         <label>Valor Total de Inscripción del Torneo</label>
-        <input type="number" id="totalInscription" placeholder="Ej: 500000" />
+        <input type="number" id="totalInscription" placeholder="Ej: 500000" min="0" />
       </div>
-
-      <button class="btn btn-success" onclick="setInscriptionValue()">Calcular Inscripción por Jugador</button>
-
-      <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Registrar Abono</h3>
-
+      
+      <button class="btn btn-success" onclick="setInscriptionValue()">📊 Calcular Inscripción por Jugador</button>
+      
+      <h3 class="section-title">Registrar Abono</h3>
+      
       <div class="form-group">
         <label>Seleccionar Jugador</label>
         <select id="playerSelectPayment">
           <option value="">-- Seleccionar --</option>
         </select>
       </div>
-
+      
       <div class="form-group">
         <label>Monto del Abono (COP)</label>
-        <input type="number" id="paymentAmount" placeholder="Ej: 50000" />
+        <input type="number" id="paymentAmount" placeholder="Ej: 50000" min="0" />
       </div>
-
+      
       <button class="btn btn-primary" onclick="registerPayment()">💰 Registrar Abono</button>
-
-      <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Estado de Pagos</h3>
+      
+      <h3 class="section-title">Estado de Pagos</h3>
       <div id="paymentsList"></div>
     </div>
-
+    
     <!-- PARTIDOS -->
     <div id="partidos" class="tab-content hidden">
       <div class="tournament-selector">
-        <button id="torneo1BtnPartidos" onclick="selectTournament('torneo1')">Torneo 1</button>
-        <button id="torneo2BtnPartidos" onclick="selectTournament('torneo2')">Torneo 2</button>
+        <button id="torneo1BtnPartidos" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnPartidos" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
       </div>
-
-      <h3 style="margin-bottom: 15px; color: #667eea;">Registrar Partido</h3>
-
+      
+      <h3 class="section-title">Registrar Partido</h3>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>⚽ Goles Anotados</label>
+          <input type="number" id="goalsScored" placeholder="0" value="0" min="0" />
+        </div>
+        
+        <div class="form-group">
+          <label>🥅 Goles Recibidos</label>
+          <input type="number" id="goalsConceded" placeholder="0" value="0" min="0" />
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>🟨 Tarjetas Amarillas</label>
+          <input type="number" id="yellowCards" placeholder="0" value="0" min="0" />
+        </div>
+        
+        <div class="form-group">
+          <label>🟦 Tarjetas Azules</label>
+          <input type="number" id="blueCards" placeholder="0" value="0" min="0" />
+        </div>
+      </div>
+      
       <div class="form-group">
-        <label>Goles Anotados</label>
-        <input type="number" id="goalsScored" placeholder="0" value="0" />
+        <label>🟥 Tarjetas Rojas</label>
+        <input type="number" id="redCards" placeholder="0" value="0" min="0" />
       </div>
-
+      
       <div class="form-group">
-        <label>Goles Recibidos</label>
-        <input type="number" id="goalsConceded" placeholder="0" value="0" />
+        <label>💵 Valor del Arbitraje (COP)</label>
+        <input type="number" id="refereeValue" placeholder="Ej: 80000" min="0" />
       </div>
-
-      <div class="form-group">
-        <label>Tarjetas Amarillas</label>
-        <input type="number" id="yellowCards" placeholder="0" value="0" />
-      </div>
-
-      <div class="form-group">
-        <label>Tarjetas Azules</label>
-        <input type="number" id="blueCards" placeholder="0" value="0" />
-      </div>
-
-      <div class="form-group">
-        <label>Tarjetas Rojas</label>
-        <input type="number" id="redCards" placeholder="0" value="0" />
-      </div>
-
-      <div class="form-group">
-        <label>Valor del Arbitraje (COP)</label>
-        <input type="number" id="refereeValue" placeholder="Ej: 80000" />
-      </div>
-
-      <h4 style="margin-bottom: 10px; color: #667eea;">Jugadores Presentes</h4>
+      
+      <h4 style="margin-bottom: 10px; color: var(--primary); font-size: calc(var(--font-base) * 1.05);">Jugadores Presentes</h4>
       <div class="checkbox-group" id="playersPresent"></div>
-
+      
       <div class="summary" id="refereeSummary">
         <div class="summary-row">
           <span>Total Arbitraje:</span>
@@ -421,24 +734,24 @@
           <strong>$0 COP</strong>
         </div>
       </div>
-
+      
       <button class="btn btn-success" onclick="registerMatch()">⚽ Registrar Partido</button>
-
-      <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Historial de Partidos</h3>
+      
+      <h3 class="section-title">Historial de Partidos</h3>
       <div id="matchesList"></div>
     </div>
-
+    
     <!-- ESTADÍSTICAS -->
     <div id="estadisticas" class="tab-content hidden">
       <div class="tournament-selector">
-        <button id="torneo1BtnStats" onclick="selectTournament('torneo1')">Torneo 1</button>
-        <button id="torneo2BtnStats" onclick="selectTournament('torneo2')">Torneo 2</button>
+        <button id="torneo1BtnStats" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnStats" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
       </div>
-
+      
       <div class="alert alert-info" id="phaseInfo">
         <strong>Fase Actual:</strong> Fase de Grupos
       </div>
-
+      
       <div class="stats-grid">
         <div class="stat-card">
           <h3 id="totalPoints">0</h3>
@@ -493,9 +806,9 @@
           <p>Diferencia de Goles</p>
         </div>
       </div>
-
+      
       <div class="match-card">
-        <h4 style="margin-bottom: 10px; color: #667eea;">Tarjetas Acumuladas</h4>
+        <h4>📋 Tarjetas Acumuladas</h4>
         <div class="summary-row">
           <span>🟨 Amarillas:</span>
           <strong id="totalYellow">0</strong>
@@ -513,9 +826,9 @@
           <strong id="avgCards">0</strong>
         </div>
       </div>
-
+      
       <div class="match-card">
-        <h4 style="margin-bottom: 10px; color: #667eea;">Finanzas</h4>
+        <h4>💼 Finanzas</h4>
         <div class="summary-row">
           <span>💰 Total Recaudado:</span>
           <strong id="totalCollected">$0</strong>
@@ -530,120 +843,118 @@
         </div>
       </div>
     </div>
-
+    
     <!-- CONFIG -->
     <div id="config" class="tab-content hidden">
       <div class="tournament-selector">
-        <button id="torneo1BtnConfig" onclick="selectTournament('torneo1')">Torneo 1</button>
-        <button id="torneo2BtnConfig" onclick="selectTournament('torneo2')">Torneo 2</button>
+        <button id="torneo1BtnConfig" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnConfig" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
       </div>
-
+      
       <div class="form-group">
         <label>Nombre del Torneo</label>
         <input type="text" id="tournamentName" placeholder="Ej: Liga de Verano 2025" />
       </div>
-
+      
       <button class="btn btn-primary" onclick="updateTournamentName()">💾 Guardar Nombre</button>
-
-      <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Fase del Torneo</h3>
-
+      
+      <h3 class="section-title">Fase del Torneo</h3>
+      
       <div class="phase-selector">
-        <button class="phase-btn" onclick="setPhase('Fase de Grupos')">Fase de Grupos</button>
-        <button class="phase-btn" onclick="setPhase('Dieciseisavos de Final')">Dieciseisavos</button>
-        <button class="phase-btn" onclick="setPhase('Octavos de Final')">Octavos</button>
-        <button class="phase-btn" onclick="setPhase('Cuartos de Final')">Cuartos</button>
+        <button class="phase-btn" onclick="setPhase('Fase de Grupos')">Grupos</button>
+        <button class="phase-btn" onclick="setPhase('Dieciseisavos de Final')">1/16</button>
+        <button class="phase-btn" onclick="setPhase('Octavos de Final')">1/8</button>
+        <button class="phase-btn" onclick="setPhase('Cuartos de Final')">1/4</button>
         <button class="phase-btn" onclick="setPhase('Semifinal')">Semifinal</button>
         <button class="phase-btn" onclick="setPhase('Final')">Final</button>
       </div>
-
+      
       <div class="alert alert-warning">
         <strong>⚠️ Fase Actual:</strong> <span id="currentPhase">Fase de Grupos</span>
       </div>
-
+      
       <div class="section-divider">
         <div class="adjustment-card">
           <h4>📊 Ajustar Estadísticas Manualmente</h4>
-          <p style="font-size: 13px; color: #856404; margin-bottom: 15px;">
+          <p style="font-size: calc(var(--font-base) * 0.9); color: #856404; margin-bottom: 15px;">
             Usa esta opción para ingresar datos de partidos ya jugados antes de usar el sistema.
           </p>
-
+          
           <div class="form-grid">
             <div class="form-group">
               <label>Puntos</label>
-              <input type="number" id="adjustPoints" placeholder="0" value="0" />
+              <input type="number" id="adjustPoints" placeholder="0" value="0" min="0" />
             </div>
             <div class="form-group">
               <label>Partidos Jugados</label>
-              <input type="number" id="adjustMatches" placeholder="0" value="0" />
+              <input type="number" id="adjustMatches" placeholder="0" value="0" min="0" />
             </div>
           </div>
-
+          
           <div class="form-grid">
             <div class="form-group">
               <label>Goles Anotados</label>
-              <input type="number" id="adjustGoalsScored" placeholder="0" value="0" />
+              <input type="number" id="adjustGoalsScored" placeholder="0" value="0" min="0" />
             </div>
             <div class="form-group">
               <label>Goles Recibidos</label>
-              <input type="number" id="adjustGoalsConceded" placeholder="0" value="0" />
+              <input type="number" id="adjustGoalsConceded" placeholder="0" value="0" min="0" />
             </div>
           </div>
-
+          
           <div class="form-grid">
             <div class="form-group">
               <label>Victorias</label>
-              <input type="number" id="adjustWins" placeholder="0" value="0" />
+              <input type="number" id="adjustWins" placeholder="0" value="0" min="0" />
             </div>
             <div class="form-group">
               <label>Empates</label>
-              <input type="number" id="adjustDraws" placeholder="0" value="0" />
+              <input type="number" id="adjustDraws" placeholder="0" value="0" min="0" />
             </div>
           </div>
-
+          
           <div class="form-grid">
             <div class="form-group">
               <label>Derrotas</label>
-              <input type="number" id="adjustLosses" placeholder="0" value="0" />
+              <input type="number" id="adjustLosses" placeholder="0" value="0" min="0" />
             </div>
             <div class="form-group">
               <label>🟨 Amarillas</label>
-              <input type="number" id="adjustYellow" placeholder="0" value="0" />
+              <input type="number" id="adjustYellow" placeholder="0" value="0" min="0" />
             </div>
           </div>
-
+          
           <div class="form-grid">
             <div class="form-group">
               <label>🟦 Azules</label>
-              <input type="number" id="adjustBlue" placeholder="0" value="0" />
+              <input type="number" id="adjustBlue" placeholder="0" value="0" min="0" />
             </div>
             <div class="form-group">
               <label>🟥 Rojas</label>
-              <input type="number" id="adjustRed" placeholder="0" value="0" />
+              <input type="number" id="adjustRed" placeholder="0" value="0" min="0" />
             </div>
           </div>
-
+          
           <div class="form-group">
             <label>Total Gastado en Arbitrajes (COP)</label>
-            <input type="number" id="adjustReferee" placeholder="0" value="0" />
+            <input type="number" id="adjustReferee" placeholder="0" value="0" min="0" />
           </div>
-
+          
           <button class="btn btn-info" onclick="loadCurrentStats()">📥 Cargar Valores Actuales</button>
           <button class="btn btn-success" onclick="saveAdjustedStats()">💾 Guardar Ajustes</button>
         </div>
       </div>
-
-      <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Reiniciar Torneo</h3>
-      <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+      
+      <h3 class="section-title">Reiniciar Torneo</h3>
+      <p style="margin-bottom: 15px; font-size: var(--font-base); color: #666; line-height: 1.6;">
         Esta acción reiniciará todos los valores del torneo actual (puntos, goles, pagos, partidos) pero mantendrá la lista de jugadores.
       </p>
-
       <button class="btn btn-danger" onclick="confirmResetTournament()">🔄 Reiniciar Torneo</button>
-
-      <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Eliminar Todos los Jugadores</h3>
-      <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+      
+      <h3 class="section-title">Eliminar Todos los Jugadores</h3>
+      <p style="margin-bottom: 15px; font-size: var(--font-base); color: #666; line-height: 1.6;">
         Esta acción eliminará todos los jugadores del torneo actual junto con sus datos.
       </p>
-
       <button class="btn btn-danger" onclick="confirmDeleteAllPlayers()">🗑️ Eliminar Todos los Jugadores</button>
     </div>
   </div>
@@ -664,6 +975,7 @@
     where,
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+  // Configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
     authDomain: "crm-futbol.firebaseapp.com",
@@ -676,17 +988,43 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  // Variables globales
   let currentTournament = "torneo1";
   let players = [];
   let tournamentData = {};
 
+  // Detección de dispositivo (opcional para debug)
+  function detectDevice() {
+    const width = window.innerWidth;
+    let device = 'Móvil';
+    
+    if (width >= 1024) {
+      device = 'Desktop';
+    } else if (width >= 768) {
+      device = 'Tablet';
+    }
+    
+    // Descomentar para ver el indicador
+    // const indicator = document.getElementById('deviceIndicator');
+    // if (indicator) {
+    //   indicator.textContent = `${device} (${width}px)`;
+    //   indicator.style.display = 'block';
+    // }
+    
+    return device;
+  }
+
+  // Llamar a la detección al cargar y al redimensionar
+  detectDevice();
+  window.addEventListener('resize', detectDevice);
+
+  // Funciones de navegación
   window.showTab = function (tabName) {
     document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.add("hidden"));
     document.getElementById(tabName).classList.remove("hidden");
-
     document.querySelectorAll(".nav-tabs button").forEach((btn) => btn.classList.remove("active"));
     event.target.classList.add("active");
-
+    
     if (tabName === "estadisticas") {
       updateStatistics();
     }
@@ -694,11 +1032,12 @@
 
   window.selectTournament = async function (tournament) {
     currentTournament = tournament;
-
+    
+    // Actualizar botones activos
     document.querySelectorAll(".tournament-selector button").forEach((btn) => {
       btn.classList.remove("active");
     });
-
+    
     [
       "torneo1Btn",
       "torneo2Btn",
@@ -720,10 +1059,11 @@
     updateAllViews();
   };
 
+  // Cargar datos del torneo
   async function loadTournamentData() {
     const docRef = doc(db, "tournaments", currentTournament);
     const docSnap = await getDoc(docRef);
-
+    
     if (docSnap.exists()) {
       tournamentData = docSnap.data();
     } else {
@@ -749,32 +1089,33 @@
       };
       await setDoc(docRef, tournamentData);
     }
-
+    
     document.getElementById("currentTournamentName").textContent = tournamentData.name;
     document.getElementById("tournamentName").value = tournamentData.name;
     document.getElementById("currentPhase").textContent = tournamentData.phase;
     document.getElementById("phaseInfo").innerHTML = `<strong>Fase Actual:</strong> ${tournamentData.phase}`;
   }
 
+  // Cargar jugadores
   async function loadPlayers() {
     const q = query(collection(db, "players"), where("tournament", "==", currentTournament));
     const querySnapshot = await getDocs(q);
-
     players = [];
     querySnapshot.forEach((doc) => {
       players.push({ id: doc.id, ...doc.data() });
     });
   }
 
+  // Agregar jugador
   window.addPlayer = async function () {
     const name = document.getElementById("playerName").value.trim();
     const number = document.getElementById("playerNumber").value;
-
+    
     if (!name || !number) {
       alert("Por favor completa todos los campos");
       return;
     }
-
+    
     const playerData = {
       name: name,
       number: parseInt(number),
@@ -782,16 +1123,16 @@
       payments: [],
       totalPaid: 0,
     };
-
+    
     await setDoc(doc(collection(db, "players")), playerData);
-
     document.getElementById("playerName").value = "";
     document.getElementById("playerNumber").value = "";
-
+    
     await loadPlayers();
     updateAllViews();
   };
 
+  // Eliminar jugador
   window.deletePlayer = async function (playerId) {
     if (confirm("¿Estás seguro de eliminar este jugador?")) {
       await deleteDoc(doc(db, "players", playerId));
@@ -800,13 +1141,14 @@
     }
   };
 
+  // Editar jugador
   window.editPlayer = async function (playerId) {
     const player = players.find((p) => p.id === playerId);
     if (!player) return;
-
+    
     const newName = prompt("Nuevo nombre:", player.name);
     const newNumber = prompt("Nuevo número:", player.number);
-
+    
     if (newName && newNumber) {
       await updateDoc(doc(db, "players", playerId), {
         name: newName,
@@ -817,53 +1159,54 @@
     }
   };
 
+  // Establecer valor de inscripción
   window.setInscriptionValue = async function () {
     const total = parseFloat(document.getElementById("totalInscription").value);
-
+    
     if (!total || players.length === 0) {
       alert("Ingresa un valor válido y asegúrate de tener jugadores registrados");
       return;
     }
-
+    
     const perPlayer = total / players.length;
-
     tournamentData.totalInscription = total;
     tournamentData.inscriptionPerPlayer = perPlayer;
-
+    
     await updateDoc(doc(db, "tournaments", currentTournament), {
       totalInscription: total,
       inscriptionPerPlayer: perPlayer,
     });
-
+    
     updateAllViews();
     alert(`Inscripción calculada: $${perPlayer.toFixed(0)} COP por jugador`);
   };
 
+  // Registrar pago
   window.registerPayment = async function () {
     const playerId = document.getElementById("playerSelectPayment").value;
     const amount = parseFloat(document.getElementById("paymentAmount").value);
-
+    
     if (!playerId || !amount) {
       alert("Por favor completa todos los campos");
       return;
     }
-
+    
     const player = players.find((p) => p.id === playerId);
     const newPayments = [...(player.payments || []), { amount, date: new Date().toISOString() }];
     const newTotal = (player.totalPaid || 0) + amount;
-
+    
     await updateDoc(doc(db, "players", playerId), {
       payments: newPayments,
       totalPaid: newTotal,
     });
-
+    
     document.getElementById("paymentAmount").value = "";
-
     await loadPlayers();
     updateAllViews();
     alert("Abono registrado exitosamente");
   };
 
+  // Registrar partido
   window.registerMatch = async function () {
     const goalsScored = parseInt(document.getElementById("goalsScored").value) || 0;
     const goalsConceded = parseInt(document.getElementById("goalsConceded").value) || 0;
@@ -871,19 +1214,20 @@
     const blueCards = parseInt(document.getElementById("blueCards").value) || 0;
     const redCards = parseInt(document.getElementById("redCards").value) || 0;
     const refereeValue = parseFloat(document.getElementById("refereeValue").value) || 0;
-
+    
     const presentPlayers = [];
     document.querySelectorAll("#playersPresent input[type='checkbox']:checked").forEach((cb) => {
       presentPlayers.push(cb.value);
     });
-
+    
     if (presentPlayers.length === 0) {
       alert("Selecciona al menos un jugador presente");
       return;
     }
-
+    
     let points = 0;
     let result = "";
+    
     if (goalsScored > goalsConceded) {
       points = 2;
       result = "Victoria";
@@ -894,9 +1238,9 @@
       points = 0;
       result = "Derrota";
     }
-
+    
     const refereePerPlayer = refereeValue / presentPlayers.length;
-
+    
     const matchData = {
       date: new Date().toISOString(),
       goalsScored,
@@ -910,9 +1254,8 @@
       points,
       result,
     };
-
+    
     const newMatches = [...(tournamentData.matches || []), matchData];
-
     const newStats = {
       points: (tournamentData.stats?.points || 0) + points,
       wins: (tournamentData.stats?.wins || 0) + (result === "Victoria" ? 1 : 0),
@@ -925,12 +1268,13 @@
       redCards: (tournamentData.stats?.redCards || 0) + redCards,
       totalReferee: (tournamentData.stats?.totalReferee || 0) + refereeValue,
     };
-
+    
     await updateDoc(doc(db, "tournaments", currentTournament), {
       matches: newMatches,
       stats: newStats,
     });
-
+    
+    // Limpiar formulario
     document.getElementById("goalsScored").value = "0";
     document.getElementById("goalsConceded").value = "0";
     document.getElementById("yellowCards").value = "0";
@@ -938,43 +1282,45 @@
     document.getElementById("redCards").value = "0";
     document.getElementById("refereeValue").value = "";
     document.querySelectorAll("#playersPresent input[type='checkbox']").forEach((cb) => (cb.checked = false));
-
+    
     await loadTournamentData();
     updateAllViews();
     alert(`Partido registrado - Resultado: ${result} (${points} puntos)`);
   };
 
+  // Actualizar nombre del torneo
   window.updateTournamentName = async function () {
     const name = document.getElementById("tournamentName").value.trim();
-
+    
     if (!name) {
       alert("Ingresa un nombre válido");
       return;
     }
-
+    
     await updateDoc(doc(db, "tournaments", currentTournament), {
       name: name,
     });
-
+    
     await loadTournamentData();
     alert("Nombre actualizado");
   };
 
+  // Establecer fase
   window.setPhase = async function (phase) {
     await updateDoc(doc(db, "tournaments", currentTournament), {
       phase: phase,
     });
-
+    
     await loadTournamentData();
     updateAllViews();
     alert(`Fase actualizada a: ${phase}`);
   };
 
-  // Ajustar estadísticas manualmente
+  // Cargar estadísticas actuales
   window.loadCurrentStats = function () {
     const stats = tournamentData.stats || {};
     const manualMatches = tournamentData.manualMatches || 0;
-
+    
     document.getElementById("adjustPoints").value = stats.points || 0;
     document.getElementById("adjustMatches").value = manualMatches;
     document.getElementById("adjustGoalsScored").value = stats.goalsScored || 0;
@@ -986,15 +1332,15 @@
     document.getElementById("adjustBlue").value = stats.blueCards || 0;
     document.getElementById("adjustRed").value = stats.redCards || 0;
     document.getElementById("adjustReferee").value = stats.totalReferee || 0;
-
+    
     alert("Valores actuales cargados en el formulario");
   };
 
+  // Guardar estadísticas ajustadas
   window.saveAdjustedStats = async function () {
     const confirmation = confirm("¿Estás seguro de ajustar las estadísticas? Esto sobrescribirá los valores actuales.");
-
     if (!confirmation) return;
-
+    
     const newStats = {
       points: parseInt(document.getElementById("adjustPoints").value) || 0,
       wins: parseInt(document.getElementById("adjustWins").value) || 0,
@@ -1007,23 +1353,23 @@
       redCards: parseInt(document.getElementById("adjustRed").value) || 0,
       totalReferee: parseFloat(document.getElementById("adjustReferee").value) || 0,
     };
-
+    
     const manualMatches = parseInt(document.getElementById("adjustMatches").value) || 0;
-
+    
     await updateDoc(doc(db, "tournaments", currentTournament), {
       stats: newStats,
       manualMatches: manualMatches,
     });
-
+    
     await loadTournamentData();
     updateAllViews();
-
     alert("✅ Estadísticas ajustadas exitosamente");
   };
 
+  // Reiniciar torneo
   window.confirmResetTournament = async function () {
     const confirmation = confirm("¿Estás seguro de reiniciar el torneo? Se perderán todos los datos de partidos, pagos y estadísticas.");
-
+    
     if (confirmation) {
       // Reiniciar pagos de jugadores
       for (const player of players) {
@@ -1032,7 +1378,7 @@
           totalPaid: 0,
         });
       }
-
+      
       // Reiniciar datos del torneo
       await updateDoc(doc(db, "tournaments", currentTournament), {
         totalInscription: 0,
@@ -1053,7 +1399,7 @@
           totalReferee: 0,
         },
       });
-
+      
       await loadTournamentData();
       await loadPlayers();
       updateAllViews();
@@ -1061,20 +1407,22 @@
     }
   };
 
+  // Eliminar todos los jugadores
   window.confirmDeleteAllPlayers = async function () {
     const confirmation = confirm("¿Estás seguro de eliminar TODOS los jugadores del torneo actual?");
-
+    
     if (confirmation) {
       for (const player of players) {
         await deleteDoc(doc(db, "players", player.id));
       }
-
+      
       await loadPlayers();
       updateAllViews();
       alert("Todos los jugadores han sido eliminados");
     }
   };
 
+  // Actualizar todas las vistas
   function updateAllViews() {
     updatePlayersList();
     updatePaymentsList();
@@ -1084,14 +1432,15 @@
     updateInscriptionInfo();
   }
 
+  // Actualizar lista de jugadores
   function updatePlayersList() {
     const container = document.getElementById("playersList");
-
+    
     if (players.length === 0) {
       container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</p>';
       return;
     }
-
+    
     container.innerHTML = players
       .map(
         (player) => `
@@ -1107,22 +1456,23 @@
       .join("");
   }
 
+  // Actualizar lista de pagos
   function updatePaymentsList() {
     const container = document.getElementById("paymentsList");
-
+    
     if (players.length === 0) {
       container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</p>';
       return;
     }
-
+    
     const perPlayer = tournamentData.inscriptionPerPlayer || 0;
-
+    
     container.innerHTML = players
       .map((player) => {
         const paid = player.totalPaid || 0;
         const pending = perPlayer - paid;
         const percentage = perPlayer > 0 ? ((paid / perPlayer) * 100).toFixed(1) : 0;
-
+        
         return `
       <div class="player-card">
         <h3>${player.name} - #${player.number}</h3>
@@ -1141,12 +1491,13 @@
       .join("");
   }
 
+  // Actualizar selectores de jugadores
   function updatePlayerSelectors() {
     const select = document.getElementById("playerSelectPayment");
     select.innerHTML =
       '<option value="">-- Seleccionar --</option>' +
       players.map((p) => `<option value="${p.id}">${p.name} - #${p.number}</option>`).join("");
-
+    
     const checkboxContainer = document.getElementById("playersPresent");
     checkboxContainer.innerHTML = players
       .map(
@@ -1160,11 +1511,12 @@
       .join("");
   }
 
+  // Actualizar resumen de arbitraje
   window.updateRefereeSummary = function () {
     const refereeValue = parseFloat(document.getElementById("refereeValue").value) || 0;
     const presentCount = document.querySelectorAll("#playersPresent input[type='checkbox']:checked").length;
     const perPlayer = presentCount > 0 ? refereeValue / presentCount : 0;
-
+    
     const summary = document.getElementById("refereeSummary");
     summary.innerHTML = `
       <div class="summary-row">
@@ -1182,23 +1534,25 @@
     `;
   };
 
+  // Listener para el campo de arbitraje
   document.getElementById("refereeValue")?.addEventListener("input", updateRefereeSummary);
 
+  // Actualizar vista de partidos
   function updateMatchesView() {
     const container = document.getElementById("matchesList");
     const matches = tournamentData.matches || [];
-
+    
     if (matches.length === 0) {
       container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay partidos registrados</p>';
       return;
     }
-
+    
     container.innerHTML = matches
       .map((match, index) => {
         const date = new Date(match.date).toLocaleDateString("es-CO");
         return `
       <div class="match-card">
-        <h4 style="color: #667eea; margin-bottom: 10px;">Partido #${index + 1} - ${date}</h4>
+        <h4 style="color: var(--primary); margin-bottom: 10px;">Partido #${index + 1} - ${date}</h4>
         <div class="summary-row">
           <span>Resultado:</span>
           <strong>${match.result} (${match.points} pts)</strong>
@@ -1225,64 +1579,67 @@
       .join("");
   }
 
+  // Actualizar estadísticas
   function updateStatistics() {
     const stats = tournamentData.stats || {};
     const matches = tournamentData.matches || [];
     const manualMatches = tournamentData.manualMatches || 0;
     const totalMatches = matches.length + manualMatches;
-
+    
     document.getElementById("totalPoints").textContent = stats.points || 0;
     document.getElementById("totalMatches").textContent = totalMatches;
     document.getElementById("totalGoalsScored").textContent = stats.goalsScored || 0;
     document.getElementById("totalGoalsConceded").textContent = stats.goalsConceded || 0;
-
+    
     // Promedios
     const avgGoalsScored = totalMatches > 0 ? (stats.goalsScored || 0) / totalMatches : 0;
     const avgGoalsConceded = totalMatches > 0 ? (stats.goalsConceded || 0) / totalMatches : 0;
-
     document.getElementById("avgGoalsScored").textContent = avgGoalsScored.toFixed(2);
     document.getElementById("avgGoalsConceded").textContent = avgGoalsConceded.toFixed(2);
-
+    
     document.getElementById("totalWins").textContent = stats.wins || 0;
     document.getElementById("totalDraws").textContent = stats.draws || 0;
     document.getElementById("totalLosses").textContent = stats.losses || 0;
-
+    
     // Porcentajes
     const winPercent = totalMatches > 0 ? ((stats.wins || 0) / totalMatches) * 100 : 0;
     const drawPercent = totalMatches > 0 ? ((stats.draws || 0) / totalMatches) * 100 : 0;
     const lossPercent = totalMatches > 0 ? ((stats.losses || 0) / totalMatches) * 100 : 0;
-
+    
     document.getElementById("winPercent").textContent = winPercent.toFixed(1) + "%";
     document.getElementById("drawPercent").textContent = drawPercent.toFixed(1) + "%";
     document.getElementById("lossPercent").textContent = lossPercent.toFixed(1) + "%";
-
+    
     document.getElementById("goalDifference").textContent = (stats.goalsScored || 0) - (stats.goalsConceded || 0);
-
+    
     document.getElementById("totalYellow").textContent = stats.yellowCards || 0;
     document.getElementById("totalBlue").textContent = stats.blueCards || 0;
     document.getElementById("totalRed").textContent = stats.redCards || 0;
-
+    
     // Promedio tarjetas por partido
     const totalCards = (stats.yellowCards || 0) + (stats.blueCards || 0) + (stats.redCards || 0);
     const avgCards = totalMatches > 0 ? totalCards / totalMatches : 0;
     document.getElementById("avgCards").textContent = avgCards.toFixed(2);
-
+    
+    // Finanzas
     const totalPaid = players.reduce((sum, p) => sum + (p.totalPaid || 0), 0);
     document.getElementById("totalCollected").textContent = `$${totalPaid.toFixed(0)}`;
     document.getElementById("totalInscriptionNeeded").textContent = `$${(tournamentData.totalInscription || 0).toFixed(0)}`;
     document.getElementById("totalRefereeSpent").textContent = `$${(stats.totalReferee || 0).toFixed(0)}`;
   }
 
+  // Actualizar información de inscripción
   function updateInscriptionInfo() {
     const perPlayer = tournamentData.inscriptionPerPlayer || 0;
     const total = tournamentData.totalInscription || 0;
+    
     document.getElementById("inscriptionInfo").innerHTML = `
       <strong>Valor de Inscripción:</strong> $${perPlayer.toFixed(0)} COP por jugador<br>
       <strong>Inscripción Total del Torneo:</strong> $${total.toFixed(0)} COP
     `;
   }
 
-  // Inicializar
+  // Inicializar aplicación
   window.addEventListener("load", async () => {
     await selectTournament("torneo1");
   });
