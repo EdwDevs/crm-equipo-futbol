@@ -121,6 +121,12 @@
             border-color: #667eea;
         }
 
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
         .btn {
             width: 100%;
             padding: 12px;
@@ -155,6 +161,11 @@
         .btn-warning {
             background: #ffc107;
             color: #333;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
         }
 
         .player-card {
@@ -245,6 +256,12 @@
             border: 1px solid #ffeaa7;
         }
 
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
         .phase-selector {
             display: flex;
             flex-wrap: wrap;
@@ -323,6 +340,28 @@
             text-align: center;
             padding: 20px;
             color: #667eea;
+        }
+
+        .section-divider {
+            border-top: 2px solid #ddd;
+            margin: 25px 0;
+            padding-top: 25px;
+        }
+
+        .adjustment-card {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .adjustment-card h4 {
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 </head>
@@ -573,6 +612,79 @@
                     <strong>⚠️ Fase Actual:</strong> <span id="currentPhase">Fase de Grupos</span>
                 </div>
 
+                <!-- NUEVA SECCIÓN: AJUSTAR ESTADÍSTICAS -->
+                <div class="section-divider">
+                    <div class="adjustment-card">
+                        <h4>📊 Ajustar Estadísticas Manualmente</h4>
+                        <p style="font-size: 13px; color: #856404; margin-bottom: 15px;">
+                            Usa esta opción para ingresar datos de partidos ya jugados antes de usar el sistema.
+                        </p>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Puntos</label>
+                                <input type="number" id="adjustPoints" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Partidos Jugados</label>
+                                <input type="number" id="adjustMatches" placeholder="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Goles Anotados</label>
+                                <input type="number" id="adjustGoalsScored" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Goles Recibidos</label>
+                                <input type="number" id="adjustGoalsConceded" placeholder="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Victorias</label>
+                                <input type="number" id="adjustWins" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Empates</label>
+                                <input type="number" id="adjustDraws" placeholder="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Derrotas</label>
+                                <input type="number" id="adjustLosses" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>🟨 Amarillas</label>
+                                <input type="number" id="adjustYellow" placeholder="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>🟦 Azules</label>
+                                <input type="number" id="adjustBlue" placeholder="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>🟥 Rojas</label>
+                                <input type="number" id="adjustRed" placeholder="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Total Gastado en Arbitrajes (COP)</label>
+                            <input type="number" id="adjustReferee" placeholder="0" value="0">
+                        </div>
+
+                        <button class="btn btn-info" onclick="loadCurrentStats()">📥 Cargar Valores Actuales</button>
+                        <button class="btn btn-success" onclick="saveAdjustedStats()">💾 Guardar Ajustes</button>
+                    </div>
+                </div>
+
                 <h3 style="margin-top: 25px; margin-bottom: 15px; color: #667eea;">Reiniciar Torneo</h3>
                 <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
                     Esta acción reiniciará todos los valores del torneo actual (puntos, goles, pagos, partidos) pero mantendrá la lista de jugadores.
@@ -658,6 +770,7 @@
                     inscriptionPerPlayer: 0,
                     phase: 'Fase de Grupos',
                     matches: [],
+                    manualMatches: 0,
                     stats: {
                         points: 0,
                         wins: 0,
@@ -894,6 +1007,57 @@
             alert(`Fase actualizada a: ${phase}`);
         };
 
+        // NUEVAS FUNCIONES PARA AJUSTAR ESTADÍSTICAS
+        window.loadCurrentStats = function() {
+            const stats = tournamentData.stats || {};
+            const manualMatches = tournamentData.manualMatches || 0;
+            
+            document.getElementById('adjustPoints').value = stats.points || 0;
+            document.getElementById('adjustMatches').value = manualMatches;
+            document.getElementById('adjustGoalsScored').value = stats.goalsScored || 0;
+            document.getElementById('adjustGoalsConceded').value = stats.goalsConceded || 0;
+            document.getElementById('adjustWins').value = stats.wins || 0;
+            document.getElementById('adjustDraws').value = stats.draws || 0;
+            document.getElementById('adjustLosses').value = stats.losses || 0;
+            document.getElementById('adjustYellow').value = stats.yellowCards || 0;
+            document.getElementById('adjustBlue').value = stats.blueCards || 0;
+            document.getElementById('adjustRed').value = stats.redCards || 0;
+            document.getElementById('adjustReferee').value = stats.totalReferee || 0;
+            
+            alert('Valores actuales cargados en el formulario');
+        };
+
+        window.saveAdjustedStats = async function() {
+            const confirmation = confirm('¿Estás seguro de ajustar las estadísticas? Esto sobrescribirá los valores actuales.');
+            
+            if (!confirmation) return;
+
+            const newStats = {
+                points: parseInt(document.getElementById('adjustPoints').value) || 0,
+                wins: parseInt(document.getElementById('adjustWins').value) || 0,
+                draws: parseInt(document.getElementById('adjustDraws').value) || 0,
+                losses: parseInt(document.getElementById('adjustLosses').value) || 0,
+                goalsScored: parseInt(document.getElementById('adjustGoalsScored').value) || 0,
+                goalsConceded: parseInt(document.getElementById('adjustGoalsConceded').value) || 0,
+                yellowCards: parseInt(document.getElementById('adjustYellow').value) || 0,
+                blueCards: parseInt(document.getElementById('adjustBlue').value) || 0,
+                redCards: parseInt(document.getElementById('adjustRed').value) || 0,
+                totalReferee: parseFloat(document.getElementById('adjustReferee').value) || 0
+            };
+
+            const manualMatches = parseInt(document.getElementById('adjustMatches').value) || 0;
+
+            await updateDoc(doc(db, "tournaments", currentTournament), {
+                stats: newStats,
+                manualMatches: manualMatches
+            });
+
+            await loadTournamentData();
+            updateAllViews();
+            
+            alert('✅ Estadísticas ajustadas exitosamente');
+        };
+
         window.confirmResetTournament = async function() {
             const confirmation = confirm('¿Estás seguro de reiniciar el torneo? Se perderán todos los datos de partidos, pagos y estadísticas.');
             
@@ -912,6 +1076,7 @@
                     inscriptionPerPlayer: 0,
                     phase: 'Fase de Grupos',
                     matches: [],
+                    manualMatches: 0,
                     stats: {
                         points: 0,
                         wins: 0,
@@ -1087,9 +1252,11 @@
         function updateStatistics() {
             const stats = tournamentData.stats || {};
             const matches = tournamentData.matches || [];
+            const manualMatches = tournamentData.manualMatches || 0;
+            const totalMatches = matches.length + manualMatches;
 
             document.getElementById('totalPoints').textContent = stats.points || 0;
-            document.getElementById('totalMatches').textContent = matches.length;
+            document.getElementById('totalMatches').textContent = totalMatches;
             document.getElementById('totalGoalsScored').textContent = stats.goalsScored || 0;
             document.getElementById('totalGoalsConceded').textContent = stats.goalsConceded || 0;
             document.getElementById('totalWins').textContent = stats.wins || 0;
