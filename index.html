@@ -3,14 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>⚽ CRM Fútbol Avanzado</title>
+<title>⚽ CRM Fútbol PRO</title>
 <style>
-  /* Reset y configuración base */
-  * { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
   
   :root {
     --primary: #667eea;
@@ -32,7 +27,7 @@
   
   @media (min-width: 768px) {
     :root {
-      --container-width: 1000px;
+      --container-width: 1100px;
       --padding: 20px;
       --font-base: 15px;
       --header-size: 28px;
@@ -228,7 +223,6 @@
     margin: 0;
   }
   
-  /* Estilos de tabla */
   .table-container {
     overflow-x: auto;
     margin-top: 20px;
@@ -298,9 +292,33 @@
   
   .badge-success { background: var(--success); color: white; }
   .badge-warning { background: var(--warning); color: var(--dark); }
+  .badge-danger { background: var(--danger); color: white; }
   .badge-info { background: var(--info); color: white; }
   
-  /* Modal */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .filter-bar input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: var(--font-base);
+  }
+  
+  .filter-bar select {
+    padding: 10px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: var(--font-base);
+  }
+  
   .modal {
     display: none;
     position: fixed;
@@ -319,9 +337,9 @@
     background: white;
     padding: 25px;
     border-radius: 12px;
-    max-width: 500px;
+    max-width: 600px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     animation: slideUp 0.3s ease;
   }
@@ -352,7 +370,7 @@
   .modal-close:hover { color: var(--danger); }
   
   .payment-history {
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -385,43 +403,6 @@
   .payment-item-actions {
     display: flex;
     gap: 6px;
-  }
-  
-  .player-card {
-    background: var(--light);
-    border-radius: 10px;
-    padding: clamp(12px, 3vw, 18px);
-    margin-bottom: clamp(8px, 2vw, 12px);
-    border-left: 4px solid var(--primary);
-    transition: all 0.3s ease;
-  }
-  
-  .player-card:hover {
-    box-shadow: 0 4px 12px var(--shadow);
-    transform: translateX(4px);
-  }
-  
-  .player-card h3 {
-    color: var(--primary);
-    margin-bottom: clamp(8px, 2vw, 12px);
-    font-size: calc(var(--font-base) * 1.1);
-    word-break: break-word;
-  }
-  
-  .player-actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: clamp(6px, 1.5vw, 10px);
-  }
-  
-  .player-actions button {
-    padding: clamp(8px, 1.5vw, 10px);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: calc(var(--font-base) * 0.85);
-    font-weight: bold;
-    transition: all 0.3s ease;
   }
   
   .stats-grid {
@@ -701,6 +682,51 @@
   .payment-badge.paid { background: var(--success); color: white; }
   .payment-badge.pending { background: var(--warning); color: var(--dark); }
   
+  .debt-summary {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe5a0 100%);
+    border: 2px solid var(--warning);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .debt-summary h4 {
+    color: #856404;
+    margin-bottom: 15px;
+    font-size: calc(var(--font-base) * 1.2);
+  }
+  
+  .debt-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 6px;
+    align-items: center;
+  }
+  
+  .debt-item-info {
+    flex: 1;
+  }
+  
+  .debt-item-name {
+    font-weight: 600;
+    color: var(--dark);
+  }
+  
+  .debt-item-detail {
+    font-size: calc(var(--font-base) * 0.85);
+    color: #666;
+    margin-top: 4px;
+  }
+  
+  .debt-item-amount {
+    font-size: calc(var(--font-base) * 1.1);
+    font-weight: 700;
+    color: var(--danger);
+  }
+  
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -733,13 +759,40 @@
   @media (min-width: 768px) and (max-width: 1024px) {
     .stats-grid { grid-template-columns: repeat(4, 1fr); }
   }
+
+  .quick-actions {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+  }
+
+  .quick-actions button {
+    display: block;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px var(--shadow);
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+  }
+
+  .quick-actions button:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
+  }
 </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h1>⚽ CRM Fútbol Avanzado</h1>
+    <h1>⚽ CRM Fútbol PRO</h1>
     <p id="currentTournamentName">Selecciona un torneo</p>
   </div>
   
@@ -772,7 +825,25 @@
       <button class="btn btn-primary" onclick="addPlayer()">➕ Agregar Jugador</button>
       
       <h3 class="section-title">Lista de Jugadores</h3>
-      <div id="playersList"></div>
+      
+      <div class="filter-bar">
+        <input type="text" id="playerFilter" placeholder="🔍 Buscar por nombre o número..." onkeyup="filterPlayers()">
+        <button class="btn btn-sm btn-info" onclick="clearPlayerFilter()">Limpiar</button>
+      </div>
+      
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>#</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="playersTableBody">
+          </tbody>
+        </table>
+      </div>
     </div>
     
     <!-- PAGOS -->
@@ -810,6 +881,17 @@
       <button class="btn btn-primary" onclick="registerPayment()">💰 Registrar Abono</button>
       
       <h3 class="section-title">Estado de Pagos de Inscripción</h3>
+      
+      <div class="filter-bar">
+        <input type="text" id="paymentFilter" placeholder="🔍 Buscar jugador..." onkeyup="filterPayments()">
+        <select id="paymentStatusFilter" onchange="filterPayments()">
+          <option value="all">Todos los estados</option>
+          <option value="complete">Completo</option>
+          <option value="pending">Pendiente</option>
+        </select>
+        <button class="btn btn-sm btn-info" onclick="clearPaymentFilters()">Limpiar</button>
+      </div>
+      
       <div class="table-container">
         <table class="table" id="paymentsTable">
           <thead>
@@ -915,6 +997,22 @@
       <button class="btn btn-success" onclick="registerMatch()">⚽ Registrar Partido</button>
       
       <h3 class="section-title">Historial de Partidos</h3>
+      
+      <div class="filter-bar">
+        <select id="matchResultFilter" onchange="filterMatches()">
+          <option value="all">Todos los resultados</option>
+          <option value="Victoria">Victorias</option>
+          <option value="Empate">Empates</option>
+          <option value="Derrota">Derrotas</option>
+        </select>
+        <select id="matchPaymentFilter" onchange="filterMatches()">
+          <option value="all">Todos los pagos</option>
+          <option value="complete">Pagos completos</option>
+          <option value="pending">Pagos pendientes</option>
+        </select>
+        <button class="btn btn-sm btn-info" onclick="clearMatchFilters()">Limpiar</button>
+      </div>
+      
       <div id="matchesList"></div>
     </div>
     
@@ -1145,6 +1243,11 @@
   </div>
 </div>
 
+<!-- Botones de acción rápida -->
+<div class="quick-actions">
+  <button onclick="openDebtModal()" title="Ver deudas totales">💳</button>
+</div>
+
 <!-- Modal para gestionar abonos -->
 <div id="paymentModal" class="modal">
   <div class="modal-content">
@@ -1157,6 +1260,25 @@
     <h4 style="margin-bottom: 10px; color: var(--primary);">Historial de Abonos</h4>
     <div class="payment-history" id="paymentHistoryList">
     </div>
+  </div>
+</div>
+
+<!-- Modal para editar jugador -->
+<div id="editPlayerModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>✏️ Editar Jugador</h3>
+      <button class="modal-close" onclick="closeEditPlayerModal()">&times;</button>
+    </div>
+    <div class="form-group">
+      <label>Nombre del Jugador</label>
+      <input type="text" id="editPlayerName" placeholder="Nombre del jugador" />
+    </div>
+    <div class="form-group">
+      <label>Número de Camiseta</label>
+      <input type="number" id="editPlayerNumber" placeholder="Número" min="1" max="99" />
+    </div>
+    <button class="btn btn-success" onclick="savePlayerEdit()">💾 Guardar Cambios</button>
   </div>
 </div>
 
@@ -1209,19 +1331,27 @@
   </div>
 </div>
 
+<!-- Modal para ver deudas totales -->
+<div id="debtModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>💳 Reporte de Deudas Totales</h3>
+      <button class="modal-close" onclick="closeDebtModal()">&times;</button>
+    </div>
+    
+    <div class="debt-summary" id="debtSummaryTotal">
+    </div>
+    
+    <h4 style="margin-bottom: 15px; color: var(--primary);">Detalle por Jugador</h4>
+    <div id="debtDetailsList" style="max-height: 400px; overflow-y: auto;">
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import {
-    getFirestore,
-    collection,
-    doc,
-    setDoc,
-    getDoc,
-    getDocs,
-    updateDoc,
-    deleteDoc,
-    query,
-    where,
+    getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where,
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1241,6 +1371,9 @@
   let tournamentData = {};
   let currentEditingPlayer = null;
   let currentEditingMatchIndex = null;
+  let filteredPlayers = [];
+  let filteredPayments = [];
+  let filteredMatches = [];
 
   window.showTab = function (tabName) {
     document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.add("hidden"));
@@ -1312,7 +1445,6 @@
     for (const docSnap of querySnapshot.docs) {
       const playerData = { id: docSnap.id, ...docSnap.data() };
       
-      // Migración: agregar IDs a pagos que no los tengan
       if (playerData.payments && playerData.payments.length > 0) {
         let needsUpdate = false;
         const updatedPayments = playerData.payments.map((payment, index) => {
@@ -1336,6 +1468,9 @@
       
       players.push(playerData);
     }
+    
+    filteredPlayers = [...players];
+    filteredPayments = [...players];
   }
 
   window.addPlayer = async function () {
@@ -1361,30 +1496,52 @@
     
     await loadPlayers();
     updateAllViews();
+    alert("✅ Jugador agregado exitosamente");
+  };
+
+  window.openEditPlayerModal = function(playerId) {
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
+    
+    currentEditingPlayer = player;
+    document.getElementById("editPlayerName").value = player.name;
+    document.getElementById("editPlayerNumber").value = player.number;
+    document.getElementById("editPlayerModal").classList.add("active");
+  };
+
+  window.closeEditPlayerModal = function() {
+    document.getElementById("editPlayerModal").classList.remove("active");
+    currentEditingPlayer = null;
+  };
+
+  window.savePlayerEdit = async function() {
+    if (!currentEditingPlayer) return;
+    
+    const newName = document.getElementById("editPlayerName").value.trim();
+    const newNumber = parseInt(document.getElementById("editPlayerNumber").value);
+    
+    if (!newName || !newNumber) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+    
+    await updateDoc(doc(db, "players", currentEditingPlayer.id), {
+      name: newName,
+      number: newNumber,
+    });
+    
+    await loadPlayers();
+    closeEditPlayerModal();
+    updateAllViews();
+    alert("✅ Jugador actualizado exitosamente");
   };
 
   window.deletePlayer = async function (playerId) {
-    if (confirm("¿Estás seguro de eliminar este jugador?")) {
+    if (confirm("¿Estás seguro de eliminar este jugador? Se perderán todos sus datos de pagos.")) {
       await deleteDoc(doc(db, "players", playerId));
       await loadPlayers();
       updateAllViews();
-    }
-  };
-
-  window.editPlayer = async function (playerId) {
-    const player = players.find((p) => p.id === playerId);
-    if (!player) return;
-    
-    const newName = prompt("Nuevo nombre:", player.name);
-    const newNumber = prompt("Nuevo número:", player.number);
-    
-    if (newName && newNumber) {
-      await updateDoc(doc(db, "players", playerId), {
-        name: newName,
-        number: parseInt(newNumber),
-      });
-      await loadPlayers();
-      updateAllViews();
+      alert("✅ Jugador eliminado exitosamente");
     }
   };
 
@@ -1406,7 +1563,7 @@
     });
     
     updateAllViews();
-    alert(`Inscripción calculada: $${perPlayer.toFixed(0)} COP por jugador`);
+    alert(`✅ Inscripción calculada: $${perPlayer.toFixed(0)} COP por jugador`);
   };
 
   window.registerPayment = async function () {
@@ -1442,7 +1599,7 @@
     document.getElementById("paymentAmount").value = "";
     await loadPlayers();
     updateAllViews();
-    alert("Abono registrado exitosamente");
+    alert("✅ Abono registrado exitosamente");
   };
 
   window.openPaymentModal = function(playerId) {
@@ -1469,190 +1626,6 @@
   window.closePaymentModal = function() {
     document.getElementById("paymentModal").classList.remove("active");
     currentEditingPlayer = null;
-  };
-
-  window.openMatchModal = function(matchIndex) {
-    currentEditingMatchIndex = matchIndex;
-    const match = tournamentData.matches[matchIndex];
-    if (!match) return;
-    
-    const date = new Date(match.date).toLocaleDateString("es-CO", {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    
-    document.getElementById("modalMatchInfo").innerHTML = `
-      <strong style="font-size: 1.1em; color: var(--primary);">Partido #${matchIndex + 1} - ${date}</strong><br>
-      <div style="margin-top: 8px;">
-        <span>Resultado: <strong>${match.result} (${match.points} pts)</strong></span> | 
-        <span>Goles: <strong>${match.goalsScored} - ${match.goalsConceded}</strong></span>
-      </div>
-    `;
-    
-    // Cargar datos del partido en el formulario
-    document.getElementById("editGoalsScored").value = match.goalsScored;
-    document.getElementById("editGoalsConceded").value = match.goalsConceded;
-    document.getElementById("editYellowCards").value = match.yellowCards;
-    document.getElementById("editBlueCards").value = match.blueCards;
-    document.getElementById("editRedCards").value = match.redCards;
-    document.getElementById("editRefereeValue").value = match.refereeValue;
-    
-    updateMatchPaymentsList();
-    document.getElementById("matchModal").classList.add("active");
-  };
-
-  window.closeMatchModal = function() {
-    document.getElementById("matchModal").classList.remove("active");
-    currentEditingMatchIndex = null;
-  };
-
-  function updateMatchPaymentsList() {
-    if (currentEditingMatchIndex === null) return;
-    
-    const match = tournamentData.matches[currentEditingMatchIndex];
-    if (!match || !match.refereePayments) return;
-    
-    const paymentsList = document.getElementById("matchPaymentsList");
-    
-    const html = match.presentPlayers.map(playerId => {
-      const player = players.find(p => p.id === playerId);
-      const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
-      const isPaid = match.refereePayments[playerId] || false;
-      
-      return `
-        <div class="payment-item">
-          <div style="flex: 1;">
-            <div style="font-weight: 500;">${playerName}</div>
-            <div style="font-size: 0.85em; color: #666;">$${match.refereePerPlayer.toFixed(0)} COP</div>
-          </div>
-          <div class="payment-item-actions">
-            <button class="btn btn-sm ${isPaid ? 'btn-success' : 'btn-warning'}" 
-                    onclick="toggleMatchPayment('${playerId}')"
-                    style="min-width: 100px;">
-              ${isPaid ? '✓ Pagado' : '⏳ Pendiente'}
-            </button>
-          </div>
-        </div>
-      `;
-    }).join('');
-    
-    paymentsList.innerHTML = html;
-  }
-
-  window.toggleMatchPayment = function(playerId) {
-    if (currentEditingMatchIndex === null) return;
-    
-    const match = tournamentData.matches[currentEditingMatchIndex];
-    if (!match || !match.refereePayments) return;
-    
-    match.refereePayments[playerId] = !match.refereePayments[playerId];
-    updateMatchPaymentsList();
-  };
-
-  window.saveMatchChanges = async function() {
-    if (currentEditingMatchIndex === null) return;
-    
-    const match = tournamentData.matches[currentEditingMatchIndex];
-    const oldStats = { ...tournamentData.stats };
-    
-    // Obtener nuevos valores
-    const newGoalsScored = parseInt(document.getElementById("editGoalsScored").value) || 0;
-    const newGoalsConceded = parseInt(document.getElementById("editGoalsConceded").value) || 0;
-    const newYellowCards = parseInt(document.getElementById("editYellowCards").value) || 0;
-    const newBlueCards = parseInt(document.getElementById("editBlueCards").value) || 0;
-    const newRedCards = parseInt(document.getElementById("editRedCards").value) || 0;
-    const newRefereeValue = parseFloat(document.getElementById("editRefereeValue").value) || 0;
-    
-    // Calcular nuevo resultado
-    let newPoints = 0;
-    let newResult = "";
-    if (newGoalsScored > newGoalsConceded) {
-      newPoints = 2;
-      newResult = "Victoria";
-    } else if (newGoalsScored === newGoalsConceded) {
-      newPoints = 1;
-      newResult = "Empate";
-    } else {
-      newPoints = 0;
-      newResult = "Derrota";
-    }
-    
-    // Restar estadísticas antiguas
-    const updatedStats = {
-      points: oldStats.points - match.points + newPoints,
-      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0) + (newResult === "Victoria" ? 1 : 0),
-      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0) + (newResult === "Empate" ? 1 : 0),
-      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0) + (newResult === "Derrota" ? 1 : 0),
-      goalsScored: oldStats.goalsScored - match.goalsScored + newGoalsScored,
-      goalsConceded: oldStats.goalsConceded - match.goalsConceded + newGoalsConceded,
-      yellowCards: oldStats.yellowCards - match.yellowCards + newYellowCards,
-      blueCards: oldStats.blueCards - match.blueCards + newBlueCards,
-      redCards: oldStats.redCards - match.redCards + newRedCards,
-      totalReferee: oldStats.totalReferee - match.refereeValue + newRefereeValue,
-    };
-    
-    // Actualizar partido
-    const newRefereePerPlayer = match.presentPlayers.length > 0 ? newRefereeValue / match.presentPlayers.length : 0;
-    
-    tournamentData.matches[currentEditingMatchIndex] = {
-      ...match,
-      goalsScored: newGoalsScored,
-      goalsConceded: newGoalsConceded,
-      yellowCards: newYellowCards,
-      blueCards: newBlueCards,
-      redCards: newRedCards,
-      refereeValue: newRefereeValue,
-      refereePerPlayer: newRefereePerPlayer,
-      points: newPoints,
-      result: newResult,
-    };
-    
-    await updateDoc(doc(db, "tournaments", currentTournament), {
-      matches: tournamentData.matches,
-      stats: updatedStats,
-    });
-    
-    await loadTournamentData();
-    closeMatchModal();
-    updateAllViews();
-    alert("✅ Partido actualizado exitosamente");
-  };
-
-  window.deleteMatch = async function() {
-    if (currentEditingMatchIndex === null) return;
-    
-    if (!confirm("¿Estás seguro de eliminar este partido? Esta acción no se puede deshacer.")) return;
-    
-    const match = tournamentData.matches[currentEditingMatchIndex];
-    const oldStats = { ...tournamentData.stats };
-    
-    // Restar estadísticas del partido eliminado
-    const updatedStats = {
-      points: oldStats.points - match.points,
-      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0),
-      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0),
-      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0),
-      goalsScored: oldStats.goalsScored - match.goalsScored,
-      goalsConceded: oldStats.goalsConceded - match.goalsConceded,
-      yellowCards: oldStats.yellowCards - match.yellowCards,
-      blueCards: oldStats.blueCards - match.blueCards,
-      redCards: oldStats.redCards - match.redCards,
-      totalReferee: oldStats.totalReferee - match.refereeValue,
-    };
-    
-    // Eliminar partido del array
-    tournamentData.matches.splice(currentEditingMatchIndex, 1);
-    
-    await updateDoc(doc(db, "tournaments", currentTournament), {
-      matches: tournamentData.matches,
-      stats: updatedStats,
-    });
-    
-    await loadTournamentData();
-    closeMatchModal();
-    updateAllViews();
-    alert("✅ Partido eliminado exitosamente");
   };
 
   function updatePaymentHistory() {
@@ -1731,7 +1704,7 @@
     currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
     updatePaymentHistory();
     updateAllViews();
-    alert("Abono actualizado exitosamente");
+    alert("✅ Abono actualizado exitosamente");
   };
 
   window.deletePayment = async function(paymentId) {
@@ -1761,7 +1734,7 @@
     currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
     updatePaymentHistory();
     updateAllViews();
-    alert("Abono eliminado exitosamente");
+    alert("✅ Abono eliminado exitosamente");
   };
 
   window.registerMatch = async function () {
@@ -1849,7 +1822,359 @@
     const paidCount = Object.values(refereePayments).filter(paid => paid).length;
     const pendingCount = presentPlayers.length - paidCount;
     
-    alert(`Partido registrado exitosamente\n\nResultado: ${result} (${points} puntos)\nJugadores que pagaron arbitraje: ${paidCount}\nJugadores con pago pendiente: ${pendingCount}`);
+    alert(`✅ Partido registrado exitosamente\n\nResultado: ${result} (${points} puntos)\nJugadores que pagaron arbitraje: ${paidCount}\nJugadores con pago pendiente: ${pendingCount}`);
+  };
+
+  window.openMatchModal = function(matchIndex) {
+    currentEditingMatchIndex = matchIndex;
+    const match = tournamentData.matches[matchIndex];
+    if (!match) return;
+    
+    const date = new Date(match.date).toLocaleDateString("es-CO", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    document.getElementById("modalMatchInfo").innerHTML = `
+      <strong style="font-size: 1.1em; color: var(--primary);">Partido #${matchIndex + 1} - ${date}</strong><br>
+      <div style="margin-top: 8px;">
+        <span>Resultado: <strong>${match.result} (${match.points} pts)</strong></span> | 
+        <span>Goles: <strong>${match.goalsScored} - ${match.goalsConceded}</strong></span>
+      </div>
+    `;
+    
+    document.getElementById("editGoalsScored").value = match.goalsScored;
+    document.getElementById("editGoalsConceded").value = match.goalsConceded;
+    document.getElementById("editYellowCards").value = match.yellowCards;
+    document.getElementById("editBlueCards").value = match.blueCards;
+    document.getElementById("editRedCards").value = match.redCards;
+    document.getElementById("editRefereeValue").value = match.refereeValue;
+    
+    updateMatchPaymentsList();
+    document.getElementById("matchModal").classList.add("active");
+  };
+
+  window.closeMatchModal = function() {
+    document.getElementById("matchModal").classList.remove("active");
+    currentEditingMatchIndex = null;
+  };
+
+  function updateMatchPaymentsList() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.refereePayments) return;
+    
+    const paymentsList = document.getElementById("matchPaymentsList");
+    
+    const html = match.presentPlayers.map(playerId => {
+      const player = players.find(p => p.id === playerId);
+      const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
+      const isPaid = match.refereePayments[playerId] || false;
+      
+      return `
+        <div class="payment-item">
+          <div style="flex: 1;">
+            <div style="font-weight: 500;">${playerName}</div>
+            <div style="font-size: 0.85em; color: #666;">$${match.refereePerPlayer.toFixed(0)} COP</div>
+          </div>
+          <div class="payment-item-actions">
+            <button class="btn btn-sm ${isPaid ? 'btn-success' : 'btn-warning'}" 
+                    onclick="toggleMatchPayment('${playerId}')"
+                    style="min-width: 100px;">
+              ${isPaid ? '✓ Pagado' : '⏳ Pendiente'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    paymentsList.innerHTML = html;
+  }
+
+  window.toggleMatchPayment = function(playerId) {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.refereePayments) return;
+    
+    match.refereePayments[playerId] = !match.refereePayments[playerId];
+    updateMatchPaymentsList();
+  };
+
+  window.saveMatchChanges = async function() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    const oldStats = { ...tournamentData.stats };
+    
+    const newGoalsScored = parseInt(document.getElementById("editGoalsScored").value) || 0;
+    const newGoalsConceded = parseInt(document.getElementById("editGoalsConceded").value) || 0;
+    const newYellowCards = parseInt(document.getElementById("editYellowCards").value) || 0;
+    const newBlueCards = parseInt(document.getElementById("editBlueCards").value) || 0;
+    const newRedCards = parseInt(document.getElementById("editRedCards").value) || 0;
+    const newRefereeValue = parseFloat(document.getElementById("editRefereeValue").value) || 0;
+    
+    let newPoints = 0;
+    let newResult = "";
+    if (newGoalsScored > newGoalsConceded) {
+      newPoints = 2;
+      newResult = "Victoria";
+    } else if (newGoalsScored === newGoalsConceded) {
+      newPoints = 1;
+      newResult = "Empate";
+    } else {
+      newPoints = 0;
+      newResult = "Derrota";
+    }
+    
+    const updatedStats = {
+      points: oldStats.points - match.points + newPoints,
+      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0) + (newResult === "Victoria" ? 1 : 0),
+      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0) + (newResult === "Empate" ? 1 : 0),
+      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0) + (newResult === "Derrota" ? 1 : 0),
+      goalsScored: oldStats.goalsScored - match.goalsScored + newGoalsScored,
+      goalsConceded: oldStats.goalsConceded - match.goalsConceded + newGoalsConceded,
+      yellowCards: oldStats.yellowCards - match.yellowCards + newYellowCards,
+      blueCards: oldStats.blueCards - match.blueCards + newBlueCards,
+      redCards: oldStats.redCards - match.redCards + newRedCards,
+      totalReferee: oldStats.totalReferee - match.refereeValue + newRefereeValue,
+    };
+    
+    const newRefereePerPlayer = match.presentPlayers.length > 0 ? newRefereeValue / match.presentPlayers.length : 0;
+    
+    tournamentData.matches[currentEditingMatchIndex] = {
+      ...match,
+      goalsScored: newGoalsScored,
+      goalsConceded: newGoalsConceded,
+      yellowCards: newYellowCards,
+      blueCards: newBlueCards,
+      redCards: newRedCards,
+      refereeValue: newRefereeValue,
+      refereePerPlayer: newRefereePerPlayer,
+      points: newPoints,
+      result: newResult,
+    };
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      matches: tournamentData.matches,
+      stats: updatedStats,
+    });
+    
+    await loadTournamentData();
+    closeMatchModal();
+    updateAllViews();
+    alert("✅ Partido actualizado exitosamente");
+  };
+
+  window.deleteMatch = async function() {
+    if (currentEditingMatchIndex === null) return;
+    
+    if (!confirm("¿Estás seguro de eliminar este partido? Esta acción no se puede deshacer.")) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    const oldStats = { ...tournamentData.stats };
+    
+    const updatedStats = {
+      points: oldStats.points - match.points,
+      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0),
+      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0),
+      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0),
+      goalsScored: oldStats.goalsScored - match.goalsScored,
+      goalsConceded: oldStats.goalsConceded - match.goalsConceded,
+      yellowCards: oldStats.yellowCards - match.yellowCards,
+      blueCards: oldStats.blueCards - match.blueCards,
+      redCards: oldStats.redCards - match.redCards,
+      totalReferee: oldStats.totalReferee - match.refereeValue,
+    };
+    
+    tournamentData.matches.splice(currentEditingMatchIndex, 1);
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      matches: tournamentData.matches,
+      stats: updatedStats,
+    });
+    
+    await loadTournamentData();
+    closeMatchModal();
+    updateAllViews();
+    alert("✅ Partido eliminado exitosamente");
+  };
+
+  window.openDebtModal = function() {
+    const perPlayer = tournamentData.inscriptionPerPlayer || 0;
+    const matches = tournamentData.matches || [];
+    
+    let totalInscriptionDebt = 0;
+    let totalRefereeDebt = 0;
+    const debts = [];
+    
+    players.forEach(player => {
+      const inscriptionPaid = player.totalPaid || 0;
+      const inscriptionPending = perPlayer - inscriptionPaid;
+      
+      let refereePending = 0;
+      matches.forEach(match => {
+        if (match.presentPlayers && match.presentPlayers.includes(player.id)) {
+          if (match.refereePayments && !match.refereePayments[player.id]) {
+            refereePending += match.refereePerPlayer || 0;
+          }
+        }
+      });
+      
+      const totalDebt = inscriptionPending + refereePending;
+      
+      if (totalDebt > 0) {
+        debts.push({
+          player: player,
+          inscriptionPending: inscriptionPending,
+          refereePending: refereePending,
+          totalDebt: totalDebt
+        });
+        
+        totalInscriptionDebt += inscriptionPending;
+        totalRefereeDebt += refereePending;
+      }
+    });
+    
+    const totalDebt = totalInscriptionDebt + totalRefereeDebt;
+    
+    document.getElementById("debtSummaryTotal").innerHTML = `
+      <h4>💳 Resumen Total de Deudas</h4>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+        <div style="text-align: center; background: white; padding: 15px; border-radius: 8px;">
+          <div style="font-size: 24px; font-weight: 700; color: var(--danger);">$${totalDebt.toFixed(0)}</div>
+          <div style="font-size: 12px; color: #666;">Deuda Total</div>
+        </div>
+        <div style="text-align: center; background: white; padding: 15px; border-radius: 8px;">
+          <div style="font-size: 24px; font-weight: 700; color: var(--warning);">$${totalInscriptionDebt.toFixed(0)}</div>
+          <div style="font-size: 12px; color: #666;">Inscripciones</div>
+        </div>
+        <div style="text-align: center; background: white; padding: 15px; border-radius: 8px;">
+          <div style="font-size: 24px; font-weight: 700; color: var(--info);">$${totalRefereeDebt.toFixed(0)}</div>
+          <div style="font-size: 12px; color: #666;">Arbitrajes</div>
+        </div>
+      </div>
+    `;
+    
+    const detailsList = document.getElementById("debtDetailsList");
+    
+    if (debts.length === 0) {
+      detailsList.innerHTML = '<p style="text-align: center; color: var(--success); padding: 40px; font-size: 18px;">🎉 ¡No hay deudas pendientes!</p>';
+    } else {
+      debts.sort((a, b) => b.totalDebt - a.totalDebt);
+      
+      detailsList.innerHTML = debts.map(debt => `
+        <div class="debt-item">
+          <div class="debt-item-info">
+            <div class="debt-item-name">${debt.player.name} - #${debt.player.number}</div>
+            <div class="debt-item-detail">
+              Inscripción: $${debt.inscriptionPending.toFixed(0)} | 
+              Arbitrajes: $${debt.refereePending.toFixed(0)}
+            </div>
+          </div>
+          <div class="debt-item-amount">$${debt.totalDebt.toFixed(0)}</div>
+        </div>
+      `).join('');
+    }
+    
+    document.getElementById("debtModal").classList.add("active");
+  };
+
+  window.closeDebtModal = function() {
+    document.getElementById("debtModal").classList.remove("active");
+  };
+
+  window.filterPlayers = function() {
+    const searchTerm = document.getElementById("playerFilter").value.toLowerCase();
+    
+    filteredPlayers = players.filter(player => {
+      const nameMatch = player.name.toLowerCase().includes(searchTerm);
+      const numberMatch = player.number.toString().includes(searchTerm);
+      return nameMatch || numberMatch;
+    });
+    
+    updatePlayersTable();
+  };
+
+  window.clearPlayerFilter = function() {
+    document.getElementById("playerFilter").value = "";
+    filteredPlayers = [...players];
+    updatePlayersTable();
+  };
+
+  window.filterPayments = function() {
+    const searchTerm = document.getElementById("paymentFilter").value.toLowerCase();
+    const statusFilter = document.getElementById("paymentStatusFilter").value;
+    const perPlayer = tournamentData.inscriptionPerPlayer || 0;
+    
+    filteredPayments = players.filter(player => {
+      const nameMatch = player.name.toLowerCase().includes(searchTerm);
+      const numberMatch = player.number.toString().includes(searchTerm);
+      const searchMatch = nameMatch || numberMatch;
+      
+      if (!searchMatch) return false;
+      
+      if (statusFilter === "all") return true;
+      
+      const paid = player.totalPaid || 0;
+      const pending = perPlayer - paid;
+      
+      if (statusFilter === "complete") return pending <= 0;
+      if (statusFilter === "pending") return pending > 0;
+      
+      return true;
+    });
+    
+    updatePaymentsTable();
+  };
+
+  window.clearPaymentFilters = function() {
+    document.getElementById("paymentFilter").value = "";
+    document.getElementById("paymentStatusFilter").value = "all";
+    filteredPayments = [...players];
+    updatePaymentsTable();
+  };
+
+  window.filterMatches = function() {
+    const resultFilter = document.getElementById("matchResultFilter").value;
+    const paymentFilter = document.getElementById("matchPaymentFilter").value;
+    
+    filteredMatches = (tournamentData.matches || []).filter((match, index) => {
+      let resultMatch = true;
+      let paymentMatch = true;
+      
+      if (resultFilter !== "all") {
+        resultMatch = match.result === resultFilter;
+      }
+      
+      if (paymentFilter !== "all") {
+        if (match.refereePayments) {
+          const paidCount = Object.values(match.refereePayments).filter(paid => paid).length;
+          const allPaid = paidCount === match.presentPlayers.length;
+          
+          if (paymentFilter === "complete") {
+            paymentMatch = allPaid;
+          } else if (paymentFilter === "pending") {
+            paymentMatch = !allPaid;
+          }
+        } else {
+          paymentMatch = paymentFilter === "pending";
+        }
+      }
+      
+      return resultMatch && paymentMatch;
+    });
+    
+    updateMatchesList();
+  };
+
+  window.clearMatchFilters = function() {
+    document.getElementById("matchResultFilter").value = "all";
+    document.getElementById("matchPaymentFilter").value = "all";
+    filteredMatches = [...(tournamentData.matches || [])];
+    updateMatchesList();
   };
 
   window.updateTournamentName = async function () {
@@ -1862,14 +2187,14 @@
     
     await updateDoc(doc(db, "tournaments", currentTournament), { name });
     await loadTournamentData();
-    alert("Nombre actualizado");
+    alert("✅ Nombre actualizado");
   };
 
   window.setPhase = async function (phase) {
     await updateDoc(doc(db, "tournaments", currentTournament), { phase });
     await loadTournamentData();
     updateAllViews();
-    alert(`Fase actualizada a: ${phase}`);
+    alert(`✅ Fase actualizada a: ${phase}`);
   };
 
   window.loadCurrentStats = function () {
@@ -1888,7 +2213,7 @@
     document.getElementById("adjustRed").value = stats.redCards || 0;
     document.getElementById("adjustReferee").value = stats.totalReferee || 0;
     
-    alert("Valores actuales cargados en el formulario");
+    alert("✅ Valores actuales cargados en el formulario");
   };
 
   window.saveAdjustedStats = async function () {
@@ -1946,7 +2271,7 @@
     await loadTournamentData();
     await loadPlayers();
     updateAllViews();
-    alert("Torneo reiniciado exitosamente");
+    alert("✅ Torneo reiniciado exitosamente");
   };
 
   window.confirmDeleteAllPlayers = async function () {
@@ -1958,61 +2283,59 @@
     
     await loadPlayers();
     updateAllViews();
-    alert("Todos los jugadores han sido eliminados");
+    alert("✅ Todos los jugadores han sido eliminados");
   };
 
   function updateAllViews() {
-    updatePlayersList();
-    updatePaymentsList();
+    updatePlayersTable();
+    updatePaymentsTable();
     updatePlayerSelectors();
-    updateMatchesView();
+    filterMatches();
     updateStatistics();
     updateInscriptionInfo();
   }
 
-  function updatePlayersList() {
-    const container = document.getElementById("playersList");
+  function updatePlayersTable() {
+    const tbody = document.getElementById("playersTableBody");
     
-    if (players.length === 0) {
-      container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</p>';
+    if (filteredPlayers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</td></tr>';
       return;
     }
     
-    container.innerHTML = players
-      .map(
-        (player) => `
-      <div class="player-card">
-        <h3>${player.name} - #${player.number}</h3>
-        <div class="player-actions">
-          <button class="btn-warning" onclick="editPlayer('${player.id}')">✏️ Editar</button>
-          <button class="btn-danger" onclick="deletePlayer('${player.id}')">🗑️ Eliminar</button>
-        </div>
-      </div>
-    `
-      )
-      .join("");
+    tbody.innerHTML = filteredPlayers.map(player => `
+      <tr>
+        <td><strong>${player.name}</strong></td>
+        <td>${player.number}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-warning" onclick="openEditPlayerModal('${player.id}')">✏️ Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="deletePlayer('${player.id}')">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
   }
 
-  function updatePaymentsList() {
+  function updatePaymentsTable() {
     const tbody = document.getElementById("paymentsTableBody");
     
-    if (players.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</td></tr>';
+    if (filteredPayments.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999; padding: 20px;">No hay jugadores para mostrar</td></tr>';
       return;
     }
     
     const perPlayer = tournamentData.inscriptionPerPlayer || 0;
     
-    tbody.innerHTML = players
-      .map((player) => {
-        const paid = player.totalPaid || 0;
-        const pending = perPlayer - paid;
-        const percentage = perPlayer > 0 ? ((paid / perPlayer) * 100).toFixed(1) : 0;
-        const statusBadge = pending <= 0 
-          ? '<span class="badge badge-success">Completo</span>'
-          : '<span class="badge badge-warning">Pendiente</span>';
-        
-        return `
+    tbody.innerHTML = filteredPayments.map((player) => {
+      const paid = player.totalPaid || 0;
+      const pending = perPlayer - paid;
+      const percentage = perPlayer > 0 ? ((paid / perPlayer) * 100).toFixed(1) : 0;
+      const statusBadge = pending <= 0 
+        ? '<span class="badge badge-success">Completo</span>'
+        : '<span class="badge badge-warning">Pendiente</span>';
+      
+      return `
       <tr>
         <td><strong>${player.name}</strong></td>
         <td>${player.number}</td>
@@ -2033,8 +2356,7 @@
         </td>
       </tr>
     `;
-      })
-      .join("");
+    }).join('');
   }
 
   function updatePlayerSelectors() {
@@ -2134,17 +2456,18 @@
 
   document.getElementById("refereeValue")?.addEventListener("input", updateRefereeSummary);
 
-  function updateMatchesView() {
+  function updateMatchesList() {
     const container = document.getElementById("matchesList");
-    const matches = tournamentData.matches || [];
+    const matchesToShow = filteredMatches;
     
-    if (matches.length === 0) {
-      container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay partidos registrados</p>';
+    if (matchesToShow.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay partidos para mostrar</p>';
       return;
     }
     
-    container.innerHTML = matches
-      .map((match, index) => {
+    container.innerHTML = matchesToShow
+      .map((match) => {
+        const originalIndex = tournamentData.matches.indexOf(match);
         const date = new Date(match.date).toLocaleDateString("es-CO");
         
         let paymentDetailsHTML = '';
@@ -2180,7 +2503,7 @@
         
         return `
       <div class="match-card">
-        <h4 style="color: var(--primary); margin-bottom: 10px;">Partido #${index + 1} - ${date}</h4>
+        <h4 style="color: var(--primary); margin-bottom: 10px;">Partido #${originalIndex + 1} - ${date}</h4>
         <div class="summary-row">
           <span>Resultado:</span>
           <strong>${match.result} (${match.points} pts)</strong>
@@ -2202,7 +2525,7 @@
           <strong>$${match.refereePerPlayer.toFixed(0)} (${match.presentPlayers.length} presentes)</strong>
         </div>
         ${paymentDetailsHTML}
-        <button class="btn btn-info" onclick="openMatchModal(${index})" style="margin-top: 10px;">
+        <button class="btn btn-info" onclick="openMatchModal(${originalIndex})" style="margin-top: 10px;">
           📝 Gestionar Partido
         </button>
       </div>
