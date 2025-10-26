@@ -1160,6 +1160,55 @@
   </div>
 </div>
 
+<!-- Modal para gestionar partidos -->
+<div id="matchModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>⚽ Gestionar Partido</h3>
+      <button class="modal-close" onclick="closeMatchModal()">&times;</button>
+    </div>
+    <div id="modalMatchInfo" style="margin-bottom: 20px; padding: 12px; background: var(--light); border-radius: 6px;">
+    </div>
+    
+    <h4 style="margin-bottom: 10px; color: var(--primary);">Datos del Partido</h4>
+    <div class="form-grid" style="margin-bottom: 20px;">
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>⚽ Goles Anotados</label>
+        <input type="number" id="editGoalsScored" min="0" />
+      </div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🥅 Goles Recibidos</label>
+        <input type="number" id="editGoalsConceded" min="0" />
+      </div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🟨 Amarillas</label>
+        <input type="number" id="editYellowCards" min="0" />
+      </div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🟦 Azules</label>
+        <input type="number" id="editBlueCards" min="0" />
+      </div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🟥 Rojas</label>
+        <input type="number" id="editRedCards" min="0" />
+      </div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>💵 Valor Arbitraje</label>
+        <input type="number" id="editRefereeValue" min="0" />
+      </div>
+    </div>
+    
+    <h4 style="margin-bottom: 10px; color: var(--primary);">Control de Cobro de Arbitraje</h4>
+    <div class="payment-history" id="matchPaymentsList" style="max-height: 300px;">
+    </div>
+    
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button class="btn btn-success" onclick="saveMatchChanges()" style="flex: 1;">💾 Guardar Cambios</button>
+      <button class="btn btn-danger" onclick="deleteMatch()" style="flex: 1;">🗑️ Eliminar Partido</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import {
@@ -1191,6 +1240,7 @@
   let players = [];
   let tournamentData = {};
   let currentEditingPlayer = null;
+  let currentEditingMatchIndex = null;
 
   window.showTab = function (tabName) {
     document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.add("hidden"));
@@ -1419,6 +1469,190 @@
   window.closePaymentModal = function() {
     document.getElementById("paymentModal").classList.remove("active");
     currentEditingPlayer = null;
+  };
+
+  window.openMatchModal = function(matchIndex) {
+    currentEditingMatchIndex = matchIndex;
+    const match = tournamentData.matches[matchIndex];
+    if (!match) return;
+    
+    const date = new Date(match.date).toLocaleDateString("es-CO", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    document.getElementById("modalMatchInfo").innerHTML = `
+      <strong style="font-size: 1.1em; color: var(--primary);">Partido #${matchIndex + 1} - ${date}</strong><br>
+      <div style="margin-top: 8px;">
+        <span>Resultado: <strong>${match.result} (${match.points} pts)</strong></span> | 
+        <span>Goles: <strong>${match.goalsScored} - ${match.goalsConceded}</strong></span>
+      </div>
+    `;
+    
+    // Cargar datos del partido en el formulario
+    document.getElementById("editGoalsScored").value = match.goalsScored;
+    document.getElementById("editGoalsConceded").value = match.goalsConceded;
+    document.getElementById("editYellowCards").value = match.yellowCards;
+    document.getElementById("editBlueCards").value = match.blueCards;
+    document.getElementById("editRedCards").value = match.redCards;
+    document.getElementById("editRefereeValue").value = match.refereeValue;
+    
+    updateMatchPaymentsList();
+    document.getElementById("matchModal").classList.add("active");
+  };
+
+  window.closeMatchModal = function() {
+    document.getElementById("matchModal").classList.remove("active");
+    currentEditingMatchIndex = null;
+  };
+
+  function updateMatchPaymentsList() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.refereePayments) return;
+    
+    const paymentsList = document.getElementById("matchPaymentsList");
+    
+    const html = match.presentPlayers.map(playerId => {
+      const player = players.find(p => p.id === playerId);
+      const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
+      const isPaid = match.refereePayments[playerId] || false;
+      
+      return `
+        <div class="payment-item">
+          <div style="flex: 1;">
+            <div style="font-weight: 500;">${playerName}</div>
+            <div style="font-size: 0.85em; color: #666;">$${match.refereePerPlayer.toFixed(0)} COP</div>
+          </div>
+          <div class="payment-item-actions">
+            <button class="btn btn-sm ${isPaid ? 'btn-success' : 'btn-warning'}" 
+                    onclick="toggleMatchPayment('${playerId}')"
+                    style="min-width: 100px;">
+              ${isPaid ? '✓ Pagado' : '⏳ Pendiente'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    paymentsList.innerHTML = html;
+  }
+
+  window.toggleMatchPayment = function(playerId) {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.refereePayments) return;
+    
+    match.refereePayments[playerId] = !match.refereePayments[playerId];
+    updateMatchPaymentsList();
+  };
+
+  window.saveMatchChanges = async function() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    const oldStats = { ...tournamentData.stats };
+    
+    // Obtener nuevos valores
+    const newGoalsScored = parseInt(document.getElementById("editGoalsScored").value) || 0;
+    const newGoalsConceded = parseInt(document.getElementById("editGoalsConceded").value) || 0;
+    const newYellowCards = parseInt(document.getElementById("editYellowCards").value) || 0;
+    const newBlueCards = parseInt(document.getElementById("editBlueCards").value) || 0;
+    const newRedCards = parseInt(document.getElementById("editRedCards").value) || 0;
+    const newRefereeValue = parseFloat(document.getElementById("editRefereeValue").value) || 0;
+    
+    // Calcular nuevo resultado
+    let newPoints = 0;
+    let newResult = "";
+    if (newGoalsScored > newGoalsConceded) {
+      newPoints = 2;
+      newResult = "Victoria";
+    } else if (newGoalsScored === newGoalsConceded) {
+      newPoints = 1;
+      newResult = "Empate";
+    } else {
+      newPoints = 0;
+      newResult = "Derrota";
+    }
+    
+    // Restar estadísticas antiguas
+    const updatedStats = {
+      points: oldStats.points - match.points + newPoints,
+      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0) + (newResult === "Victoria" ? 1 : 0),
+      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0) + (newResult === "Empate" ? 1 : 0),
+      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0) + (newResult === "Derrota" ? 1 : 0),
+      goalsScored: oldStats.goalsScored - match.goalsScored + newGoalsScored,
+      goalsConceded: oldStats.goalsConceded - match.goalsConceded + newGoalsConceded,
+      yellowCards: oldStats.yellowCards - match.yellowCards + newYellowCards,
+      blueCards: oldStats.blueCards - match.blueCards + newBlueCards,
+      redCards: oldStats.redCards - match.redCards + newRedCards,
+      totalReferee: oldStats.totalReferee - match.refereeValue + newRefereeValue,
+    };
+    
+    // Actualizar partido
+    const newRefereePerPlayer = match.presentPlayers.length > 0 ? newRefereeValue / match.presentPlayers.length : 0;
+    
+    tournamentData.matches[currentEditingMatchIndex] = {
+      ...match,
+      goalsScored: newGoalsScored,
+      goalsConceded: newGoalsConceded,
+      yellowCards: newYellowCards,
+      blueCards: newBlueCards,
+      redCards: newRedCards,
+      refereeValue: newRefereeValue,
+      refereePerPlayer: newRefereePerPlayer,
+      points: newPoints,
+      result: newResult,
+    };
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      matches: tournamentData.matches,
+      stats: updatedStats,
+    });
+    
+    await loadTournamentData();
+    closeMatchModal();
+    updateAllViews();
+    alert("✅ Partido actualizado exitosamente");
+  };
+
+  window.deleteMatch = async function() {
+    if (currentEditingMatchIndex === null) return;
+    
+    if (!confirm("¿Estás seguro de eliminar este partido? Esta acción no se puede deshacer.")) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    const oldStats = { ...tournamentData.stats };
+    
+    // Restar estadísticas del partido eliminado
+    const updatedStats = {
+      points: oldStats.points - match.points,
+      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0),
+      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0),
+      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0),
+      goalsScored: oldStats.goalsScored - match.goalsScored,
+      goalsConceded: oldStats.goalsConceded - match.goalsConceded,
+      yellowCards: oldStats.yellowCards - match.yellowCards,
+      blueCards: oldStats.blueCards - match.blueCards,
+      redCards: oldStats.redCards - match.redCards,
+      totalReferee: oldStats.totalReferee - match.refereeValue,
+    };
+    
+    // Eliminar partido del array
+    tournamentData.matches.splice(currentEditingMatchIndex, 1);
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      matches: tournamentData.matches,
+      stats: updatedStats,
+    });
+    
+    await loadTournamentData();
+    closeMatchModal();
+    updateAllViews();
+    alert("✅ Partido eliminado exitosamente");
   };
 
   function updatePaymentHistory() {
@@ -1968,6 +2202,9 @@
           <strong>$${match.refereePerPlayer.toFixed(0)} (${match.presentPlayers.length} presentes)</strong>
         </div>
         ${paymentDetailsHTML}
+        <button class="btn btn-info" onclick="openMatchModal(${index})" style="margin-top: 10px;">
+          📝 Gestionar Partido
+        </button>
       </div>
     `;
       })
