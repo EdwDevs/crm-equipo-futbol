@@ -2002,81 +2002,117 @@
     alert("✅ Partido eliminado exitosamente");
   };
 
-  window.openDebtModal = function() {
-    const perPlayer = tournamentData.inscriptionPerPlayer || 0;
-    const matches = tournamentData.matches || [];
+  window.openDebtModal = async function() {
+    // Cargar datos de ambos torneos
+    const torneo1Doc = await getDoc(doc(db, "tournaments", "torneo1"));
+    const torneo2Doc = await getDoc(doc(db, "tournaments", "torneo2"));
     
+    const torneo1Data = torneo1Doc.exists() ? torneo1Doc.data() : {};
+    const torneo2Data = torneo2Doc.exists() ? torneo2Doc.data() : {};
+    
+    // Cargar jugadores de ambos torneos
+    const q1 = query(collection(db, "players"), where("tournament", "==", "torneo1"));
+    const q2 = query(collection(db, "players"), where("tournament", "==", "torneo2"));
+    
+    const [snapshot1, snapshot2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+    
+    const allPlayers = new Map();
+    
+    // Procesar jugadores de torneo 1
+    snapshot1.forEach((docSnap) => {
+      const player = { id: docSnap.id, ...docSnap.data() };
+      const key = player.name + "_" + player.number;
+      
+      if (!allPlayers.has(key)) {
+        allPlayers.set(key, {
+          name: player.name,
+          number: player.number,
+          torneos: []
+        });
+      }
+      
+      const inscriptionPending = (torneo1Data.inscriptionPerPlayer || 0) - (player.totalPaid || 0);
+      
+      allPlayers.get(key).torneos.push({
+        tournament: "Torneo 1",
+        inscriptionPending: Math.max(0, inscriptionPending),
+        playerId: player.id
+      });
+    });
+    
+    // Procesar jugadores de torneo 2
+    snapshot2.forEach((docSnap) => {
+      const player = { id: docSnap.id, ...docSnap.data() };
+      const key = player.name + "_" + player.number;
+      
+      if (!allPlayers.has(key)) {
+        allPlayers.set(key, {
+          name: player.name,
+          number: player.number,
+          torneos: []
+        });
+      }
+      
+      const inscriptionPending = (torneo2Data.inscriptionPerPlayer || 0) - (player.totalPaid || 0);
+      
+      allPlayers.get(key).torneos.push({
+        tournament: "Torneo 2",
+        inscriptionPending: Math.max(0, inscriptionPending),
+        playerId: player.id
+      });
+    });
+    
+    // Calcular deudas totales
     let totalInscriptionDebt = 0;
-    let totalRefereeDebt = 0;
     const debts = [];
     
-    players.forEach(player => {
-      const inscriptionPaid = player.totalPaid || 0;
-      const inscriptionPending = perPlayer - inscriptionPaid;
+    allPlayers.forEach((playerData) => {
+      const totalInscriptionPending = playerData.torneos.reduce((sum, t) => sum + t.inscriptionPending, 0);
       
-      let refereePending = 0;
-      matches.forEach(match => {
-        if (match.presentPlayers && match.presentPlayers.includes(player.id)) {
-          if (match.refereePayments && !match.refereePayments[player.id]) {
-            refereePending += match.refereePerPlayer || 0;
-          }
-        }
-      });
-      
-      const totalDebt = inscriptionPending + refereePending;
-      
-      if (totalDebt > 0) {
+      if (totalInscriptionPending > 0) {
         debts.push({
-          player: player,
-          inscriptionPending: inscriptionPending,
-          refereePending: refereePending,
-          totalDebt: totalDebt
+          name: playerData.name,
+          number: playerData.number,
+          totalInscriptionPending: totalInscriptionPending,
+          torneos: playerData.torneos.filter(t => t.inscriptionPending > 0)
         });
         
-        totalInscriptionDebt += inscriptionPending;
-        totalRefereeDebt += refereePending;
+        totalInscriptionDebt += totalInscriptionPending;
       }
     });
     
-    const totalDebt = totalInscriptionDebt + totalRefereeDebt;
-    
     document.getElementById("debtSummaryTotal").innerHTML = `
-      <h4>💳 Resumen Total de Deudas</h4>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
-        <div style="text-align: center; background: white; padding: 15px; border-radius: 8px;">
-          <div style="font-size: 24px; font-weight: 700; color: var(--danger);">$${totalDebt.toFixed(0)}</div>
-          <div style="font-size: 12px; color: #666;">Deuda Total</div>
-        </div>
-        <div style="text-align: center; background: white; padding: 15px; border-radius: 8px;">
-          <div style="font-size: 24px; font-weight: 700; color: var(--warning);">$${totalInscriptionDebt.toFixed(0)}</div>
-          <div style="font-size: 12px; color: #666;">Inscripciones</div>
-        </div>
-        <div style="text-align: center; background: white; padding: 15px; border-radius: 8px;">
-          <div style="font-size: 24px; font-weight: 700; color: var(--info);">$${totalRefereeDebt.toFixed(0)}</div>
-          <div style="font-size: 12px; color: #666;">Arbitrajes</div>
-        </div>
+      <h4>💳 Resumen Total de Deudas de Inscripción</h4>
+      <p style="font-size: 14px; color: #666; margin-top: 8px; margin-bottom: 15px;">
+        Consolidado de inscripciones pendientes en todos los torneos
+      </p>
+      <div style="text-align: center; background: white; padding: 20px; border-radius: 8px;">
+        <div style="font-size: 32px; font-weight: 700; color: var(--danger);">$${totalInscriptionDebt.toFixed(0)}</div>
+        <div style="font-size: 14px; color: #666; margin-top: 5px;">Deuda Total de Inscripciones</div>
       </div>
     `;
     
     const detailsList = document.getElementById("debtDetailsList");
     
     if (debts.length === 0) {
-      detailsList.innerHTML = '<p style="text-align: center; color: var(--success); padding: 40px; font-size: 18px;">🎉 ¡No hay deudas pendientes!</p>';
+      detailsList.innerHTML = '<p style="text-align: center; color: var(--success); padding: 40px; font-size: 18px;">🎉 ¡No hay deudas de inscripción pendientes!</p>';
     } else {
-      debts.sort((a, b) => b.totalDebt - a.totalDebt);
+      debts.sort((a, b) => b.totalInscriptionPending - a.totalInscriptionPending);
       
-      detailsList.innerHTML = debts.map(debt => `
+      detailsList.innerHTML = debts.map(debt => {
+        const torneosDetail = debt.torneos.map(t => 
+          `${t.tournament}: $${t.inscriptionPending.toFixed(0)}`
+        ).join(' | ');
+        
+        return `
         <div class="debt-item">
           <div class="debt-item-info">
-            <div class="debt-item-name">${debt.player.name} - #${debt.player.number}</div>
-            <div class="debt-item-detail">
-              Inscripción: $${debt.inscriptionPending.toFixed(0)} | 
-              Arbitrajes: $${debt.refereePending.toFixed(0)}
-            </div>
+            <div class="debt-item-name">${debt.name} - #${debt.number}</div>
+            <div class="debt-item-detail">${torneosDetail}</div>
           </div>
-          <div class="debt-item-amount">$${debt.totalDebt.toFixed(0)}</div>
+          <div class="debt-item-amount">$${debt.totalInscriptionPending.toFixed(0)}</div>
         </div>
-      `).join('');
+      `}).join('');
     }
     
     document.getElementById("debtModal").classList.add("active");
