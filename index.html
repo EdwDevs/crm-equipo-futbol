@@ -1027,83 +1027,24 @@
         <strong>Fase Actual:</strong> Fase de Grupos
       </div>
       
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3 id="totalPoints">0</h3>
-          <p>Puntos</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="totalMatches">0</h3>
-          <p>Partidos</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="totalGoalsScored">0</h3>
-          <p>Goles Anotados</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="totalGoalsConceded">0</h3>
-          <p>Goles Recibidos</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="avgGoalsScored">0</h3>
-          <p>Promedio Goles Anotados</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="avgGoalsConceded">0</h3>
-          <p>Promedio Goles Recibidos</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="totalWins">0</h3>
-          <p>Victorias</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="winPercent">0%</h3>
-          <p>% Victorias</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="totalDraws">0</h3>
-          <p>Empates</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="drawPercent">0%</h3>
-          <p>% Empates</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="totalLosses">0</h3>
-          <p>Derrotas</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="lossPercent">0%</h3>
-          <p>% Derrotas</p>
-        </div>
-        <div class="stat-card">
-          <h3 id="goalDifference">0</h3>
-          <p>Diferencia de Goles</p>
-        </div>
+      <h3 class="section-title">📊 Estadísticas del Equipo</h3>
+      
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Valor</th>
+              <th>Promedio</th>
+            </tr>
+          </thead>
+          <tbody id="teamStatsTable">
+          </tbody>
+        </table>
       </div>
       
-      <div class="match-card">
-        <h4>📋 Tarjetas Acumuladas</h4>
-        <div class="summary-row">
-          <span>🟨 Amarillas:</span>
-          <strong id="totalYellow">0</strong>
-        </div>
-        <div class="summary-row">
-          <span>🟦 Azules:</span>
-          <strong id="totalBlue">0</strong>
-        </div>
-        <div class="summary-row">
-          <span>🟥 Rojas:</span>
-          <strong id="totalRed">0</strong>
-        </div>
-        <div class="summary-row">
-          <span>Promedio Tarjetas por Partido:</span>
-          <strong id="avgCards">0</strong>
-        </div>
-      </div>
-      
-      <div class="match-card">
-        <h4>💼 Finanzas</h4>
+      <div class="match-card" style="margin-top: 20px;">
+        <h4>💼 Finanzas del Equipo</h4>
         <div class="summary-row">
           <span>💰 Total Recaudado (Inscripciones):</span>
           <strong id="totalCollected">$0</strong>
@@ -1124,6 +1065,44 @@
           <span>⏳ Total Arbitrajes Pendientes:</span>
           <strong id="totalRefereePending">$0</strong>
         </div>
+      </div>
+      
+      <h3 class="section-title" style="margin-top: 30px;">👥 Estadísticas por Jugador</h3>
+      
+      <div class="filter-bar">
+        <input type="text" id="playerStatsFilter" placeholder="🔍 Buscar jugador..." onkeyup="filterPlayerStats()">
+        <select id="playerStatsSortBy" onchange="sortPlayerStats()">
+          <option value="matches">Ordenar por: Partidos</option>
+          <option value="goals">Ordenar por: Goles</option>
+          <option value="avgGoals">Ordenar por: Promedio Goles</option>
+          <option value="yellowCards">Ordenar por: Amarillas</option>
+          <option value="blueCards">Ordenar por: Azules</option>
+          <option value="redCards">Ordenar por: Rojas</option>
+          <option value="attendance">Ordenar por: Asistencia %</option>
+        </select>
+        <button class="btn btn-sm btn-info" onclick="clearPlayerStatsFilters()">Limpiar</button>
+      </div>
+      
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>#</th>
+              <th>Partidos</th>
+              <th>Asistencia</th>
+              <th>⚽ Goles</th>
+              <th>Prom. Goles</th>
+              <th>🟨</th>
+              <th>🟦</th>
+              <th>🟥</th>
+              <th>Total Tarjetas</th>
+              <th>Prom. Tarjetas</th>
+            </tr>
+          </thead>
+          <tbody id="playerStatsTable">
+          </tbody>
+        </table>
       </div>
     </div>
     
@@ -1284,7 +1263,7 @@
 
 <!-- Modal para gestionar partidos -->
 <div id="matchModal" class="modal">
-  <div class="modal-content">
+  <div class="modal-content" style="max-width: 800px;">
     <div class="modal-header">
       <h3>⚽ Gestionar Partido</h3>
       <button class="modal-close" onclick="closeMatchModal()">&times;</button>
@@ -1303,15 +1282,15 @@
         <input type="number" id="editGoalsConceded" min="0" />
       </div>
       <div class="form-group" style="margin-bottom: 10px;">
-        <label>🟨 Amarillas</label>
+        <label>🟨 Amarillas (Equipo)</label>
         <input type="number" id="editYellowCards" min="0" />
       </div>
       <div class="form-group" style="margin-bottom: 10px;">
-        <label>🟦 Azules</label>
+        <label>🟦 Azules (Equipo)</label>
         <input type="number" id="editBlueCards" min="0" />
       </div>
       <div class="form-group" style="margin-bottom: 10px;">
-        <label>🟥 Rojas</label>
+        <label>🟥 Rojas (Equipo)</label>
         <input type="number" id="editRedCards" min="0" />
       </div>
       <div class="form-group" style="margin-bottom: 10px;">
@@ -1320,8 +1299,15 @@
       </div>
     </div>
     
-    <h4 style="margin-bottom: 10px; color: var(--primary);">Control de Cobro de Arbitraje</h4>
-    <div class="payment-history" id="matchPaymentsList" style="max-height: 300px;">
+    <h4 style="margin-bottom: 10px; color: var(--primary);">Estadísticas Individuales</h4>
+    <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
+      Registra goles y tarjetas de cada jugador presente en el partido
+    </p>
+    <div id="playerIndividualStats" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+    </div>
+    
+    <h4 style="margin-bottom: 10px; margin-top: 20px; color: var(--primary);">Control de Cobro de Arbitraje</h4>
+    <div class="payment-history" id="matchPaymentsList" style="max-height: 200px;">
     </div>
     
     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1780,6 +1766,17 @@
     
     const refereePerPlayer = refereeValue / presentPlayers.length;
     
+    // Inicializar estadísticas individuales vacías para cada jugador presente
+    const playerStats = {};
+    presentPlayers.forEach(playerId => {
+      playerStats[playerId] = {
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      };
+    });
+    
     const matchData = {
       date: new Date().toISOString(),
       goalsScored, goalsConceded,
@@ -1787,6 +1784,7 @@
       refereeValue, presentPlayers,
       refereePerPlayer, refereePayments,
       points, result,
+      playerStats: playerStats // Nueva propiedad para estadísticas por jugador
     };
     
     const newMatches = [...(tournamentData.matches || []), matchData];
@@ -1822,7 +1820,7 @@
     const paidCount = Object.values(refereePayments).filter(paid => paid).length;
     const pendingCount = presentPlayers.length - paidCount;
     
-    alert(`✅ Partido registrado exitosamente\n\nResultado: ${result} (${points} puntos)\nJugadores que pagaron arbitraje: ${paidCount}\nJugadores con pago pendiente: ${pendingCount}`);
+    alert(`✅ Partido registrado exitosamente\n\nNota: Ahora puedes editar las estadísticas individuales de cada jugador desde "Gestionar Partido"\n\nResultado: ${result} (${points} puntos)\nJugadores que pagaron arbitraje: ${paidCount}\nJugadores con pago pendiente: ${pendingCount}`);
   };
 
   window.openMatchModal = function(matchIndex) {
@@ -1851,8 +1849,107 @@
     document.getElementById("editRedCards").value = match.redCards;
     document.getElementById("editRefereeValue").value = match.refereeValue;
     
+    // Inicializar playerStats si no existe
+    if (!match.playerStats) {
+      match.playerStats = {};
+      match.presentPlayers.forEach(playerId => {
+        match.playerStats[playerId] = {
+          goals: 0,
+          yellowCards: 0,
+          blueCards: 0,
+          redCards: 0
+        };
+      });
+    }
+    
+    updatePlayerIndividualStats();
     updateMatchPaymentsList();
     document.getElementById("matchModal").classList.add("active");
+  };
+
+  function updatePlayerIndividualStats() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.presentPlayers) return;
+    
+    const statsContainer = document.getElementById("playerIndividualStats");
+    
+    const html = match.presentPlayers.map(playerId => {
+      const player = players.find(p => p.id === playerId);
+      const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
+      
+      const stats = match.playerStats?.[playerId] || {
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      };
+      
+      return `
+        <div style="background: white; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 3px solid var(--primary);">
+          <div style="font-weight: 600; margin-bottom: 10px; color: var(--dark);">${playerName}</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;">
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">⚽ Goles</label>
+              <input type="number" 
+                     id="player_${playerId}_goals" 
+                     value="${stats.goals}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'goals', this.value)">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">🟨 Amarillas</label>
+              <input type="number" 
+                     id="player_${playerId}_yellow" 
+                     value="${stats.yellowCards}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'yellowCards', this.value)">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">🟦 Azules</label>
+              <input type="number" 
+                     id="player_${playerId}_blue" 
+                     value="${stats.blueCards}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'blueCards', this.value)">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">🟥 Rojas</label>
+              <input type="number" 
+                     id="player_${playerId}_red" 
+                     value="${stats.redCards}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'redCards', this.value)">
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    statsContainer.innerHTML = html;
+  }
+
+  window.updatePlayerStat = function(playerId, stat, value) {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.playerStats) return;
+    
+    if (!match.playerStats[playerId]) {
+      match.playerStats[playerId] = {
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      };
+    }
+    
+    match.playerStats[playerId][stat] = parseInt(value) || 0;
   };
 
   window.closeMatchModal = function() {
@@ -2570,44 +2667,129 @@
       .join("");
   }
 
+  let filteredPlayerStats = [];
+
   function updateStatistics() {
     const stats = tournamentData.stats || {};
     const matches = tournamentData.matches || [];
     const manualMatches = tournamentData.manualMatches || 0;
     const totalMatches = matches.length + manualMatches;
     
-    document.getElementById("totalPoints").textContent = stats.points || 0;
-    document.getElementById("totalMatches").textContent = totalMatches;
-    document.getElementById("totalGoalsScored").textContent = stats.goalsScored || 0;
-    document.getElementById("totalGoalsConceded").textContent = stats.goalsConceded || 0;
+    // Tabla de estadísticas del equipo
+    const teamStatsTable = document.getElementById("teamStatsTable");
     
     const avgGoalsScored = totalMatches > 0 ? (stats.goalsScored || 0) / totalMatches : 0;
     const avgGoalsConceded = totalMatches > 0 ? (stats.goalsConceded || 0) / totalMatches : 0;
-    document.getElementById("avgGoalsScored").textContent = avgGoalsScored.toFixed(2);
-    document.getElementById("avgGoalsConceded").textContent = avgGoalsConceded.toFixed(2);
-    
-    document.getElementById("totalWins").textContent = stats.wins || 0;
-    document.getElementById("totalDraws").textContent = stats.draws || 0;
-    document.getElementById("totalLosses").textContent = stats.losses || 0;
-    
     const winPercent = totalMatches > 0 ? ((stats.wins || 0) / totalMatches) * 100 : 0;
     const drawPercent = totalMatches > 0 ? ((stats.draws || 0) / totalMatches) * 100 : 0;
     const lossPercent = totalMatches > 0 ? ((stats.losses || 0) / totalMatches) * 100 : 0;
-    
-    document.getElementById("winPercent").textContent = winPercent.toFixed(1) + "%";
-    document.getElementById("drawPercent").textContent = drawPercent.toFixed(1) + "%";
-    document.getElementById("lossPercent").textContent = lossPercent.toFixed(1) + "%";
-    
-    document.getElementById("goalDifference").textContent = (stats.goalsScored || 0) - (stats.goalsConceded || 0);
-    
-    document.getElementById("totalYellow").textContent = stats.yellowCards || 0;
-    document.getElementById("totalBlue").textContent = stats.blueCards || 0;
-    document.getElementById("totalRed").textContent = stats.redCards || 0;
-    
+    const goalDifference = (stats.goalsScored || 0) - (stats.goalsConceded || 0);
     const totalCards = (stats.yellowCards || 0) + (stats.blueCards || 0) + (stats.redCards || 0);
     const avgCards = totalMatches > 0 ? totalCards / totalMatches : 0;
-    document.getElementById("avgCards").textContent = avgCards.toFixed(2);
     
+    teamStatsTable.innerHTML = `
+      <tr>
+        <td><strong>⚽ Partidos Jugados</strong></td>
+        <td>${totalMatches}</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td><strong>🏆 Puntos</strong></td>
+        <td>${stats.points || 0}</td>
+        <td>${totalMatches > 0 ? ((stats.points || 0) / totalMatches).toFixed(2) : 0} pts/partido</td>
+      </tr>
+      <tr style="background: #d4edda;">
+        <td><strong>✅ Victorias</strong></td>
+        <td>${stats.wins || 0}</td>
+        <td>${winPercent.toFixed(1)}%</td>
+      </tr>
+      <tr style="background: #fff3cd;">
+        <td><strong>🤝 Empates</strong></td>
+        <td>${stats.draws || 0}</td>
+        <td>${drawPercent.toFixed(1)}%</td>
+      </tr>
+      <tr style="background: #f8d7da;">
+        <td><strong>❌ Derrotas</strong></td>
+        <td>${stats.losses || 0}</td>
+        <td>${lossPercent.toFixed(1)}%</td>
+      </tr>
+      <tr>
+        <td><strong>⚽ Goles Anotados</strong></td>
+        <td>${stats.goalsScored || 0}</td>
+        <td>${avgGoalsScored.toFixed(2)} goles/partido</td>
+      </tr>
+      <tr>
+        <td><strong>🥅 Goles Recibidos</strong></td>
+        <td>${stats.goalsConceded || 0}</td>
+        <td>${avgGoalsConceded.toFixed(2)} goles/partido</td>
+      </tr>
+      <tr style="background: ${goalDifference >= 0 ? '#d4edda' : '#f8d7da'};">
+        <td><strong>📊 Diferencia de Goles</strong></td>
+        <td>${goalDifference >= 0 ? '+' : ''}${goalDifference}</td>
+        <td>-</td>
+      </tr>
+      <tr style="background: #fff3cd;">
+        <td><strong>🟨 Tarjetas Amarillas</strong></td>
+        <td>${stats.yellowCards || 0}</td>
+        <td>${totalMatches > 0 ? ((stats.yellowCards || 0) / totalMatches).toFixed(2) : 0} por partido</td>
+      </tr>
+      <tr style="background: #d1ecf1;">
+        <td><strong>🟦 Tarjetas Azules</strong></td>
+        <td>${stats.blueCards || 0}</td>
+        <td>${totalMatches > 0 ? ((stats.blueCards || 0) / totalMatches).toFixed(2) : 0} por partido</td>
+      </tr>
+      <tr style="background: #f8d7da;">
+        <td><strong>🟥 Tarjetas Rojas</strong></td>
+        <td>${stats.redCards || 0}</td>
+        <td>${totalMatches > 0 ? ((stats.redCards || 0) / totalMatches).toFixed(2) : 0} por partido</td>
+      </tr>
+      <tr>
+        <td><strong>📋 Total Tarjetas</strong></td>
+        <td>${totalCards}</td>
+        <td>${avgCards.toFixed(2)} por partido</td>
+      </tr>
+    `;
+    
+    // Calcular estadísticas por jugador
+    const playerStatsMap = new Map();
+    
+    players.forEach(player => {
+      playerStatsMap.set(player.id, {
+        id: player.id,
+        name: player.name,
+        number: player.number,
+        matchesPlayed: 0,
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      });
+    });
+    
+    matches.forEach(match => {
+      if (match.presentPlayers) {
+        match.presentPlayers.forEach(playerId => {
+          if (playerStatsMap.has(playerId)) {
+            const playerStat = playerStatsMap.get(playerId);
+            playerStat.matchesPlayed++;
+            
+            // Sumar estadísticas individuales si existen
+            if (match.playerStats && match.playerStats[playerId]) {
+              const stats = match.playerStats[playerId];
+              playerStat.goals += stats.goals || 0;
+              playerStat.yellowCards += stats.yellowCards || 0;
+              playerStat.blueCards += stats.blueCards || 0;
+              playerStat.redCards += stats.redCards || 0;
+            }
+          }
+        });
+      }
+    });
+    
+    filteredPlayerStats = Array.from(playerStatsMap.values());
+    sortPlayerStats();
+    
+    // Finanzas
     const totalPaid = players.reduce((sum, p) => sum + (p.totalPaid || 0), 0);
     document.getElementById("totalCollected").textContent = `$${totalPaid.toFixed(0)}`;
     document.getElementById("totalInscriptionNeeded").textContent = `$${(tournamentData.totalInscription || 0).toFixed(0)}`;
@@ -2629,6 +2811,129 @@
     document.getElementById("totalRefereeCollected").textContent = `$${totalRefereeCollected.toFixed(0)}`;
     document.getElementById("totalRefereePending").textContent = `$${totalRefereePending.toFixed(0)}`;
   }
+
+  function updatePlayerStatsTable() {
+    const tbody = document.getElementById("playerStatsTable");
+    const totalMatches = (tournamentData.matches || []).length + (tournamentData.manualMatches || 0);
+    
+    if (filteredPlayerStats.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #999; padding: 20px;">No hay estadísticas de jugadores</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = filteredPlayerStats.map(player => {
+      const avgGoals = player.matchesPlayed > 0 ? (player.goals / player.matchesPlayed).toFixed(2) : '0.00';
+      const totalCards = player.yellowCards + player.blueCards + player.redCards;
+      const avgCards = player.matchesPlayed > 0 ? (totalCards / player.matchesPlayed).toFixed(2) : '0.00';
+      const attendancePercent = totalMatches > 0 ? ((player.matchesPlayed / totalMatches) * 100).toFixed(1) : '0.0';
+      
+      return `
+        <tr>
+          <td><strong>${player.name}</strong></td>
+          <td>${player.number}</td>
+          <td>${player.matchesPlayed}</td>
+          <td>
+            <span class="badge ${attendancePercent >= 80 ? 'badge-success' : attendancePercent >= 50 ? 'badge-warning' : 'badge-danger'}">
+              ${attendancePercent}%
+            </span>
+          </td>
+          <td><strong style="color: var(--success);">${player.goals}</strong></td>
+          <td>${avgGoals}</td>
+          <td>${player.yellowCards}</td>
+          <td>${player.blueCards}</td>
+          <td>${player.redCards}</td>
+          <td><strong>${totalCards}</strong></td>
+          <td>${avgCards}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.filterPlayerStats = function() {
+    const searchTerm = document.getElementById("playerStatsFilter").value.toLowerCase();
+    
+    const playerStatsMap = new Map();
+    
+    players.forEach(player => {
+      playerStatsMap.set(player.id, {
+        id: player.id,
+        name: player.name,
+        number: player.number,
+        matchesPlayed: 0,
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      });
+    });
+    
+    const matches = tournamentData.matches || [];
+    
+    matches.forEach(match => {
+      if (match.presentPlayers) {
+        match.presentPlayers.forEach(playerId => {
+          if (playerStatsMap.has(playerId)) {
+            const playerStat = playerStatsMap.get(playerId);
+            playerStat.matchesPlayed++;
+            
+            if (match.playerStats && match.playerStats[playerId]) {
+              const stats = match.playerStats[playerId];
+              playerStat.goals += stats.goals || 0;
+              playerStat.yellowCards += stats.yellowCards || 0;
+              playerStat.blueCards += stats.blueCards || 0;
+              playerStat.redCards += stats.redCards || 0;
+            }
+          }
+        });
+      }
+    });
+    
+    filteredPlayerStats = Array.from(playerStatsMap.values()).filter(player => {
+      const nameMatch = player.name.toLowerCase().includes(searchTerm);
+      const numberMatch = player.number.toString().includes(searchTerm);
+      return nameMatch || numberMatch;
+    });
+    
+    sortPlayerStats();
+  };
+
+  window.sortPlayerStats = function() {
+    const sortBy = document.getElementById("playerStatsSortBy").value;
+    const totalMatches = (tournamentData.matches || []).length + (tournamentData.manualMatches || 0);
+    
+    filteredPlayerStats.sort((a, b) => {
+      switch(sortBy) {
+        case 'matches':
+          return b.matchesPlayed - a.matchesPlayed;
+        case 'goals':
+          return b.goals - a.goals;
+        case 'avgGoals':
+          const avgA = a.matchesPlayed > 0 ? a.goals / a.matchesPlayed : 0;
+          const avgB = b.matchesPlayed > 0 ? b.goals / b.matchesPlayed : 0;
+          return avgB - avgA;
+        case 'yellowCards':
+          return b.yellowCards - a.yellowCards;
+        case 'blueCards':
+          return b.blueCards - a.blueCards;
+        case 'redCards':
+          return b.redCards - a.redCards;
+        case 'attendance':
+          const attA = totalMatches > 0 ? a.matchesPlayed / totalMatches : 0;
+          const attB = totalMatches > 0 ? b.matchesPlayed / totalMatches : 0;
+          return attB - attA;
+        default:
+          return 0;
+      }
+    });
+    
+    updatePlayerStatsTable();
+  };
+
+  window.clearPlayerStatsFilters = function() {
+    document.getElementById("playerStatsFilter").value = "";
+    document.getElementById("playerStatsSortBy").value = "matches";
+    filterPlayerStats();
+  };
 
   function updateInscriptionInfo() {
     const perPlayer = tournamentData.inscriptionPerPlayer || 0;
