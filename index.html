@@ -127,6 +127,34 @@
     50% { background-position: 100% 50%; }
   }
   
+  /* Efecto de borde multicolor (prism effect) */
+  .container::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, 
+      var(--champions-cyan), 
+      var(--champions-purple), 
+      var(--champions-pink), 
+      var(--champions-orange), 
+      var(--champions-yellow), 
+      var(--champions-green),
+      var(--champions-cyan)
+    );
+    background-size: 300% 300%;
+    border-radius: 15px;
+    z-index: -1;
+    animation: prismaticGlow 8s ease infinite;
+  }
+  
+  @keyframes prismaticGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
   .header {
     background: linear-gradient(135deg, var(--champions-navy) 0%, var(--champions-blue) 100%);
     color: white;
@@ -223,468 +251,356 @@
   
   .nav-tabs {
     display: flex;
-    flex-wrap: wrap;
-    background: var(--light);
-    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+    background: linear-gradient(to right, var(--champions-navy), var(--champions-darkblue));
+    border-bottom: 3px solid var(--champions-blue);
     flex-shrink: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--champions-blue) var(--champions-navy);
   }
   
-  .tab {
-    flex: 1;
-    min-width: 80px;
-    padding: 12px 8px;
-    text-align: center;
-    background: var(--light);
+  .nav-tabs::-webkit-scrollbar { height: 6px; }
+  .nav-tabs::-webkit-scrollbar-track { background: var(--champions-navy); }
+  .nav-tabs::-webkit-scrollbar-thumb { background: var(--champions-blue); border-radius: 3px; }
+  
+  .nav-tabs button {
+    flex: 0 0 auto;
+    min-width: 100px;
+    padding: clamp(10px, 2vw, 14px) clamp(12px, 3vw, 16px);
     border: none;
+    background: transparent;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: calc(var(--font-base) * 0.9);
+    font-size: calc(var(--font-base) * 0.95);
     font-weight: 600;
-    color: var(--dark);
-    border-bottom: 3px solid transparent;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    white-space: nowrap;
     position: relative;
-    overflow: hidden;
   }
   
-  .tab:hover {
-    background: #e9ecef;
-    color: var(--secondary);
-  }
-  
-  .tab.active {
-    background: white;
-    color: var(--secondary);
-    border-bottom: 3px solid var(--secondary);
-  }
-  
-  .tab.active::before {
+  .nav-tabs button::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
-    right: 0;
+    width: 100%;
     height: 3px;
     background: linear-gradient(90deg, 
       var(--champions-cyan), 
       var(--champions-purple), 
       var(--champions-pink)
     );
-    animation: tabGlow 2s ease infinite;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
   }
   
-  @keyframes tabGlow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+  .nav-tabs button.active {
+    color: white;
+    background: rgba(0, 102, 204, 0.3);
   }
   
-  .tab-content {
-    flex: 1;
+  .nav-tabs button.active::after {
+    transform: scaleX(1);
+  }
+  
+  .nav-tabs button:hover { 
+    background: rgba(0, 102, 204, 0.2);
+    color: white;
+  }
+  
+  .content {
+    padding: clamp(12px, 3vw, 20px);
     overflow-y: auto;
-    padding: var(--padding);
+    flex: 1;
     scrollbar-width: thin;
-    scrollbar-color: var(--secondary) var(--light);
+    scrollbar-color: var(--primary) var(--light);
   }
   
-  .tab-content::-webkit-scrollbar {
-    width: 8px;
+  .content::-webkit-scrollbar { width: 8px; }
+  .content::-webkit-scrollbar-track { background: var(--light); }
+  .content::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+  
+  .tournament-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(15px, 3vw, 25px);
   }
   
-  .tab-content::-webkit-scrollbar-track {
-    background: var(--light);
+  .tournament-selector button {
+    padding: clamp(12px, 2vw, 16px);
+    border: 2px solid var(--champions-blue);
+    background: white;
+    color: var(--champions-navy);
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: var(--font-base);
+    position: relative;
+    overflow: hidden;
   }
   
-  .tab-content::-webkit-scrollbar-thumb {
-    background: var(--secondary);
-    border-radius: 4px;
+  .tournament-selector button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(0, 191, 255, 0.3), 
+      transparent
+    );
+    transition: left 0.5s ease;
   }
   
-  .tab-content::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
+  .tournament-selector button:hover::before {
+    left: 100%;
   }
   
-  .tab-pane {
-    display: none;
-  }
-  
-  .tab-pane.active {
-    display: block;
+  .tournament-selector button.active {
+    background: linear-gradient(135deg, var(--champions-navy), var(--champions-blue));
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 102, 204, 0.4);
   }
   
   .form-group {
-    margin-bottom: 15px;
+    margin-bottom: clamp(12px, 2.5vw, 18px);
   }
   
-  label {
+  .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     font-weight: 600;
-    color: var(--dark);
+    color: var(--champions-navy);
     font-size: calc(var(--font-base) * 0.95);
   }
   
-  input[type="text"],
-  input[type="number"],
-  input[type="date"],
-  select,
-  textarea {
+  .form-group input, 
+  .form-group select {
     width: 100%;
-    padding: 10px;
+    padding: clamp(10px, 2vw, 12px);
     border: 2px solid var(--border);
     border-radius: 8px;
     font-size: var(--font-base);
     transition: all 0.3s ease;
-    background: white;
   }
   
-  input[type="text"]:focus,
-  input[type="number"]:focus,
-  input[type="date"]:focus,
-  select:focus,
-  textarea:focus {
+  .form-group input:focus, 
+  .form-group select:focus {
     outline: none;
-    border-color: var(--secondary);
+    border-color: var(--champions-blue);
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
   }
   
-  textarea {
-    resize: vertical;
-    min-height: 80px;
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(8px, 2vw, 12px);
+  }
+  
+  @media (min-width: 768px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
   }
   
   .btn {
-    padding: 10px 20px;
+    width: 100%;
+    padding: clamp(12px, 2vw, 16px);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
+    font-weight: bold;
     cursor: pointer;
     font-size: var(--font-base);
-    font-weight: 600;
     transition: all 0.3s ease;
-    text-align: center;
-    display: inline-block;
-    margin: 5px 2px;
+    margin-top: clamp(8px, 2vw, 12px);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
   
-  .btn-primary {
-    background: linear-gradient(135deg, var(--secondary), var(--primary));
-    color: white;
-    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  .btn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
   }
   
-  .btn-primary:hover {
+  .btn:hover::before {
+    width: 300%;
+    height: 300%;
+  }
+  
+  .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4);
+    box-shadow: 0 6px 20px var(--shadow);
   }
   
-  .btn-success {
-    background: var(--success);
+  .btn:active { transform: translateY(0); }
+  
+  .btn-primary { 
+    background: linear-gradient(135deg, var(--champions-navy), var(--champions-blue));
+    color: white; 
+  }
+  
+  .btn-success { 
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white; 
+  }
+  
+  .btn-danger { 
+    background: linear-gradient(135deg, #dc3545, #ff006e);
+    color: white; 
+  }
+  
+  .btn-warning { 
+    background: linear-gradient(135deg, #ffc107, #ff6b00);
     color: white;
   }
   
-  .btn-success:hover {
-    background: #218838;
-    transform: translateY(-2px);
-  }
-  
-  .btn-danger {
-    background: var(--danger);
-    color: white;
-  }
-  
-  .btn-danger:hover {
-    background: #c82333;
-    transform: translateY(-2px);
-  }
-  
-  .btn-secondary {
-    background: #6c757d;
-    color: white;
-  }
-  
-  .btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
+  .btn-info { 
+    background: linear-gradient(135deg, #17a2b8, #00bfff);
+    color: white; 
   }
   
   .btn-sm {
     padding: 6px 12px;
     font-size: calc(var(--font-base) * 0.85);
+    width: auto;
+    margin: 0;
   }
   
-  table {
+  .table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 2px solid var(--champions-blue);
+    box-shadow: 0 5px 15px rgba(0, 30, 71, 0.2);
+  }
+  
+  .table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
     background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px var(--shadow);
   }
   
-  th {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+  .table thead {
+    background: linear-gradient(135deg, var(--champions-navy) 0%, var(--champions-blue) 100%);
     color: white;
-    padding: 12px;
+  }
+  
+  .table th {
+    padding: 14px 12px;
     text-align: left;
     font-weight: 700;
     font-size: calc(var(--font-base) * 0.95);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
-  td {
-    padding: 10px 12px;
+  .table td {
+    padding: 12px;
     border-bottom: 1px solid var(--border);
-    font-size: var(--font-base);
+    font-size: calc(var(--font-base) * 0.9);
   }
   
-  tr:hover {
-    background: #f8f9fa;
+  .table tbody tr:hover {
+    background: linear-gradient(to right, 
+      rgba(0, 191, 255, 0.05), 
+      rgba(139, 0, 255, 0.05)
+    );
   }
   
-  tr:last-child td {
+  .table tbody tr:last-child td {
     border-bottom: none;
   }
   
-  .player-item,
-  .match-item {
-    background: white;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border-left: 4px solid var(--secondary);
-    box-shadow: 0 2px 6px var(--shadow);
+  .table .actions {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-  }
-  
-  .player-item:hover,
-  .match-item:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 12px var(--shadow);
-  }
-  
-  .player-info,
-  .match-info {
-    flex: 1;
-  }
-  
-  .player-actions,
-  .match-actions {
-    display: flex;
-    gap: 5px;
-  }
-  
-  .badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: calc(var(--font-base) * 0.85);
-    font-weight: 600;
-    margin: 2px;
-  }
-  
-  .badge-success {
-    background: #d4edda;
-    color: #155724;
-  }
-  
-  .badge-danger {
-    background: #f8d7da;
-    color: #721c24;
-  }
-  
-  .badge-warning {
-    background: #fff3cd;
-    color: #856404;
-  }
-  
-  .badge-info {
-    background: #d1ecf1;
-    color: #0c5460;
-  }
-  
-  .alert {
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    font-size: var(--font-base);
-  }
-  
-  .alert-info {
-    background: #d1ecf1;
-    border: 1px solid #bee5eb;
-    color: #0c5460;
-  }
-  
-  .alert-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-  }
-  
-  .alert-warning {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    color: #856404;
-  }
-  
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-  }
-  
-  .stat-card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px var(--shadow);
-    text-align: center;
-    border-top: 4px solid var(--secondary);
-    transition: all 0.3s ease;
-  }
-  
-  .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px var(--shadow);
-  }
-  
-  .stat-card h3 {
-    font-size: calc(var(--font-base) * 1.1);
-    color: var(--dark);
-    margin-bottom: 10px;
-  }
-  
-  .stat-card .stat-value {
-    font-size: calc(var(--font-base) * 2);
-    font-weight: 900;
-    color: var(--secondary);
-    display: block;
-    margin: 10px 0;
-  }
-  
-  .stat-card .stat-label {
-    font-size: calc(var(--font-base) * 0.9);
-    color: #666;
-  }
-  
-  .checkbox-group {
-    display: flex;
+    gap: 6px;
     flex-wrap: wrap;
-    gap: 10px;
-    margin: 10px 0;
   }
   
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 12px;
-    background: var(--light);
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .checkbox-label:hover {
+  .table .progress-bar {
+    height: 10px;
     background: #e9ecef;
-    border-color: var(--secondary);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 4px;
   }
   
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-  }
-  
-  .filter-controls {
-    background: var(--light);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  
-  .filter-controls input,
-  .filter-controls select {
-    flex: 1;
-    min-width: 150px;
-  }
-  
-  .filter-controls button {
-    flex-shrink: 0;
-  }
-  
-  .section-title {
-    font-size: calc(var(--font-base) * 1.3);
-    font-weight: 700;
-    color: var(--primary);
-    margin: 20px 0 15px;
-    padding-bottom: 10px;
-    border-bottom: 3px solid var(--secondary);
-    position: relative;
-  }
-  
-  .section-title::after {
-    content: "";
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 100px;
-    height: 3px;
+  .table .progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
     background: linear-gradient(90deg, 
       var(--champions-cyan), 
+      var(--champions-blue), 
       var(--champions-purple)
     );
   }
   
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #999;
+  .badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: calc(var(--font-base) * 0.8);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
-  .empty-state-icon {
-    font-size: 48px;
+  .badge-success { 
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white; 
+  }
+  
+  .badge-warning { 
+    background: linear-gradient(135deg, #ffc107, #ff6b00);
+    color: white; 
+  }
+  
+  .badge-danger { 
+    background: linear-gradient(135deg, #dc3545, #ff006e);
+    color: white; 
+  }
+  
+  .badge-info { 
+    background: linear-gradient(135deg, #17a2b8, #00bfff);
+    color: white; 
+  }
+  
+  .filter-bar {
+    display: flex;
+    gap: 10px;
     margin-bottom: 15px;
-    opacity: 0.5;
+    flex-wrap: wrap;
+    align-items: center;
   }
   
-  @media (max-width: 768px) {
-    .player-item,
-    .match-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    
-    .player-actions,
-    .match-actions {
-      width: 100%;
-      justify-content: flex-start;
-    }
-    
-    .btn {
-      padding: 8px 15px;
-      font-size: calc(var(--font-base) * 0.9);
-    }
-    
-    table {
-      font-size: calc(var(--font-base) * 0.85);
-    }
-    
-    th, td {
-      padding: 8px 6px;
-    }
-    
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
+  .filter-bar input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 15px;
+    border: 2px solid var(--champions-blue);
+    border-radius: 8px;
+    font-size: var(--font-base);
+  }
+  
+  .filter-bar select {
+    padding: 10px 15px;
+    border: 2px solid var(--champions-blue);
+    border-radius: 8px;
+    font-size: var(--font-base);
   }
   
   .modal {
@@ -695,75 +611,499 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 30, 71, 0.8);
     backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
   }
+  
+  .modal.active { display: flex; align-items: center; justify-content: center; }
   
   .modal-content {
     background: white;
-    margin: 5% auto;
-    padding: 0;
+    padding: 25px;
     border-radius: 15px;
-    max-width: 600px;
+    max-width: 800px;
+    width: 90%;
     max-height: 85vh;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    animation: modalSlideIn 0.3s ease;
-  }
-  
-  @keyframes modalSlideIn {
-    from {
-      transform: translateY(-50px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+    border: 3px solid var(--champions-blue);
+    box-shadow: 0 10px 40px rgba(0, 30, 71, 0.5);
   }
   
   .modal-header {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: white;
-    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid var(--champions-blue);
   }
   
-  .modal-header h2 {
-    margin: 0;
-    font-size: calc(var(--font-base) * 1.4);
+  .modal-header h3 {
+    color: var(--champions-navy);
+    font-size: calc(var(--font-base) * 1.3);
+    font-weight: 700;
   }
   
-  .close {
-    color: white;
+  .modal-close {
+    background: none;
+    border: none;
     font-size: 32px;
-    font-weight: bold;
     cursor: pointer;
-    line-height: 1;
+    color: #999;
+    transition: color 0.3s ease;
+    font-weight: bold;
+  }
+  
+  .modal-close:hover { color: var(--danger); }
+  
+  .payment-history {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 2px solid var(--champions-blue);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+  }
+  
+  .payment-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: var(--light);
+    border-radius: 6px;
+    align-items: center;
+    border-left: 3px solid var(--champions-blue);
+  }
+  
+  .payment-item:last-child { margin-bottom: 0; }
+  
+  .payment-item-date {
+    font-size: calc(var(--font-base) * 0.85);
+    color: #666;
+    font-weight: 600;
+  }
+  
+  .payment-item-amount {
+    font-weight: 700;
+    color: var(--success);
+    font-size: calc(var(--font-base) * 1.1);
+  }
+  
+  .payment-item-actions {
+    display: flex;
+    gap: 6px;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(15px, 3vw, 25px);
+  }
+  
+  @media (min-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  
+  .stat-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: clamp(12px, 3vw, 18px);
+    border-radius: 10px;
+    text-align: center;
     transition: all 0.3s ease;
   }
   
-  .close:hover {
-    transform: rotate(90deg);
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
   
-  .modal-body {
-    padding: 20px;
+  .stat-card h3 {
+    font-size: clamp(24px, 5vw, 32px);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  
+  .stat-card p {
+    font-size: calc(var(--font-base) * 0.85);
+    opacity: 0.95;
+  }
+  
+  .match-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: clamp(15px, 3vw, 20px);
+    margin-bottom: clamp(10px, 2vw, 15px);
+    border-left: 4px solid var(--champions-blue);
+    box-shadow: 0 3px 10px rgba(0, 30, 71, 0.1);
+  }
+  
+  .match-card h4 {
+    color: var(--champions-navy);
+    margin-bottom: clamp(10px, 2vw, 15px);
+    font-size: calc(var(--font-base) * 1.1);
+    font-weight: 700;
+  }
+  
+  .alert {
+    padding: clamp(12px, 2vw, 16px);
+    border-radius: 10px;
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+    font-size: var(--font-base);
+    line-height: 1.6;
+    border-left: 4px solid;
+  }
+  
+  .alert-info { 
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    color: #0c5460; 
+    border-color: var(--champions-cyan);
+  }
+  
+  .alert-warning { 
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404; 
+    border-color: var(--champions-yellow);
+  }
+  
+  .alert-success { 
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724; 
+    border-color: var(--success);
+  }
+  
+  .phase-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: clamp(6px, 1.5vw, 10px);
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+  }
+  
+  .phase-btn {
+    padding: clamp(10px, 1.5vw, 14px);
+    border: 2px solid var(--champions-blue);
+    background: white;
+    color: var(--champions-navy);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: calc(var(--font-base) * 0.9);
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  
+  .phase-btn.active { 
+    background: linear-gradient(135deg, var(--champions-navy), var(--champions-blue));
+    color: white; 
+  }
+  
+  .phase-btn:hover { 
+    transform: scale(1.05);
+    box-shadow: 0 3px 10px rgba(0, 102, 204, 0.3);
+  }
+  
+  .checkbox-group {
+    max-height: 250px;
     overflow-y: auto;
-    max-height: calc(85vh - 140px);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: clamp(8px, 2vw, 12px);
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--light);
   }
   
-  .modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
+  .checkbox-group::-webkit-scrollbar { width: 6px; }
+  .checkbox-group::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+  
+  .checkbox-item-payment {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: clamp(8px, 1.5vw, 10px);
+    margin-bottom: 6px;
+    background: white;
+    border-radius: 6px;
+    transition: all 0.2s ease;
     gap: 10px;
   }
+  
+  .checkbox-item-payment:hover { background: var(--light); }
+  
+  .checkbox-item-payment .player-name-wrapper {
+    display: flex;
+    align-items: center;
+  }
+  
+  .checkbox-item-payment .player-name-wrapper input[type="checkbox"] {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+  
+  .checkbox-item-payment .player-name-wrapper label {
+    margin: 0;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: var(--font-base);
+  }
+  
+  .checkbox-item-payment .payment-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: #e9ecef;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  
+  .checkbox-item-payment .payment-checkbox-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  .checkbox-item-payment .payment-checkbox-wrapper label {
+    margin: 0;
+    font-size: calc(var(--font-base) * 0.9);
+    font-weight: 600;
+    cursor: pointer;
+    color: #495057;
+  }
+  
+  .checkbox-item-payment.paid {
+    background: #d4edda;
+    border-left: 3px solid var(--success);
+  }
+  
+  .checkbox-item-payment.not-paid {
+    background: #fff3cd;
+    border-left: 3px solid var(--warning);
+  }
+  
+  .summary {
+    background: #e9ecef;
+    padding: clamp(12px, 3vw, 18px);
+    border-radius: 8px;
+    margin-top: clamp(12px, 2.5vw, 18px);
+  }
+  
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: clamp(6px, 1.5vw, 10px);
+    font-size: var(--font-base);
+    gap: 10px;
+  }
+  
+  .summary-row:last-child { margin-bottom: 0; }
+  .summary-row strong { color: var(--primary); font-weight: 700; }
+  
+  .summary-extended {
+    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+    padding: clamp(12px, 3vw, 18px);
+    border-radius: 8px;
+    margin-top: clamp(12px, 2.5vw, 18px);
+    border: 2px solid var(--border);
+  }
+  
+  .payment-status-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid var(--border);
+  }
+  
+  .payment-status-title {
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: calc(var(--font-base) * 1.05);
+  }
+  
+  .adjustment-card {
+    background: #fff3cd;
+    border: 2px solid var(--warning);
+    border-radius: 10px;
+    padding: clamp(12px, 3vw, 18px);
+    margin-bottom: clamp(15px, 3vw, 25px);
+  }
+  
+  .adjustment-card h4 {
+    color: #856404;
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: calc(var(--font-base) * 1.1);
+  }
+  
+  .hidden { display: none !important; }
+  
+  .section-divider {
+    border-top: 2px solid var(--border);
+    margin: clamp(20px, 4vw, 30px) 0;
+    padding-top: clamp(20px, 4vw, 30px);
+  }
+  
+  h3.section-title {
+    margin-top: clamp(20px, 4vw, 30px);
+    margin-bottom: clamp(12px, 2.5vw, 18px);
+    color: var(--primary);
+    font-size: calc(var(--font-base) * 1.2);
+    font-weight: 700;
+  }
+  
+  h3.section-title:first-child { margin-top: 0; }
+  
+  .payment-detail {
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  
+  .payment-detail-title {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-size: calc(var(--font-base) * 0.95);
+  }
+  
+  .payment-list { display: grid; gap: 5px; }
+  
+  .payment-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    font-size: calc(var(--font-base) * 0.85);
+  }
+  
+  .payment-list-item .player-name { flex: 1; }
+  
+  .payment-list-item .payment-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: calc(var(--font-base) * 0.75);
+    font-weight: 600;
+  }
+  
+  .payment-badge.paid { background: var(--success); color: white; }
+  .payment-badge.pending { background: var(--warning); color: var(--dark); }
+  
+  .debt-summary {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe5a0 100%);
+    border: 2px solid var(--warning);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .debt-summary h4 {
+    color: #856404;
+    margin-bottom: 15px;
+    font-size: calc(var(--font-base) * 1.2);
+  }
+  
+  .debt-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 6px;
+    align-items: center;
+  }
+  
+  .debt-item-info {
+    flex: 1;
+  }
+  
+  .debt-item-name {
+    font-weight: 600;
+    color: var(--dark);
+  }
+  
+  .debt-item-detail {
+    font-size: calc(var(--font-base) * 0.85);
+    color: #666;
+    margin-top: 4px;
+  }
+  
+  .debt-item-amount {
+    font-size: calc(var(--font-base) * 1.1);
+    font-weight: 700;
+    color: var(--danger);
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .tab-content { animation: fadeIn 0.3s ease; }
+  
+  @media (max-width: 360px) {
+    .tournament-selector { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .phase-selector { grid-template-columns: repeat(2, 1fr); }
+    .checkbox-item-payment { grid-template-columns: 1fr; }
+    .checkbox-item-payment .payment-checkbox-wrapper {
+      justify-self: start;
+      margin-left: 30px;
+    }
+  }
+  
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  }
 
-  /* NUEVOS ESTILOS PARA TABLA DE DEUDAS */
+  .quick-actions {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+  }
+
+  .quick-actions button {
+    display: block;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    border: 3px solid var(--champions-blue);
+    background: linear-gradient(135deg, var(--champions-navy), var(--champions-blue));
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0, 30, 71, 0.4);
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+  }
+
+  .quick-actions button:hover {
+    transform: scale(1.15);
+    box-shadow: 0 8px 30px rgba(0, 102, 204, 0.6);
+  }
+  
+  /* ========== ESTILOS PARA TABLA DE DEUDAS AGRUPADAS ========== */
   .debt-table {
     width: 100%;
     margin-top: 20px;
@@ -775,7 +1115,7 @@
   }
 
   .debt-table thead {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, var(--champions-navy), var(--champions-blue));
   }
 
   .debt-table thead th {
@@ -829,7 +1169,7 @@
   .player-name-cell {
     text-align: left !important;
     font-weight: 600;
-    color: var(--primary);
+    color: var(--champions-navy);
   }
 
   .debt-summary-card {
@@ -842,7 +1182,7 @@
   }
 
   .debt-summary-card h3 {
-    color: var(--primary);
+    color: var(--champions-navy);
     margin-bottom: 15px;
     font-size: calc(var(--font-base) * 1.3);
   }
@@ -889,789 +1229,1922 @@
 </style>
 </head>
 <body>
+
 <div class="container">
   <div class="header">
-    <div class="champions-star">⭐</div>
-    <h1>⚽ GESTIÓN DE TORNEO</h1>
-    <div class="team-name">IMPERIO ANDINO</div>
-    <p>Champions Edition - Sistema de Gestión Integral</p>
+    <h1>⚽ CRM Fútbol PRO</h1>
+    <p id="currentTournamentName">Selecciona un torneo</p>
   </div>
-
+  
   <div class="nav-tabs">
-    <button class="tab active" onclick="switchTab('jugadores')">👥 Jugadores</button>
-    <button class="tab" onclick="switchTab('partidos')">⚽ Partidos</button>
-    <button class="tab" onclick="switchTab('estadisticas')">📊 Estadísticas</button>
-    <button class="tab" onclick="switchTab('finanzas')">💰 Finanzas</button>
-    <button class="tab" onclick="switchTab('configuracion')">⚙️ Config</button>
+    <button class="active" onclick="showTab('jugadores')">👥 Jugadores</button>
+    <button onclick="showTab('pagos')">💰 Pagos</button>
+    <button onclick="showTab('partidos')">⚽ Partidos</button>
+    <button onclick="showTab('estadisticas')">📊 Estadísticas</button>
+    <button onclick="showTab('config')">⚙️ Config</button>
   </div>
-
-  <div class="tab-content">
-    <!-- TAB: JUGADORES -->
-    <div id="jugadores" class="tab-pane active">
-      <h2 class="section-title">Gestión de Jugadores</h2>
+  
+  <div class="content">
+    <!-- JUGADORES -->
+    <div id="jugadores" class="tab-content">
+      <div class="tournament-selector">
+        <button id="torneo1Btn" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2Btn" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
+      </div>
       
       <div class="form-group">
-        <button class="btn btn-primary" onclick="openAddPlayerModal()">➕ Agregar Jugador</button>
+        <label>Nombre del Jugador</label>
+        <input type="text" id="playerName" placeholder="Ej: Juan Pérez" />
       </div>
-
-      <div class="filter-controls">
-        <input type="text" id="playerFilter" placeholder="🔍 Buscar por nombre o número..." oninput="filterPlayers()">
-        <select id="playerSortBy" onchange="sortPlayers()">
-          <option value="name">Ordenar por Nombre</option>
-          <option value="number">Ordenar por Número</option>
-          <option value="paid">Ordenar por Pagado</option>
-        </select>
-        <button class="btn btn-secondary btn-sm" onclick="clearPlayerFilters()">🗑️ Limpiar</button>
+      
+      <div class="form-group">
+        <label>Número de Camiseta</label>
+        <input type="number" id="playerNumber" placeholder="Ej: 10" min="1" max="99" />
       </div>
-
-      <div id="playersList"></div>
+      
+      <button class="btn btn-primary" onclick="addPlayer()">➕ Agregar Jugador</button>
+      
+      <h3 class="section-title">Lista de Jugadores</h3>
+      
+      <div class="filter-bar">
+        <input type="text" id="playerFilter" placeholder="🔍 Buscar por nombre o número..." onkeyup="filterPlayers()">
+        <button class="btn btn-sm btn-info" onclick="clearPlayerFilter()">Limpiar</button>
+      </div>
+      
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>#</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="playersTableBody">
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <!-- TAB: PARTIDOS -->
-    <div id="partidos" class="tab-pane">
-      <h2 class="section-title">Gestión de Partidos</h2>
+    
+    <!-- PAGOS -->
+    <div id="pagos" class="tab-content hidden">
+      <div class="tournament-selector">
+        <button id="torneo1BtnPagos" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnPagos" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
+      </div>
+      
+      <div class="alert alert-info" id="inscriptionInfo">
+        <strong>Valor de Inscripción:</strong> $0 COP por jugador
+      </div>
       
       <div class="form-group">
-        <button class="btn btn-primary" onclick="openAddMatchModal()">➕ Registrar Partido</button>
+        <label>Valor Total de Inscripción del Torneo</label>
+        <input type="number" id="totalInscription" placeholder="Ej: 500000" min="0" />
       </div>
-
-      <div class="filter-controls">
-        <input type="text" id="matchFilter" placeholder="🔍 Buscar partidos..." oninput="filterMatches()">
-        <select id="matchSortBy" onchange="sortMatches()">
-          <option value="date">Ordenar por Fecha (más reciente)</option>
-          <option value="dateOld">Ordenar por Fecha (más antiguo)</option>
-          <option value="result">Ordenar por Resultado</option>
+      
+      <button class="btn btn-success" onclick="setInscriptionValue()">📊 Calcular Inscripción por Jugador</button>
+      
+      <h3 class="section-title">Registrar Abono</h3>
+      
+      <div class="form-group">
+        <label>Seleccionar Jugador</label>
+        <select id="playerSelectPayment">
+          <option value="">-- Seleccionar --</option>
         </select>
-        <button class="btn btn-secondary btn-sm" onclick="clearMatchFilters()">🗑️ Limpiar</button>
       </div>
-
+      
+      <div class="form-group">
+        <label>Monto del Abono (COP)</label>
+        <input type="number" id="paymentAmount" placeholder="Ej: 50000" min="0" />
+      </div>
+      
+      <button class="btn btn-primary" onclick="registerPayment()">💰 Registrar Abono</button>
+      
+      <h3 class="section-title">Estado de Pagos de Inscripción</h3>
+      
+      <div class="filter-bar">
+        <input type="text" id="paymentFilter" placeholder="🔍 Buscar jugador..." onkeyup="filterPayments()">
+        <select id="paymentStatusFilter" onchange="filterPayments()">
+          <option value="all">Todos los estados</option>
+          <option value="complete">Completo</option>
+          <option value="pending">Pendiente</option>
+        </select>
+        <button class="btn btn-sm btn-info" onclick="clearPaymentFilters()">Limpiar</button>
+      </div>
+      
+      <div class="table-container">
+        <table class="table" id="paymentsTable">
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>#</th>
+              <th>Debe Pagar</th>
+              <th>Ha Pagado</th>
+              <th>Pendiente</th>
+              <th>Progreso</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- PARTIDOS -->
+    <div id="partidos" class="tab-content hidden">
+      <div class="tournament-selector">
+        <button id="torneo1BtnPartidos" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnPartidos" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
+      </div>
+      
+      <h3 class="section-title">Registrar Partido</h3>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>⚽ Goles Anotados</label>
+          <input type="number" id="goalsScored" placeholder="0" value="0" min="0" />
+        </div>
+        
+        <div class="form-group">
+          <label>🥅 Goles Recibidos</label>
+          <input type="number" id="goalsConceded" placeholder="0" value="0" min="0" />
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>🟨 Tarjetas Amarillas</label>
+          <input type="number" id="yellowCards" placeholder="0" value="0" min="0" />
+        </div>
+        
+        <div class="form-group">
+          <label>🟦 Tarjetas Azules</label>
+          <input type="number" id="blueCards" placeholder="0" value="0" min="0" />
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>🟥 Tarjetas Rojas</label>
+        <input type="number" id="redCards" placeholder="0" value="0" min="0" />
+      </div>
+      
+      <div class="form-group">
+        <label>💵 Valor del Arbitraje (COP)</label>
+        <input type="number" id="refereeValue" placeholder="Ej: 80000" min="0" />
+      </div>
+      
+      <h4 style="margin-bottom: 10px; color: var(--primary); font-size: calc(var(--font-base) * 1.05);">Jugadores Presentes y Control de Cobro</h4>
+      <p style="font-size: calc(var(--font-base) * 0.9); color: #666; margin-bottom: 12px; line-height: 1.5;">
+        Marque los jugadores que asistieron al partido y registre si pagaron el arbitraje.
+      </p>
+      <div class="checkbox-group" id="playersPresent"></div>
+      
+      <div class="summary-extended" id="refereeSummary">
+        <div class="summary-row">
+          <span>Total Arbitraje:</span>
+          <strong>$0 COP</strong>
+        </div>
+        <div class="summary-row">
+          <span>Jugadores Presentes:</span>
+          <strong>0</strong>
+        </div>
+        <div class="summary-row">
+          <span>Por Jugador:</span>
+          <strong>$0 COP</strong>
+        </div>
+        <div class="payment-status-section">
+          <div class="payment-status-title">Estado de Cobro:</div>
+          <div class="summary-row">
+            <span>Jugadores que Pagaron:</span>
+            <strong id="playersPaidCount">0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Jugadores Pendientes:</span>
+            <strong id="playersPendingCount">0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total Recaudado:</span>
+            <strong id="totalCollectedReferee">$0 COP</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total Pendiente:</span>
+            <strong id="totalPendingReferee">$0 COP</strong>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-success" onclick="registerMatch()">⚽ Registrar Partido</button>
+      
+      <h3 class="section-title">Historial de Partidos</h3>
+      
+      <div class="filter-bar">
+        <select id="matchResultFilter" onchange="filterMatches()">
+          <option value="all">Todos los resultados</option>
+          <option value="Victoria">Victorias</option>
+          <option value="Empate">Empates</option>
+          <option value="Derrota">Derrotas</option>
+        </select>
+        <select id="matchPaymentFilter" onchange="filterMatches()">
+          <option value="all">Todos los pagos</option>
+          <option value="complete">Pagos completos</option>
+          <option value="pending">Pagos pendientes</option>
+        </select>
+        <button class="btn btn-sm btn-info" onclick="clearMatchFilters()">Limpiar</button>
+      </div>
+      
       <div id="matchesList"></div>
     </div>
-
-    <!-- TAB: ESTADÍSTICAS -->
-    <div id="estadisticas" class="tab-pane">
-      <h2 class="section-title">Estadísticas del Equipo</h2>
+    
+    <!-- ESTADÍSTICAS -->
+    <div id="estadisticas" class="tab-content hidden">
+      <div class="tournament-selector">
+        <button id="torneo1BtnStats" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnStats" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
+      </div>
       
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3>🏆 Partidos Jugados</h3>
-          <span class="stat-value" id="totalMatchesPlayed">0</span>
-          <span class="stat-label">Total</span>
+      <div class="alert alert-info" id="phaseInfo">
+        <strong>Fase Actual:</strong> Fase de Grupos
+      </div>
+      
+      <h3 class="section-title">📊 Estadísticas del Equipo</h3>
+      
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Valor</th>
+              <th>Promedio</th>
+            </tr>
+          </thead>
+          <tbody id="teamStatsTable">
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="match-card" style="margin-top: 20px;">
+        <h4>💼 Finanzas del Equipo</h4>
+        <div class="summary-row">
+          <span>💰 Total Recaudado (Inscripciones):</span>
+          <strong id="totalCollected">$0</strong>
         </div>
-        <div class="stat-card">
-          <h3>✅ Victorias</h3>
-          <span class="stat-value" id="totalWins">0</span>
-          <span class="stat-label">Ganados</span>
+        <div class="summary-row">
+          <span>📊 Inscripción Total:</span>
+          <strong id="totalInscriptionNeeded">$0</strong>
         </div>
-        <div class="stat-card">
-          <h3>❌ Derrotas</h3>
-          <span class="stat-value" id="totalLosses">0</span>
-          <span class="stat-label">Perdidos</span>
+        <div class="summary-row">
+          <span>⚽ Total Arbitrajes Gastados:</span>
+          <strong id="totalRefereeSpent">$0</strong>
         </div>
-        <div class="stat-card">
-          <h3>🤝 Empates</h3>
-          <span class="stat-value" id="totalDraws">0</span>
-          <span class="stat-label">Empatados</span>
+        <div class="summary-row">
+          <span>💵 Total Arbitrajes Recaudados:</span>
+          <strong id="totalRefereeCollected">$0</strong>
+        </div>
+        <div class="summary-row">
+          <span>⏳ Total Arbitrajes Pendientes:</span>
+          <strong id="totalRefereePending">$0</strong>
         </div>
       </div>
-
-      <h3 class="section-title">📋 Tabla General</h3>
-      <table id="generalStatsTable">
-        <thead>
-          <tr>
-            <th>Estadística</th>
-            <th>Total</th>
-            <th>Promedio/Porcentaje</th>
-          </tr>
-        </thead>
-        <tbody id="generalStatsBody"></tbody>
-      </table>
-
-      <h3 class="section-title">👤 Estadísticas por Jugador</h3>
       
-      <div class="filter-controls">
-        <input type="text" id="playerStatsFilter" placeholder="🔍 Buscar jugador..." oninput="filterPlayerStats()">
-        <select id="playerStatsSortBy" onchange="sortPlayerStats()">
-          <option value="matches">Ordenar por Partidos</option>
-          <option value="goals">Ordenar por Goles</option>
-          <option value="avgGoals">Ordenar por Promedio de Goles</option>
-          <option value="yellowCards">Ordenar por Tarjetas Amarillas</option>
-          <option value="blueCards">Ordenar por Tarjetas Azules</option>
-          <option value="redCards">Ordenar por Tarjetas Rojas</option>
-          <option value="attendance">Ordenar por Asistencia</option>
-        </select>
-        <button class="btn btn-secondary btn-sm" onclick="clearPlayerStatsFilters()">🗑️ Limpiar</button>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Jugador</th>
-            <th>#</th>
-            <th>PJ</th>
-            <th>Asistencia</th>
-            <th>Goles</th>
-            <th>Prom. Goles</th>
-            <th>🟨</th>
-            <th>🟦</th>
-            <th>🟥</th>
-            <th>Total Tarjetas</th>
-            <th>Prom. Tarjetas</th>
-          </tr>
-        </thead>
-        <tbody id="playerStatsTable"></tbody>
-      </table>
-    </div>
-
-    <!-- TAB: FINANZAS -->
-    <div id="finanzas" class="tab-pane">
-      <h2 class="section-title">💰 Control Financiero</h2>
-      
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3>💵 Total Recaudado</h3>
-          <span class="stat-value" id="totalCollected">$0</span>
-          <span class="stat-label">Inscripciones pagadas</span>
-        </div>
-        <div class="stat-card">
-          <h3>🎯 Meta Inscripción</h3>
-          <span class="stat-value" id="totalInscriptionNeeded">$0</span>
-          <span class="stat-label">Total requerido</span>
-        </div>
-        <div class="stat-card">
-          <h3>⚽ Gasto en Árbitros</h3>
-          <span class="stat-value" id="totalRefereeSpent">$0</span>
-          <span class="stat-label">Total gastado</span>
-        </div>
-        <div class="stat-card">
-          <h3>✅ Árbitros Pagados</h3>
-          <span class="stat-value" id="totalRefereeCollected">$0</span>
-          <span class="stat-label">Recaudado de jugadores</span>
-        </div>
-        <div class="stat-card">
-          <h3>⏳ Árbitros Pendientes</h3>
-          <span class="stat-value" id="totalRefereePending">$0</span>
-          <span class="stat-label">Por cobrar</span>
-        </div>
-      </div>
-
-      <div class="alert alert-info" id="inscriptionInfo"></div>
-
       <!-- NUEVA SECCIÓN: DEUDAS POR JUGADOR -->
-      <h3 class="section-title">📋 Deudas por Jugador</h3>
+      <h3 class="section-title" style="margin-top: 30px;">📋 Deudas por Jugador</h3>
       
       <div id="debtSummarySection"></div>
       
       <div id="debtTableContainer"></div>
+      
+      <h3 class="section-title" style="margin-top: 30px;">👥 Estadísticas por Jugador</h3>
+      
+      <div class="filter-bar">
+        <input type="text" id="playerStatsFilter" placeholder="🔍 Buscar jugador..." onkeyup="filterPlayerStats()">
+        <select id="playerStatsSortBy" onchange="sortPlayerStats()">
+          <option value="matches">Ordenar por: Partidos</option>
+          <option value="goals">Ordenar por: Goles</option>
+          <option value="avgGoals">Ordenar por: Promedio Goles</option>
+          <option value="yellowCards">Ordenar por: Amarillas</option>
+          <option value="blueCards">Ordenar por: Azules</option>
+          <option value="redCards">Ordenar por: Rojas</option>
+          <option value="attendance">Ordenar por: Asistencia %</option>
+        </select>
+        <button class="btn btn-sm btn-info" onclick="clearPlayerStatsFilters()">Limpiar</button>
+      </div>
+      
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>#</th>
+              <th>Partidos</th>
+              <th>Asistencia</th>
+              <th>⚽ Goles</th>
+              <th>Prom. Goles</th>
+              <th>🟨</th>
+              <th>🟦</th>
+              <th>🟥</th>
+              <th>Total Tarjetas</th>
+              <th>Prom. Tarjetas</th>
+            </tr>
+          </thead>
+          <tbody id="playerStatsTable">
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <!-- TAB: CONFIGURACIÓN -->
-    <div id="configuracion" class="tab-pane">
-      <h2 class="section-title">⚙️ Configuración del Torneo</h2>
+    
+    <!-- CONFIG -->
+    <div id="config" class="tab-content hidden">
+      <div class="tournament-selector">
+        <button id="torneo1BtnConfig" onclick="selectTournament('torneo1')">🏆 Torneo 1</button>
+        <button id="torneo2BtnConfig" onclick="selectTournament('torneo2')">🏆 Torneo 2</button>
+      </div>
       
       <div class="form-group">
         <label>Nombre del Torneo</label>
-        <input type="text" id="tournamentName" placeholder="Ej: Copa Champions 2024">
+        <input type="text" id="tournamentName" placeholder="Ej: Liga de Verano 2025" />
       </div>
-
-      <div class="form-group">
-        <label>Inscripción por Jugador (COP)</label>
-        <input type="number" id="inscriptionPerPlayer" placeholder="Ej: 50000">
-      </div>
-
-      <div class="form-group">
-        <label>Inscripción Total del Torneo (COP)</label>
-        <input type="number" id="totalInscription" placeholder="Ej: 500000">
-      </div>
-
-      <div class="form-group">
-        <label>Número de Partidos Manuales (no registrados en el sistema)</label>
-        <input type="number" id="manualMatches" placeholder="Ej: 3" min="0">
-      </div>
-
-      <div class="form-group">
-        <button class="btn btn-success" onclick="saveTournamentConfig()">💾 Guardar Configuración</button>
-      </div>
-
-      <hr style="margin: 30px 0; border: 1px solid var(--border);">
-
-      <h3 class="section-title">📤 Exportar / Importar Datos</h3>
       
-      <div class="form-group">
-        <button class="btn btn-primary" onclick="exportData()">📥 Exportar Datos (JSON)</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Importar Datos</button>
-        <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
+      <button class="btn btn-primary" onclick="updateTournamentName()">💾 Guardar Nombre</button>
+      
+      <h3 class="section-title">Fase del Torneo</h3>
+      
+      <div class="phase-selector">
+        <button class="phase-btn" onclick="setPhase('Fase de Grupos')">Grupos</button>
+        <button class="phase-btn" onclick="setPhase('Dieciseisavos de Final')">1/16</button>
+        <button class="phase-btn" onclick="setPhase('Octavos de Final')">1/8</button>
+        <button class="phase-btn" onclick="setPhase('Cuartos de Final')">1/4</button>
+        <button class="phase-btn" onclick="setPhase('Semifinal')">Semifinal</button>
+        <button class="phase-btn" onclick="setPhase('Final')">Final</button>
       </div>
-
-      <div class="form-group">
-        <button class="btn btn-danger" onclick="resetAllData()">🗑️ Resetear Todos los Datos</button>
+      
+      <div class="alert alert-warning">
+        <strong>⚠️ Fase Actual:</strong> <span id="currentPhase">Fase de Grupos</span>
       </div>
+      
+      <div class="section-divider">
+        <div class="adjustment-card">
+          <h4>📊 Ajustar Estadísticas Manualmente</h4>
+          <p style="font-size: calc(var(--font-base) * 0.9); color: #856404; margin-bottom: 15px;">
+            Usa esta opción para ingresar datos de partidos ya jugados antes de usar el sistema.
+          </p>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Puntos</label>
+              <input type="number" id="adjustPoints" placeholder="0" value="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label>Partidos Jugados</label>
+              <input type="number" id="adjustMatches" placeholder="0" value="0" min="0" />
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Goles Anotados</label>
+              <input type="number" id="adjustGoalsScored" placeholder="0" value="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label>Goles Recibidos</label>
+              <input type="number" id="adjustGoalsConceded" placeholder="0" value="0" min="0" />
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Victorias</label>
+              <input type="number" id="adjustWins" placeholder="0" value="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label>Empates</label>
+              <input type="number" id="adjustDraws" placeholder="0" value="0" min="0" />
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Derrotas</label>
+              <input type="number" id="adjustLosses" placeholder="0" value="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label>🟨 Amarillas</label>
+              <input type="number" id="adjustYellow" placeholder="0" value="0" min="0" />
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>🟦 Azules</label>
+              <input type="number" id="adjustBlue" placeholder="0" value="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label>🟥 Rojas</label>
+              <input type="number" id="adjustRed" placeholder="0" value="0" min="0" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Total Gastado en Arbitrajes (COP)</label>
+            <input type="number" id="adjustReferee" placeholder="0" value="0" min="0" />
+          </div>
+          
+          <button class="btn btn-info" onclick="loadCurrentStats()">📥 Cargar Valores Actuales</button>
+          <button class="btn btn-success" onclick="saveAdjustedStats()">💾 Guardar Ajustes</button>
+        </div>
+      </div>
+      
+      <h3 class="section-title">Reiniciar Torneo</h3>
+      <p style="margin-bottom: 15px; font-size: var(--font-base); color: #666; line-height: 1.6;">
+        Esta acción reiniciará todos los valores del torneo actual, incluyendo puntos, goles, pagos, partidos y registros de cobro de arbitraje, pero mantendrá la lista de jugadores.
+      </p>
+      <button class="btn btn-danger" onclick="confirmResetTournament()">🔄 Reiniciar Torneo</button>
+      
+      <h3 class="section-title">Eliminar Todos los Jugadores</h3>
+      <p style="margin-bottom: 15px; font-size: var(--font-base); color: #666; line-height: 1.6;">
+        Esta acción eliminará todos los jugadores del torneo actual junto con sus datos.
+      </p>
+      <button class="btn btn-danger" onclick="confirmDeleteAllPlayers()">🗑️ Eliminar Todos los Jugadores</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Agregar/Editar Jugador -->
-<div id="playerModal" class="modal">
+<!-- Botones de acción rápida -->
+<div class="quick-actions">
+  <button onclick="openDebtModal()" title="Ver deudas totales">💳</button>
+</div>
+
+<!-- Modal para gestionar abonos -->
+<div id="paymentModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h2 id="playerModalTitle">Agregar Jugador</h2>
-      <span class="close" onclick="closePlayerModal()">&times;</span>
+      <h3>💰 Gestionar Abonos</h3>
+      <button class="modal-close" onclick="closePaymentModal()">&times;</button>
     </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Nombre del Jugador *</label>
-        <input type="text" id="playerName" placeholder="Ej: Juan Pérez">
-      </div>
-      <div class="form-group">
-        <label>Número de Camiseta *</label>
-        <input type="number" id="playerNumber" placeholder="Ej: 10" min="1">
-      </div>
-      <div class="form-group">
-        <label>Inscripción Pagada (COP)</label>
-        <input type="number" id="playerPaid" placeholder="Ej: 50000" min="0">
-      </div>
+    <div id="modalPlayerInfo" style="margin-bottom: 20px; padding: 12px; background: var(--light); border-radius: 6px;">
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closePlayerModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="savePlayer()">Guardar</button>
+    <h4 style="margin-bottom: 10px; color: var(--primary);">Historial de Abonos</h4>
+    <div class="payment-history" id="paymentHistoryList">
     </div>
   </div>
 </div>
 
-<!-- MODAL: Agregar/Editar Partido -->
+<!-- Modal para editar jugador -->
+<div id="editPlayerModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>✏️ Editar Jugador</h3>
+      <button class="modal-close" onclick="closeEditPlayerModal()">&times;</button>
+    </div>
+    <div class="form-group">
+      <label>Nombre del Jugador</label>
+      <input type="text" id="editPlayerName" placeholder="Nombre del jugador" />
+    </div>
+    <div class="form-group">
+      <label>Número de Camiseta</label>
+      <input type="number" id="editPlayerNumber" placeholder="Número" min="1" max="99" />
+    </div>
+    <button class="btn btn-success" onclick="savePlayerEdit()">💾 Guardar Cambios</button>
+  </div>
+</div>
+
+<!-- Modal para gestionar partidos -->
 <div id="matchModal" class="modal">
-  <div class="modal-content">
+  <div class="modal-content" style="max-width: 800px;">
     <div class="modal-header">
-      <h2 id="matchModalTitle">Registrar Partido</h2>
-      <span class="close" onclick="closeMatchModal()">&times;</span>
+      <h3>⚽ Gestionar Partido</h3>
+      <button class="modal-close" onclick="closeMatchModal()">&times;</button>
     </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Fecha del Partido *</label>
-        <input type="date" id="matchDate">
+    <div id="modalMatchInfo" style="margin-bottom: 20px; padding: 12px; background: var(--light); border-radius: 6px;">
+    </div>
+    
+    <h4 style="margin-bottom: 10px; color: var(--primary);">Datos del Partido</h4>
+    <div class="form-grid" style="margin-bottom: 20px;">
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>⚽ Goles Anotados</label>
+        <input type="number" id="editGoalsScored" min="0" />
       </div>
-      <div class="form-group">
-        <label>Rival *</label>
-        <input type="text" id="matchRival" placeholder="Ej: Deportivo Cali">
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🥅 Goles Recibidos</label>
+        <input type="number" id="editGoalsConceded" min="0" />
       </div>
-      <div class="form-group">
-        <label>Goles a Favor *</label>
-        <input type="number" id="matchGoalsFor" placeholder="0" min="0" value="0">
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🟨 Amarillas (Equipo)</label>
+        <input type="number" id="editYellowCards" min="0" />
       </div>
-      <div class="form-group">
-        <label>Goles en Contra *</label>
-        <input type="number" id="matchGoalsAgainst" placeholder="0" min="0" value="0">
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🟦 Azules (Equipo)</label>
+        <input type="number" id="editBlueCards" min="0" />
       </div>
-      <div class="form-group">
-        <label>Tarjetas Amarillas</label>
-        <input type="number" id="matchYellowCards" placeholder="0" min="0" value="0">
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>🟥 Rojas (Equipo)</label>
+        <input type="number" id="editRedCards" min="0" />
       </div>
-      <div class="form-group">
-        <label>Tarjetas Azules</label>
-        <input type="number" id="matchBlueCards" placeholder="0" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Tarjetas Rojas</label>
-        <input type="number" id="matchRedCards" placeholder="0" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Costo de Árbitro (COP)</label>
-        <input type="number" id="matchRefereeCost" placeholder="Ej: 40000" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Costo de Árbitro por Jugador (COP)</label>
-        <input type="number" id="matchRefereePerPlayer" placeholder="Ej: 2000" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Jugadores Presentes *</label>
-        <div id="matchPlayersList" class="checkbox-group"></div>
-      </div>
-      <div class="form-group">
-        <label>Notas del Partido</label>
-        <textarea id="matchNotes" placeholder="Ej: Gran partido, dominio total..."></textarea>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label>💵 Valor Arbitraje</label>
+        <input type="number" id="editRefereeValue" min="0" />
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeMatchModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveMatch()">Guardar</button>
+    
+    <h4 style="margin-bottom: 10px; color: var(--primary);">Estadísticas Individuales</h4>
+    <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
+      Registra goles y tarjetas de cada jugador presente en el partido
+    </p>
+    <div id="playerIndividualStats" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+    </div>
+    
+    <h4 style="margin-bottom: 10px; margin-top: 20px; color: var(--primary);">Control de Cobro de Arbitraje</h4>
+    <div class="payment-history" id="matchPaymentsList" style="max-height: 200px;">
+    </div>
+    
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button class="btn btn-success" onclick="saveMatchChanges()" style="flex: 1;">💾 Guardar Cambios</button>
+      <button class="btn btn-danger" onclick="deleteMatch()" style="flex: 1;">🗑️ Eliminar Partido</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: Detalles del Partido -->
-<div id="matchDetailsModal" class="modal">
+<!-- Modal para ver deudas totales -->
+<div id="debtModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>📋 Detalles del Partido</h2>
-      <span class="close" onclick="closeMatchDetailsModal()">&times;</span>
+      <h3>💳 Reporte de Deudas Totales</h3>
+      <button class="modal-close" onclick="closeDebtModal()">&times;</button>
     </div>
-    <div class="modal-body" id="matchDetailsContent"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeMatchDetailsModal()">Cerrar</button>
+    
+    <div class="debt-summary" id="debtSummaryTotal">
+    </div>
+    
+    <h4 style="margin-bottom: 15px; color: var(--primary);">Detalle por Jugador</h4>
+    <div id="debtDetailsList" style="max-height: 400px; overflow-y: auto;">
     </div>
   </div>
 </div>
 
-<script>
-  // Variables globales
-  let tournamentData = {
-    name: "Torneo Champions",
-    inscriptionPerPlayer: 0,
-    totalInscription: 0,
-    manualMatches: 0,
-    players: [],
-    matches: []
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where,
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
+    authDomain: "crm-futbol.firebaseapp.com",
+    projectId: "crm-futbol",
+    storageBucket: "crm-futbol.firebasestorage.app",
+    messagingSenderId: "222709021751",
+    appId: "1:222709021751:web:94168589472c2ee938d3b2",
   };
 
-  let players = [];
-  let matches = [];
-  let filteredPlayers = [];
-  let filteredMatches = [];
-  let filteredPlayerStats = [];
-  let editingPlayerId = null;
-  let editingMatchId = null;
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
   let currentTournament = "torneo1";
+  let players = [];
+  let tournamentData = {};
+  let currentEditingPlayer = null;
+  let currentEditingMatchIndex = null;
+  let filteredPlayers = [];
+  let filteredPayments = [];
+  let filteredMatches = [];
 
-  // Funciones de utilidad
-  function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
-  function saveToLocalStorage() {
-    localStorage.setItem(currentTournament, JSON.stringify(tournamentData));
-  }
-
-  function loadFromLocalStorage() {
-    const data = localStorage.getItem(currentTournament);
-    if (data) {
-      tournamentData = JSON.parse(data);
-      players = tournamentData.players || [];
-      matches = tournamentData.matches || [];
-    }
-  }
-
-  // Funciones de navegación
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+  window.showTab = function (tabName) {
+    document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.add("hidden"));
+    document.getElementById(tabName).classList.remove("hidden");
+    document.querySelectorAll(".nav-tabs button").forEach((btn) => btn.classList.remove("active"));
+    event.target.classList.add("active");
     
-    event.target.classList.add('active');
-    document.getElementById(tabName).classList.add('active');
-    
-    if (tabName === 'estadisticas') {
+    if (tabName === "estadisticas") {
       updateStatistics();
-    } else if (tabName === 'finanzas') {
-      updateStatistics();
-      updateDebtTable(); // NUEVA FUNCIÓN
-    } else if (tabName === 'configuracion') {
-      loadConfigForm();
     }
+  };
+
+  window.selectTournament = async function (tournament) {
+    currentTournament = tournament;
+    
+    document.querySelectorAll(".tournament-selector button").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    
+    [
+      "torneo1Btn", "torneo2Btn", "torneo1BtnPagos", "torneo2BtnPagos",
+      "torneo1BtnPartidos", "torneo2BtnPartidos", "torneo1BtnStats", "torneo2BtnStats",
+      "torneo1BtnConfig", "torneo2BtnConfig",
+    ].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("active", id.includes(tournament));
+    });
+
+    await loadTournamentData();
+    await loadPlayers();
+    updateAllViews();
+  };
+
+  async function loadTournamentData() {
+    const docRef = doc(db, "tournaments", currentTournament);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      tournamentData = docSnap.data();
+    } else {
+      tournamentData = {
+        name: currentTournament === "torneo1" ? "Torneo 1" : "Torneo 2",
+        totalInscription: 0,
+        inscriptionPerPlayer: 0,
+        phase: "Fase de Grupos",
+        matches: [],
+        manualMatches: 0,
+        stats: {
+          points: 0, wins: 0, draws: 0, losses: 0,
+          goalsScored: 0, goalsConceded: 0,
+          yellowCards: 0, blueCards: 0, redCards: 0,
+          totalReferee: 0,
+        },
+      };
+      await setDoc(docRef, tournamentData);
+    }
+    
+    document.getElementById("currentTournamentName").textContent = tournamentData.name;
+    document.getElementById("tournamentName").value = tournamentData.name;
+    document.getElementById("currentPhase").textContent = tournamentData.phase;
+    document.getElementById("phaseInfo").innerHTML = `<strong>Fase Actual:</strong> ${tournamentData.phase}`;
   }
 
-  // GESTIÓN DE JUGADORES
-  function openAddPlayerModal() {
-    editingPlayerId = null;
-    document.getElementById('playerModalTitle').textContent = 'Agregar Jugador';
-    document.getElementById('playerName').value = '';
-    document.getElementById('playerNumber').value = '';
-    document.getElementById('playerPaid').value = '';
-    document.getElementById('playerModal').style.display = 'block';
+  async function loadPlayers() {
+    const q = query(collection(db, "players"), where("tournament", "==", currentTournament));
+    const querySnapshot = await getDocs(q);
+    players = [];
+    
+    for (const docSnap of querySnapshot.docs) {
+      const playerData = { id: docSnap.id, ...docSnap.data() };
+      
+      if (playerData.payments && playerData.payments.length > 0) {
+        let needsUpdate = false;
+        const updatedPayments = playerData.payments.map((payment, index) => {
+          if (!payment.id) {
+            needsUpdate = true;
+            return {
+              ...payment,
+              id: Date.now().toString() + "_" + index + "_" + Math.random().toString(36).substr(2, 9)
+            };
+          }
+          return payment;
+        });
+        
+        if (needsUpdate) {
+          await updateDoc(doc(db, "players", docSnap.id), {
+            payments: updatedPayments
+          });
+          playerData.payments = updatedPayments;
+        }
+      }
+      
+      players.push(playerData);
+    }
+    
+    filteredPlayers = [...players];
+    filteredPayments = [...players];
   }
 
-  function closePlayerModal() {
-    document.getElementById('playerModal').style.display = 'none';
-  }
-
-  function savePlayer() {
-    const name = document.getElementById('playerName').value.trim();
-    const number = parseInt(document.getElementById('playerNumber').value);
-    const paid = parseFloat(document.getElementById('playerPaid').value) || 0;
-
+  window.addPlayer = async function () {
+    const name = document.getElementById("playerName").value.trim();
+    const number = document.getElementById("playerNumber").value;
+    
     if (!name || !number) {
-      alert('Por favor completa todos los campos obligatorios');
+      alert("Por favor completa todos los campos");
       return;
     }
+    
+    const playerData = {
+      name: name,
+      number: parseInt(number),
+      tournament: currentTournament,
+      payments: [],
+      totalPaid: 0,
+    };
+    
+    await setDoc(doc(collection(db, "players")), playerData);
+    document.getElementById("playerName").value = "";
+    document.getElementById("playerNumber").value = "";
+    
+    await loadPlayers();
+    updateAllViews();
+    alert("✅ Jugador agregado exitosamente");
+  };
 
-    if (editingPlayerId) {
-      const player = players.find(p => p.id === editingPlayerId);
-      player.name = name;
-      player.number = number;
-      player.totalPaid = paid;
-    } else {
-      const newPlayer = {
-        id: generateId(),
-        name,
-        number,
-        totalPaid: paid
-      };
-      players.push(newPlayer);
-    }
-
-    tournamentData.players = players;
-    saveToLocalStorage();
-    updatePlayersList();
-    closePlayerModal();
-  }
-
-  function editPlayer(playerId) {
+  window.openEditPlayerModal = function(playerId) {
     const player = players.find(p => p.id === playerId);
     if (!player) return;
-
-    editingPlayerId = playerId;
-    document.getElementById('playerModalTitle').textContent = 'Editar Jugador';
-    document.getElementById('playerName').value = player.name;
-    document.getElementById('playerNumber').value = player.number;
-    document.getElementById('playerPaid').value = player.totalPaid || 0;
-    document.getElementById('playerModal').style.display = 'block';
-  }
-
-  function deletePlayer(playerId) {
-    if (!confirm('¿Estás seguro de eliminar este jugador?')) return;
     
-    players = players.filter(p => p.id !== playerId);
-    tournamentData.players = players;
-    saveToLocalStorage();
-    updatePlayersList();
-  }
+    currentEditingPlayer = player;
+    document.getElementById("editPlayerName").value = player.name;
+    document.getElementById("editPlayerNumber").value = player.number;
+    document.getElementById("editPlayerModal").classList.add("active");
+  };
 
-  function updatePlayersList() {
-    const container = document.getElementById('playersList');
+  window.closeEditPlayerModal = function() {
+    document.getElementById("editPlayerModal").classList.remove("active");
+    currentEditingPlayer = null;
+  };
+
+  window.savePlayerEdit = async function() {
+    if (!currentEditingPlayer) return;
     
-    if (filteredPlayers.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">👤</div>
-          <p>No hay jugadores registrados</p>
-        </div>
-      `;
+    const newName = document.getElementById("editPlayerName").value.trim();
+    const newNumber = parseInt(document.getElementById("editPlayerNumber").value);
+    
+    if (!newName || !newNumber) {
+      alert("Por favor completa todos los campos");
       return;
     }
+    
+    await updateDoc(doc(db, "players", currentEditingPlayer.id), {
+      name: newName,
+      number: newNumber,
+    });
+    
+    await loadPlayers();
+    closeEditPlayerModal();
+    updateAllViews();
+    alert("✅ Jugador actualizado exitosamente");
+  };
 
-    container.innerHTML = filteredPlayers.map(player => {
-      const inscriptionPerPlayer = tournamentData.inscriptionPerPlayer || 0;
-      const remaining = inscriptionPerPlayer - (player.totalPaid || 0);
-      const statusBadge = remaining <= 0 
-        ? '<span class="badge badge-success">✅ Pagado</span>'
-        : `<span class="badge badge-danger">❌ Debe: $${remaining.toFixed(0)}</span>`;
+  window.deletePlayer = async function (playerId) {
+    if (confirm("¿Estás seguro de eliminar este jugador? Se perderán todos sus datos de pagos.")) {
+      await deleteDoc(doc(db, "players", playerId));
+      await loadPlayers();
+      updateAllViews();
+      alert("✅ Jugador eliminado exitosamente");
+    }
+  };
 
+  window.setInscriptionValue = async function () {
+    const total = parseFloat(document.getElementById("totalInscription").value);
+    
+    if (!total || players.length === 0) {
+      alert("Ingresa un valor válido y asegúrate de tener jugadores registrados");
+      return;
+    }
+    
+    const perPlayer = total / players.length;
+    tournamentData.totalInscription = total;
+    tournamentData.inscriptionPerPlayer = perPlayer;
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      totalInscription: total,
+      inscriptionPerPlayer: perPlayer,
+    });
+    
+    updateAllViews();
+    alert(`✅ Inscripción calculada: $${perPlayer.toFixed(0)} COP por jugador`);
+  };
+
+  window.registerPayment = async function () {
+    const playerId = document.getElementById("playerSelectPayment").value;
+    const amount = parseFloat(document.getElementById("paymentAmount").value);
+    
+    if (!playerId || !amount || amount <= 0) {
+      alert("Por favor completa todos los campos con valores válidos");
+      return;
+    }
+    
+    const player = players.find((p) => p.id === playerId);
+    if (!player) {
+      alert("Jugador no encontrado");
+      return;
+    }
+    
+    const newPayment = {
+      id: Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9),
+      amount: amount,
+      date: new Date().toISOString()
+    };
+    
+    const newPayments = [...(player.payments || []), newPayment];
+    const newTotal = newPayments.reduce((sum, p) => sum + p.amount, 0);
+    
+    await updateDoc(doc(db, "players", playerId), {
+      payments: newPayments,
+      totalPaid: newTotal,
+    });
+    
+    document.getElementById("playerSelectPayment").value = "";
+    document.getElementById("paymentAmount").value = "";
+    await loadPlayers();
+    updateAllViews();
+    alert("✅ Abono registrado exitosamente");
+  };
+
+  window.openPaymentModal = function(playerId) {
+    currentEditingPlayer = players.find(p => p.id === playerId);
+    if (!currentEditingPlayer) return;
+    
+    const perPlayer = tournamentData.inscriptionPerPlayer || 0;
+    const paid = currentEditingPlayer.totalPaid || 0;
+    const pending = perPlayer - paid;
+    
+    document.getElementById("modalPlayerInfo").innerHTML = `
+      <strong style="font-size: 1.1em; color: var(--primary);">${currentEditingPlayer.name} - #${currentEditingPlayer.number}</strong><br>
+      <div style="margin-top: 8px;">
+        <span>Debe pagar: <strong>$${perPlayer.toFixed(0)}</strong></span> | 
+        <span>Ha pagado: <strong style="color: var(--success);">$${paid.toFixed(0)}</strong></span> | 
+        <span>Pendiente: <strong style="color: var(--warning);">$${pending.toFixed(0)}</strong></span>
+      </div>
+    `;
+    
+    updatePaymentHistory();
+    document.getElementById("paymentModal").classList.add("active");
+  };
+
+  window.closePaymentModal = function() {
+    document.getElementById("paymentModal").classList.remove("active");
+    currentEditingPlayer = null;
+  };
+
+  function updatePaymentHistory() {
+    if (!currentEditingPlayer) return;
+    
+    const payments = currentEditingPlayer.payments || [];
+    const historyList = document.getElementById("paymentHistoryList");
+    
+    if (payments.length === 0) {
+      historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay abonos registrados</p>';
+      return;
+    }
+    
+    historyList.innerHTML = payments.map(payment => {
+      const date = new Date(payment.date).toLocaleDateString("es-CO", {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      
       return `
-        <div class="player-item">
-          <div class="player-info">
-            <strong>${player.name}</strong> - #${player.number}
-            <br>
-            <small>Pagado: $${(player.totalPaid || 0).toFixed(0)} / $${inscriptionPerPlayer.toFixed(0)}</small>
-            ${statusBadge}
+        <div class="payment-item">
+          <div>
+            <div class="payment-item-date">${date}</div>
+            <div class="payment-item-amount">$${payment.amount.toFixed(0)} COP</div>
           </div>
-          <div class="player-actions">
-            <button class="btn btn-sm btn-primary" onclick="editPlayer('${player.id}')">✏️ Editar</button>
-            <button class="btn btn-sm btn-danger" onclick="deletePlayer('${player.id}')">🗑️</button>
+          <div class="payment-item-actions">
+            <button class="btn btn-sm btn-warning" onclick="editPayment('${payment.id}')">✏️</button>
+            <button class="btn btn-sm btn-danger" onclick="deletePayment('${payment.id}')">🗑️</button>
           </div>
         </div>
       `;
     }).join('');
   }
 
-  function filterPlayers() {
-    const searchTerm = document.getElementById('playerFilter').value.toLowerCase();
+  window.editPayment = async function(paymentId) {
+    if (!currentEditingPlayer) {
+      alert("Error: No hay jugador seleccionado");
+      return;
+    }
+    
+    const payment = currentEditingPlayer.payments.find(p => p.id === paymentId);
+    if (!payment) {
+      alert("Error: Abono no encontrado");
+      return;
+    }
+    
+    const dateStr = new Date(payment.date).toLocaleDateString("es-CO", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const newAmount = prompt(`Editar monto del abono\nFecha: ${dateStr}\nMonto actual: $${payment.amount.toFixed(0)}\n\nIngrese el nuevo monto:`, payment.amount);
+    
+    if (newAmount === null || newAmount === "") return;
+    
+    const amount = parseFloat(newAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Por favor ingrese un monto válido mayor a 0");
+      return;
+    }
+    
+    const updatedPayments = currentEditingPlayer.payments.map(p => 
+      p.id === paymentId ? { ...p, amount: amount } : p
+    );
+    
+    const newTotal = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
+    
+    await updateDoc(doc(db, "players", currentEditingPlayer.id), {
+      payments: updatedPayments,
+      totalPaid: newTotal,
+    });
+    
+    await loadPlayers();
+    currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
+    updatePaymentHistory();
+    updateAllViews();
+    alert("✅ Abono actualizado exitosamente");
+  };
+
+  window.deletePayment = async function(paymentId) {
+    if (!currentEditingPlayer) {
+      alert("Error: No hay jugador seleccionado");
+      return;
+    }
+    
+    const payment = currentEditingPlayer.payments.find(p => p.id === paymentId);
+    if (!payment) {
+      alert("Error: Abono no encontrado");
+      return;
+    }
+    
+    const dateStr = new Date(payment.date).toLocaleDateString("es-CO");
+    if (!confirm(`¿Estás seguro de eliminar este abono?\n\nFecha: ${dateStr}\nMonto: $${payment.amount.toFixed(0)}`)) return;
+    
+    const updatedPayments = currentEditingPlayer.payments.filter(p => p.id !== paymentId);
+    const newTotal = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
+    
+    await updateDoc(doc(db, "players", currentEditingPlayer.id), {
+      payments: updatedPayments,
+      totalPaid: newTotal,
+    });
+    
+    await loadPlayers();
+    currentEditingPlayer = players.find(p => p.id === currentEditingPlayer.id);
+    updatePaymentHistory();
+    updateAllViews();
+    alert("✅ Abono eliminado exitosamente");
+  };
+
+  window.registerMatch = async function () {
+    const goalsScored = parseInt(document.getElementById("goalsScored").value) || 0;
+    const goalsConceded = parseInt(document.getElementById("goalsConceded").value) || 0;
+    const yellowCards = parseInt(document.getElementById("yellowCards").value) || 0;
+    const blueCards = parseInt(document.getElementById("blueCards").value) || 0;
+    const redCards = parseInt(document.getElementById("redCards").value) || 0;
+    const refereeValue = parseFloat(document.getElementById("refereeValue").value) || 0;
+    
+    const presentPlayers = [];
+    const refereePayments = {};
+    
+    document.querySelectorAll("#playersPresent .checkbox-item-payment").forEach((item) => {
+      const attendanceCheckbox = item.querySelector('input[name^="attendance_"]');
+      const paymentCheckbox = item.querySelector('input[name^="payment_"]');
+      
+      if (attendanceCheckbox && attendanceCheckbox.checked) {
+        const playerId = attendanceCheckbox.value;
+        presentPlayers.push(playerId);
+        refereePayments[playerId] = paymentCheckbox ? paymentCheckbox.checked : false;
+      }
+    });
+    
+    if (presentPlayers.length === 0) {
+      alert("Selecciona al menos un jugador presente");
+      return;
+    }
+    
+    let points = 0;
+    let result = "";
+    
+    if (goalsScored > goalsConceded) {
+      points = 2;
+      result = "Victoria";
+    } else if (goalsScored === goalsConceded) {
+      points = 1;
+      result = "Empate";
+    } else {
+      points = 0;
+      result = "Derrota";
+    }
+    
+    const refereePerPlayer = refereeValue / presentPlayers.length;
+    
+    // Inicializar estadísticas individuales vacías para cada jugador presente
+    const playerStats = {};
+    presentPlayers.forEach(playerId => {
+      playerStats[playerId] = {
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      };
+    });
+    
+    const matchData = {
+      date: new Date().toISOString(),
+      goalsScored, goalsConceded,
+      yellowCards, blueCards, redCards,
+      refereeValue, presentPlayers,
+      refereePerPlayer, refereePayments,
+      points, result,
+      playerStats: playerStats // Nueva propiedad para estadísticas por jugador
+    };
+    
+    const newMatches = [...(tournamentData.matches || []), matchData];
+    const newStats = {
+      points: (tournamentData.stats?.points || 0) + points,
+      wins: (tournamentData.stats?.wins || 0) + (result === "Victoria" ? 1 : 0),
+      draws: (tournamentData.stats?.draws || 0) + (result === "Empate" ? 1 : 0),
+      losses: (tournamentData.stats?.losses || 0) + (result === "Derrota" ? 1 : 0),
+      goalsScored: (tournamentData.stats?.goalsScored || 0) + goalsScored,
+      goalsConceded: (tournamentData.stats?.goalsConceded || 0) + goalsConceded,
+      yellowCards: (tournamentData.stats?.yellowCards || 0) + yellowCards,
+      blueCards: (tournamentData.stats?.blueCards || 0) + blueCards,
+      redCards: (tournamentData.stats?.redCards || 0) + redCards,
+      totalReferee: (tournamentData.stats?.totalReferee || 0) + refereeValue,
+    };
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      matches: newMatches,
+      stats: newStats,
+    });
+    
+    document.getElementById("goalsScored").value = "0";
+    document.getElementById("goalsConceded").value = "0";
+    document.getElementById("yellowCards").value = "0";
+    document.getElementById("blueCards").value = "0";
+    document.getElementById("redCards").value = "0";
+    document.getElementById("refereeValue").value = "";
+    document.querySelectorAll("#playersPresent input[type='checkbox']").forEach((cb) => (cb.checked = false));
+    
+    await loadTournamentData();
+    updateAllViews();
+    
+    const paidCount = Object.values(refereePayments).filter(paid => paid).length;
+    const pendingCount = presentPlayers.length - paidCount;
+    
+    alert(`✅ Partido registrado exitosamente\n\nNota: Ahora puedes editar las estadísticas individuales de cada jugador desde "Gestionar Partido"\n\nResultado: ${result} (${points} puntos)\nJugadores que pagaron arbitraje: ${paidCount}\nJugadores con pago pendiente: ${pendingCount}`);
+  };
+
+  window.openMatchModal = function(matchIndex) {
+    currentEditingMatchIndex = matchIndex;
+    const match = tournamentData.matches[matchIndex];
+    if (!match) return;
+    
+    const date = new Date(match.date).toLocaleDateString("es-CO", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    document.getElementById("modalMatchInfo").innerHTML = `
+      <strong style="font-size: 1.1em; color: var(--primary);">Partido #${matchIndex + 1} - ${date}</strong><br>
+      <div style="margin-top: 8px;">
+        <span>Resultado: <strong>${match.result} (${match.points} pts)</strong></span> | 
+        <span>Goles: <strong>${match.goalsScored} - ${match.goalsConceded}</strong></span>
+      </div>
+    `;
+    
+    document.getElementById("editGoalsScored").value = match.goalsScored;
+    document.getElementById("editGoalsConceded").value = match.goalsConceded;
+    document.getElementById("editYellowCards").value = match.yellowCards;
+    document.getElementById("editBlueCards").value = match.blueCards;
+    document.getElementById("editRedCards").value = match.redCards;
+    document.getElementById("editRefereeValue").value = match.refereeValue;
+    
+    // Inicializar playerStats si no existe
+    if (!match.playerStats) {
+      match.playerStats = {};
+      match.presentPlayers.forEach(playerId => {
+        match.playerStats[playerId] = {
+          goals: 0,
+          yellowCards: 0,
+          blueCards: 0,
+          redCards: 0
+        };
+      });
+    }
+    
+    updatePlayerIndividualStats();
+    updateMatchPaymentsList();
+    document.getElementById("matchModal").classList.add("active");
+  };
+
+  function updatePlayerIndividualStats() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.presentPlayers) return;
+    
+    const statsContainer = document.getElementById("playerIndividualStats");
+    
+    const html = match.presentPlayers.map(playerId => {
+      const player = players.find(p => p.id === playerId);
+      const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
+      
+      const stats = match.playerStats?.[playerId] || {
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      };
+      
+      return `
+        <div style="background: white; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 3px solid var(--primary);">
+          <div style="font-weight: 600; margin-bottom: 10px; color: var(--dark);">${playerName}</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;">
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">⚽ Goles</label>
+              <input type="number" 
+                     id="player_${playerId}_goals" 
+                     value="${stats.goals}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'goals', this.value)">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">🟨 Amarillas</label>
+              <input type="number" 
+                     id="player_${playerId}_yellow" 
+                     value="${stats.yellowCards}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'yellowCards', this.value)">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">🟦 Azules</label>
+              <input type="number" 
+                     id="player_${playerId}_blue" 
+                     value="${stats.blueCards}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'blueCards', this.value)">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">🟥 Rojas</label>
+              <input type="number" 
+                     id="player_${playerId}_red" 
+                     value="${stats.redCards}" 
+                     min="0" 
+                     style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px;"
+                     onchange="updatePlayerStat('${playerId}', 'redCards', this.value)">
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    statsContainer.innerHTML = html;
+  }
+
+  window.updatePlayerStat = function(playerId, stat, value) {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.playerStats) return;
+    
+    if (!match.playerStats[playerId]) {
+      match.playerStats[playerId] = {
+        goals: 0,
+        yellowCards: 0,
+        blueCards: 0,
+        redCards: 0
+      };
+    }
+    
+    match.playerStats[playerId][stat] = parseInt(value) || 0;
+  };
+
+  window.closeMatchModal = function() {
+    document.getElementById("matchModal").classList.remove("active");
+    currentEditingMatchIndex = null;
+  };
+
+  function updateMatchPaymentsList() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.refereePayments) return;
+    
+    const paymentsList = document.getElementById("matchPaymentsList");
+    
+    const html = match.presentPlayers.map(playerId => {
+      const player = players.find(p => p.id === playerId);
+      const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
+      const isPaid = match.refereePayments[playerId] || false;
+      
+      return `
+        <div class="payment-item">
+          <div style="flex: 1;">
+            <div style="font-weight: 500;">${playerName}</div>
+            <div style="font-size: 0.85em; color: #666;">$${match.refereePerPlayer.toFixed(0)} COP</div>
+          </div>
+          <div class="payment-item-actions">
+            <button class="btn btn-sm ${isPaid ? 'btn-success' : 'btn-warning'}" 
+                    onclick="toggleMatchPayment('${playerId}')"
+                    style="min-width: 100px;">
+              ${isPaid ? '✓ Pagado' : '⏳ Pendiente'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    paymentsList.innerHTML = html;
+  }
+
+  window.toggleMatchPayment = function(playerId) {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    if (!match || !match.refereePayments) return;
+    
+    match.refereePayments[playerId] = !match.refereePayments[playerId];
+    updateMatchPaymentsList();
+  };
+
+  window.saveMatchChanges = async function() {
+    if (currentEditingMatchIndex === null) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    const oldStats = { ...tournamentData.stats };
+    
+    const newGoalsScored = parseInt(document.getElementById("editGoalsScored").value) || 0;
+    const newGoalsConceded = parseInt(document.getElementById("editGoalsConceded").value) || 0;
+    const newYellowCards = parseInt(document.getElementById("editYellowCards").value) || 0;
+    const newBlueCards = parseInt(document.getElementById("editBlueCards").value) || 0;
+    const newRedCards = parseInt(document.getElementById("editRedCards").value) || 0;
+    const newRefereeValue = parseFloat(document.getElementById("editRefereeValue").value) || 0;
+    
+    let newPoints = 0;
+    let newResult = "";
+    if (newGoalsScored > newGoalsConceded) {
+      newPoints = 2;
+      newResult = "Victoria";
+    } else if (newGoalsScored === newGoalsConceded) {
+      newPoints = 1;
+      newResult = "Empate";
+    } else {
+      newPoints = 0;
+      newResult = "Derrota";
+    }
+    
+    const updatedStats = {
+      points: oldStats.points - match.points + newPoints,
+      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0) + (newResult === "Victoria" ? 1 : 0),
+      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0) + (newResult === "Empate" ? 1 : 0),
+      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0) + (newResult === "Derrota" ? 1 : 0),
+      goalsScored: oldStats.goalsScored - match.goalsScored + newGoalsScored,
+      goalsConceded: oldStats.goalsConceded - match.goalsConceded + newGoalsConceded,
+      yellowCards: oldStats.yellowCards - match.yellowCards + newYellowCards,
+      blueCards: oldStats.blueCards - match.blueCards + newBlueCards,
+      redCards: oldStats.redCards - match.redCards + newRedCards,
+      totalReferee: oldStats.totalReferee - match.refereeValue + newRefereeValue,
+    };
+    
+    const newRefereePerPlayer = match.presentPlayers.length > 0 ? newRefereeValue / match.presentPlayers.length : 0;
+    
+    tournamentData.matches[currentEditingMatchIndex] = {
+      ...match,
+      goalsScored: newGoalsScored,
+      goalsConceded: newGoalsConceded,
+      yellowCards: newYellowCards,
+      blueCards: newBlueCards,
+      redCards: newRedCards,
+      refereeValue: newRefereeValue,
+      refereePerPlayer: newRefereePerPlayer,
+      points: newPoints,
+      result: newResult,
+    };
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      matches: tournamentData.matches,
+      stats: updatedStats,
+    });
+    
+    await loadTournamentData();
+    closeMatchModal();
+    updateAllViews();
+    alert("✅ Partido actualizado exitosamente");
+  };
+
+  window.deleteMatch = async function() {
+    if (currentEditingMatchIndex === null) return;
+    
+    if (!confirm("¿Estás seguro de eliminar este partido? Esta acción no se puede deshacer.")) return;
+    
+    const match = tournamentData.matches[currentEditingMatchIndex];
+    const oldStats = { ...tournamentData.stats };
+    
+    const updatedStats = {
+      points: oldStats.points - match.points,
+      wins: oldStats.wins - (match.result === "Victoria" ? 1 : 0),
+      draws: oldStats.draws - (match.result === "Empate" ? 1 : 0),
+      losses: oldStats.losses - (match.result === "Derrota" ? 1 : 0),
+      goalsScored: oldStats.goalsScored - match.goalsScored,
+      goalsConceded: oldStats.goalsConceded - match.goalsConceded,
+      yellowCards: oldStats.yellowCards - match.yellowCards,
+      blueCards: oldStats.blueCards - match.blueCards,
+      redCards: oldStats.redCards - match.redCards,
+      totalReferee: oldStats.totalReferee - match.refereeValue,
+    };
+    
+    tournamentData.matches.splice(currentEditingMatchIndex, 1);
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      matches: tournamentData.matches,
+      stats: updatedStats,
+    });
+    
+    await loadTournamentData();
+    closeMatchModal();
+    updateAllViews();
+    alert("✅ Partido eliminado exitosamente");
+  };
+
+  window.openDebtModal = async function() {
+    // Cargar datos de ambos torneos
+    const torneo1Doc = await getDoc(doc(db, "tournaments", "torneo1"));
+    const torneo2Doc = await getDoc(doc(db, "tournaments", "torneo2"));
+    
+    const torneo1Data = torneo1Doc.exists() ? torneo1Doc.data() : {};
+    const torneo2Data = torneo2Doc.exists() ? torneo2Doc.data() : {};
+    
+    // Cargar jugadores de ambos torneos
+    const q1 = query(collection(db, "players"), where("tournament", "==", "torneo1"));
+    const q2 = query(collection(db, "players"), where("tournament", "==", "torneo2"));
+    
+    const [snapshot1, snapshot2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+    
+    const allPlayers = new Map();
+    
+    // Procesar jugadores de torneo 1
+    snapshot1.forEach((docSnap) => {
+      const player = { id: docSnap.id, ...docSnap.data() };
+      const key = player.name + "_" + player.number;
+      
+      if (!allPlayers.has(key)) {
+        allPlayers.set(key, {
+          name: player.name,
+          number: player.number,
+          torneos: []
+        });
+      }
+      
+      const inscriptionPending = (torneo1Data.inscriptionPerPlayer || 0) - (player.totalPaid || 0);
+      
+      allPlayers.get(key).torneos.push({
+        tournament: "Torneo 1",
+        inscriptionPending: Math.max(0, inscriptionPending),
+        playerId: player.id
+      });
+    });
+    
+    // Procesar jugadores de torneo 2
+    snapshot2.forEach((docSnap) => {
+      const player = { id: docSnap.id, ...docSnap.data() };
+      const key = player.name + "_" + player.number;
+      
+      if (!allPlayers.has(key)) {
+        allPlayers.set(key, {
+          name: player.name,
+          number: player.number,
+          torneos: []
+        });
+      }
+      
+      const inscriptionPending = (torneo2Data.inscriptionPerPlayer || 0) - (player.totalPaid || 0);
+      
+      allPlayers.get(key).torneos.push({
+        tournament: "Torneo 2",
+        inscriptionPending: Math.max(0, inscriptionPending),
+        playerId: player.id
+      });
+    });
+    
+    // Calcular deudas totales
+    let totalInscriptionDebt = 0;
+    const debts = [];
+    
+    allPlayers.forEach((playerData) => {
+      const totalInscriptionPending = playerData.torneos.reduce((sum, t) => sum + t.inscriptionPending, 0);
+      
+      if (totalInscriptionPending > 0) {
+        debts.push({
+          name: playerData.name,
+          number: playerData.number,
+          totalInscriptionPending: totalInscriptionPending,
+          torneos: playerData.torneos.filter(t => t.inscriptionPending > 0)
+        });
+        
+        totalInscriptionDebt += totalInscriptionPending;
+      }
+    });
+    
+    document.getElementById("debtSummaryTotal").innerHTML = `
+      <h4>💳 Resumen Total de Deudas de Inscripción</h4>
+      <p style="font-size: 14px; color: #666; margin-top: 8px; margin-bottom: 15px;">
+        Consolidado de inscripciones pendientes en todos los torneos
+      </p>
+      <div style="text-align: center; background: white; padding: 20px; border-radius: 8px;">
+        <div style="font-size: 32px; font-weight: 700; color: var(--danger);">$${totalInscriptionDebt.toFixed(0)}</div>
+        <div style="font-size: 14px; color: #666; margin-top: 5px;">Deuda Total de Inscripciones</div>
+      </div>
+    `;
+    
+    const detailsList = document.getElementById("debtDetailsList");
+    
+    if (debts.length === 0) {
+      detailsList.innerHTML = '<p style="text-align: center; color: var(--success); padding: 40px; font-size: 18px;">🎉 ¡No hay deudas de inscripción pendientes!</p>';
+    } else {
+      debts.sort((a, b) => b.totalInscriptionPending - a.totalInscriptionPending);
+      
+      detailsList.innerHTML = debts.map(debt => {
+        const torneosDetail = debt.torneos.map(t => 
+          `${t.tournament}: $${t.inscriptionPending.toFixed(0)}`
+        ).join(' | ');
+        
+        return `
+        <div class="debt-item">
+          <div class="debt-item-info">
+            <div class="debt-item-name">${debt.name} - #${debt.number}</div>
+            <div class="debt-item-detail">${torneosDetail}</div>
+          </div>
+          <div class="debt-item-amount">$${debt.totalInscriptionPending.toFixed(0)}</div>
+        </div>
+      `}).join('');
+    }
+    
+    document.getElementById("debtModal").classList.add("active");
+  };
+
+  window.closeDebtModal = function() {
+    document.getElementById("debtModal").classList.remove("active");
+  };
+
+  window.filterPlayers = function() {
+    const searchTerm = document.getElementById("playerFilter").value.toLowerCase();
+    
     filteredPlayers = players.filter(player => {
       const nameMatch = player.name.toLowerCase().includes(searchTerm);
       const numberMatch = player.number.toString().includes(searchTerm);
       return nameMatch || numberMatch;
     });
-    sortPlayers();
-  }
+    
+    updatePlayersTable();
+  };
 
-  function sortPlayers() {
-    const sortBy = document.getElementById('playerSortBy').value;
-    filteredPlayers.sort((a, b) => {
-      switch(sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'number':
-          return a.number - b.number;
-        case 'paid':
-          return (b.totalPaid || 0) - (a.totalPaid || 0);
-        default:
-          return 0;
-      }
-    });
-    updatePlayersList();
-  }
-
-  function clearPlayerFilters() {
-    document.getElementById('playerFilter').value = '';
-    document.getElementById('playerSortBy').value = 'name';
+  window.clearPlayerFilter = function() {
+    document.getElementById("playerFilter").value = "";
     filteredPlayers = [...players];
-    updatePlayersList();
-  }
+    updatePlayersTable();
+  };
 
-  // GESTIÓN DE PARTIDOS
-  function openAddMatchModal() {
-    editingMatchId = null;
-    document.getElementById('matchModalTitle').textContent = 'Registrar Partido';
-    document.getElementById('matchDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('matchRival').value = '';
-    document.getElementById('matchGoalsFor').value = '0';
-    document.getElementById('matchGoalsAgainst').value = '0';
-    document.getElementById('matchYellowCards').value = '0';
-    document.getElementById('matchBlueCards').value = '0';
-    document.getElementById('matchRedCards').value = '0';
-    document.getElementById('matchRefereeCost').value = '0';
-    document.getElementById('matchRefereePerPlayer').value = '0';
-    document.getElementById('matchNotes').value = '';
+  window.filterPayments = function() {
+    const searchTerm = document.getElementById("paymentFilter").value.toLowerCase();
+    const statusFilter = document.getElementById("paymentStatusFilter").value;
+    const perPlayer = tournamentData.inscriptionPerPlayer || 0;
     
-    updateMatchPlayersList();
-    document.getElementById('matchModal').style.display = 'block';
-  }
-
-  function closeMatchModal() {
-    document.getElementById('matchModal').style.display = 'none';
-  }
-
-  function updateMatchPlayersList() {
-    const container = document.getElementById('matchPlayersList');
+    filteredPayments = players.filter(player => {
+      const nameMatch = player.name.toLowerCase().includes(searchTerm);
+      const numberMatch = player.number.toString().includes(searchTerm);
+      const searchMatch = nameMatch || numberMatch;
+      
+      if (!searchMatch) return false;
+      
+      if (statusFilter === "all") return true;
+      
+      const paid = player.totalPaid || 0;
+      const pending = perPlayer - paid;
+      
+      if (statusFilter === "complete") return pending <= 0;
+      if (statusFilter === "pending") return pending > 0;
+      
+      return true;
+    });
     
-    if (players.length === 0) {
-      container.innerHTML = '<p style="color: #999;">No hay jugadores registrados</p>';
+    updatePaymentsTable();
+  };
+
+  window.clearPaymentFilters = function() {
+    document.getElementById("paymentFilter").value = "";
+    document.getElementById("paymentStatusFilter").value = "all";
+    filteredPayments = [...players];
+    updatePaymentsTable();
+  };
+
+  window.filterMatches = function() {
+    const resultFilter = document.getElementById("matchResultFilter").value;
+    const paymentFilter = document.getElementById("matchPaymentFilter").value;
+    
+    filteredMatches = (tournamentData.matches || []).filter((match, index) => {
+      let resultMatch = true;
+      let paymentMatch = true;
+      
+      if (resultFilter !== "all") {
+        resultMatch = match.result === resultFilter;
+      }
+      
+      if (paymentFilter !== "all") {
+        if (match.refereePayments) {
+          const paidCount = Object.values(match.refereePayments).filter(paid => paid).length;
+          const allPaid = paidCount === match.presentPlayers.length;
+          
+          if (paymentFilter === "complete") {
+            paymentMatch = allPaid;
+          } else if (paymentFilter === "pending") {
+            paymentMatch = !allPaid;
+          }
+        } else {
+          paymentMatch = paymentFilter === "pending";
+        }
+      }
+      
+      return resultMatch && paymentMatch;
+    });
+    
+    updateMatchesList();
+  };
+
+  window.clearMatchFilters = function() {
+    document.getElementById("matchResultFilter").value = "all";
+    document.getElementById("matchPaymentFilter").value = "all";
+    filteredMatches = [...(tournamentData.matches || [])];
+    updateMatchesList();
+  };
+
+  window.updateTournamentName = async function () {
+    const name = document.getElementById("tournamentName").value.trim();
+    
+    if (!name) {
+      alert("Ingresa un nombre válido");
       return;
     }
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), { name });
+    await loadTournamentData();
+    alert("✅ Nombre actualizado");
+  };
 
-    container.innerHTML = players.map(player => `
-      <label class="checkbox-label">
-        <input type="checkbox" class="match-player-checkbox" value="${player.id}">
-        ${player.name} (#${player.number})
-      </label>
+  window.setPhase = async function (phase) {
+    await updateDoc(doc(db, "tournaments", currentTournament), { phase });
+    await loadTournamentData();
+    updateAllViews();
+    alert(`✅ Fase actualizada a: ${phase}`);
+  };
+
+  window.loadCurrentStats = function () {
+    const stats = tournamentData.stats || {};
+    const manualMatches = tournamentData.manualMatches || 0;
+    
+    document.getElementById("adjustPoints").value = stats.points || 0;
+    document.getElementById("adjustMatches").value = manualMatches;
+    document.getElementById("adjustGoalsScored").value = stats.goalsScored || 0;
+    document.getElementById("adjustGoalsConceded").value = stats.goalsConceded || 0;
+    document.getElementById("adjustWins").value = stats.wins || 0;
+    document.getElementById("adjustDraws").value = stats.draws || 0;
+    document.getElementById("adjustLosses").value = stats.losses || 0;
+    document.getElementById("adjustYellow").value = stats.yellowCards || 0;
+    document.getElementById("adjustBlue").value = stats.blueCards || 0;
+    document.getElementById("adjustRed").value = stats.redCards || 0;
+    document.getElementById("adjustReferee").value = stats.totalReferee || 0;
+    
+    alert("✅ Valores actuales cargados en el formulario");
+  };
+
+  window.saveAdjustedStats = async function () {
+    if (!confirm("¿Estás seguro de ajustar las estadísticas? Esto sobrescribirá los valores actuales.")) return;
+    
+    const newStats = {
+      points: parseInt(document.getElementById("adjustPoints").value) || 0,
+      wins: parseInt(document.getElementById("adjustWins").value) || 0,
+      draws: parseInt(document.getElementById("adjustDraws").value) || 0,
+      losses: parseInt(document.getElementById("adjustLosses").value) || 0,
+      goalsScored: parseInt(document.getElementById("adjustGoalsScored").value) || 0,
+      goalsConceded: parseInt(document.getElementById("adjustGoalsConceded").value) || 0,
+      yellowCards: parseInt(document.getElementById("adjustYellow").value) || 0,
+      blueCards: parseInt(document.getElementById("adjustBlue").value) || 0,
+      redCards: parseInt(document.getElementById("adjustRed").value) || 0,
+      totalReferee: parseFloat(document.getElementById("adjustReferee").value) || 0,
+    };
+    
+    const manualMatches = parseInt(document.getElementById("adjustMatches").value) || 0;
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      stats: newStats,
+      manualMatches: manualMatches,
+    });
+    
+    await loadTournamentData();
+    updateAllViews();
+    alert("✅ Estadísticas ajustadas exitosamente");
+  };
+
+  window.confirmResetTournament = async function () {
+    if (!confirm("¿Estás seguro de reiniciar el torneo? Se perderán todos los datos de partidos, pagos, estadísticas y registros de cobro de arbitraje.")) return;
+    
+    for (const player of players) {
+      await updateDoc(doc(db, "players", player.id), {
+        payments: [],
+        totalPaid: 0,
+      });
+    }
+    
+    await updateDoc(doc(db, "tournaments", currentTournament), {
+      totalInscription: 0,
+      inscriptionPerPlayer: 0,
+      phase: "Fase de Grupos",
+      matches: [],
+      manualMatches: 0,
+      stats: {
+        points: 0, wins: 0, draws: 0, losses: 0,
+        goalsScored: 0, goalsConceded: 0,
+        yellowCards: 0, blueCards: 0, redCards: 0,
+        totalReferee: 0,
+      },
+    });
+    
+    await loadTournamentData();
+    await loadPlayers();
+    updateAllViews();
+    alert("✅ Torneo reiniciado exitosamente");
+  };
+
+  window.confirmDeleteAllPlayers = async function () {
+    if (!confirm("¿Estás seguro de eliminar TODOS los jugadores del torneo actual?")) return;
+    
+    for (const player of players) {
+      await deleteDoc(doc(db, "players", player.id));
+    }
+    
+    await loadPlayers();
+    updateAllViews();
+    alert("✅ Todos los jugadores han sido eliminados");
+  };
+
+  function updateAllViews() {
+    updatePlayersTable();
+    updatePaymentsTable();
+    updatePlayerSelectors();
+    filterMatches();
+    updateStatistics();
+    updateInscriptionInfo();
+  }
+
+  function updatePlayersTable() {
+    const tbody = document.getElementById("playersTableBody");
+    
+    if (filteredPlayers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999; padding: 20px;">No hay jugadores registrados</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = filteredPlayers.map(player => `
+      <tr>
+        <td><strong>${player.name}</strong></td>
+        <td>${player.number}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-warning" onclick="openEditPlayerModal('${player.id}')">✏️ Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="deletePlayer('${player.id}')">🗑️</button>
+          </div>
+        </td>
+      </tr>
     `).join('');
   }
 
-  function saveMatch() {
-    const date = document.getElementById('matchDate').value;
-    const rival = document.getElementById('matchRival').value.trim();
-    const goalsFor = parseInt(document.getElementById('matchGoalsFor').value) || 0;
-    const goalsAgainst = parseInt(document.getElementById('matchGoalsAgainst').value) || 0;
-    const yellowCards = parseInt(document.getElementById('matchYellowCards').value) || 0;
-    const blueCards = parseInt(document.getElementById('matchBlueCards').value) || 0;
-    const redCards = parseInt(document.getElementById('matchRedCards').value) || 0;
-    const refereeCost = parseFloat(document.getElementById('matchRefereeCost').value) || 0;
-    const refereePerPlayer = parseFloat(document.getElementById('matchRefereePerPlayer').value) || 0;
-    const notes = document.getElementById('matchNotes').value.trim();
-
-    if (!date || !rival) {
-      alert('Por favor completa la fecha y el rival');
-      return;
-    }
-
-    const checkboxes = document.querySelectorAll('.match-player-checkbox:checked');
-    const presentPlayers = Array.from(checkboxes).map(cb => cb.value);
-
-    if (presentPlayers.length === 0) {
-      alert('Selecciona al menos un jugador presente');
-      return;
-    }
-
-    let result = 'draw';
-    if (goalsFor > goalsAgainst) result = 'win';
-    else if (goalsFor < goalsAgainst) result = 'loss';
-
-    const matchData = {
-      id: editingMatchId || generateId(),
-      date,
-      rival,
-      goalsFor,
-      goalsAgainst,
-      result,
-      yellowCards,
-      blueCards,
-      redCards,
-      refereeCost,
-      refereePerPlayer,
-      presentPlayers,
-      notes,
-      refereePayments: {}
-    };
-
-    presentPlayers.forEach(playerId => {
-      matchData.refereePayments[playerId] = false;
-    });
-
-    if (editingMatchId) {
-      const index = matches.findIndex(m => m.id === editingMatchId);
-      matches[index] = matchData;
-    } else {
-      matches.push(matchData);
-    }
-
-    tournamentData.matches = matches;
-    saveToLocalStorage();
-    updateMatchesList();
-    closeMatchModal();
-  }
-
-  function updateMatchesList() {
-    const container = document.getElementById('matchesList');
+  function updatePaymentsTable() {
+    const tbody = document.getElementById("paymentsTableBody");
     
-    if (filteredMatches.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">⚽</div>
-          <p>No hay partidos registrados</p>
-        </div>
-      `;
+    if (filteredPayments.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999; padding: 20px;">No hay jugadores para mostrar</td></tr>';
       return;
     }
-
-    container.innerHTML = filteredMatches.map(match => {
-      let resultBadge = '';
-      if (match.result === 'win') resultBadge = '<span class="badge badge-success">✅ Victoria</span>';
-      else if (match.result === 'loss') resultBadge = '<span class="badge badge-danger">❌ Derrota</span>';
-      else resultBadge = '<span class="badge badge-warning">🤝 Empate</span>';
-
+    
+    const perPlayer = tournamentData.inscriptionPerPlayer || 0;
+    
+    tbody.innerHTML = filteredPayments.map((player) => {
+      const paid = player.totalPaid || 0;
+      const pending = perPlayer - paid;
+      const percentage = perPlayer > 0 ? ((paid / perPlayer) * 100).toFixed(1) : 0;
+      const statusBadge = pending <= 0 
+        ? '<span class="badge badge-success">Completo</span>'
+        : '<span class="badge badge-warning">Pendiente</span>';
+      
       return `
-        <div class="match-item">
-          <div class="match-info">
-            <strong>${match.date}</strong> - vs ${match.rival}
-            <br>
-            Resultado: ${match.goalsFor} - ${match.goalsAgainst} ${resultBadge}
-            <br>
-            <small>Jugadores: ${match.presentPlayers.length} | Árbitro: $${match.refereeCost.toFixed(0)}</small>
+      <tr>
+        <td><strong>${player.name}</strong></td>
+        <td>${player.number}</td>
+        <td>$${perPlayer.toFixed(0)}</td>
+        <td style="color: var(--success); font-weight: 600;">$${paid.toFixed(0)}</td>
+        <td style="color: var(--warning); font-weight: 600;">$${pending.toFixed(0)}</td>
+        <td>
+          ${statusBadge}
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${percentage}%; background: ${pending <= 0 ? 'var(--success)' : 'var(--warning)'};"></div>
           </div>
-          <div class="match-actions">
-            <button class="btn btn-sm btn-primary" onclick="showMatchDetails('${match.id}')">👁️ Ver</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteMatch('${match.id}')">🗑️</button>
+          <small>${percentage}%</small>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-info" onclick="openPaymentModal('${player.id}')">📝 Gestionar</button>
           </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function deleteMatch(matchId) {
-    if (!confirm('¿Estás seguro de eliminar este partido?')) return;
-    
-    matches = matches.filter(m => m.id !== matchId);
-    tournamentData.matches = matches;
-    saveToLocalStorage();
-    updateMatchesList();
-  }
-
-  function showMatchDetails(matchId) {
-    const match = matches.find(m => m.id === matchId);
-    if (!match) return;
-
-    const presentPlayersDetails = match.presentPlayers.map(playerId => {
-      const player = players.find(p => p.id === playerId);
-      if (!player) return '';
-      
-      const refereePaid = match.refereePayments && match.refereePayments[playerId];
-      const badgeClass = refereePaid ? 'badge-success' : 'badge-danger';
-      const badgeText = refereePaid ? '✅ Pagó árbitro' : '❌ Debe árbitro';
-      
-      return `<li>${player.name} (#${player.number}) <span class="badge ${badgeClass}">${badgeText}</span></li>`;
-    }).join('');
-
-    let resultText = '';
-    if (match.result === 'win') resultText = '<span class="badge badge-success">✅ VICTORIA</span>';
-    else if (match.result === 'loss') resultText = '<span class="badge badge-danger">❌ DERROTA</span>';
-    else resultText = '<span class="badge badge-warning">🤝 EMPATE</span>';
-
-    const content = `
-      <h3>📅 ${match.date} - vs ${match.rival}</h3>
-      <p><strong>Resultado:</strong> ${match.goalsFor} - ${match.goalsAgainst} ${resultText}</p>
-      
-      <h4>📊 Estadísticas</h4>
-      <ul>
-        <li><strong>Goles a favor:</strong> ${match.goalsFor}</li>
-        <li><strong>Goles en contra:</strong> ${match.goalsAgainst}</li>
-        <li><strong>Tarjetas amarillas:</strong> ${match.yellowCards}</li>
-        <li><strong>Tarjetas azules:</strong> ${match.blueCards}</li>
-        <li><strong>Tarjetas rojas:</strong> ${match.redCards}</li>
-      </ul>
-
-      <h4>💰 Información de Árbitro</h4>
-      <ul>
-        <li><strong>Costo total:</strong> $${match.refereeCost.toFixed(0)}</li>
-        <li><strong>Por jugador:</strong> $${match.refereePerPlayer.toFixed(0)}</li>
-      </ul>
-
-      <h4>👥 Jugadores Presentes (${match.presentPlayers.length})</h4>
-      <ul>${presentPlayersDetails}</ul>
-
-      ${match.notes ? `<h4>📝 Notas</h4><p>${match.notes}</p>` : ''}
+        </td>
+      </tr>
     `;
-
-    document.getElementById('matchDetailsContent').innerHTML = content;
-    document.getElementById('matchDetailsModal').style.display = 'block';
+    }).join('');
   }
 
-  function closeMatchDetailsModal() {
-    document.getElementById('matchDetailsModal').style.display = 'none';
+  function updatePlayerSelectors() {
+    const select = document.getElementById("playerSelectPayment");
+    select.innerHTML =
+      '<option value="">-- Seleccionar --</option>' +
+      players.map((p) => `<option value="${p.id}">${p.name} - #${p.number}</option>`).join("");
+    
+    const checkboxContainer = document.getElementById("playersPresent");
+    checkboxContainer.innerHTML = players
+      .map(
+        (p) => `
+      <div class="checkbox-item-payment">
+        <div class="player-name-wrapper">
+          <input type="checkbox" id="attendance_${p.id}" name="attendance_${p.id}" value="${p.id}" onchange="updateRefereeSummary()" />
+          <label for="attendance_${p.id}">${p.name} - #${p.number}</label>
+        </div>
+        <div class="payment-checkbox-wrapper">
+          <input type="checkbox" id="payment_${p.id}" name="payment_${p.id}" onchange="updateRefereeSummary()" />
+          <label for="payment_${p.id}">💵 Pagó</label>
+        </div>
+      </div>
+    `
+      )
+      .join("");
   }
 
-  function filterMatches() {
-    const searchTerm = document.getElementById('matchFilter').value.toLowerCase();
-    filteredMatches = matches.filter(match => {
-      const rivalMatch = match.rival.toLowerCase().includes(searchTerm);
-      const dateMatch = match.date.includes(searchTerm);
-      return rivalMatch || dateMatch;
-    });
-    sortMatches();
-  }
-
-  function sortMatches() {
-    const sortBy = document.getElementById('matchSortBy').value;
-    filteredMatches.sort((a, b) => {
-      switch(sortBy) {
-        case 'date':
-          return new Date(b.date) - new Date(a.date);
-        case 'dateOld':
-          return new Date(a.date) - new Date(b.date);
-        case 'result':
-          const resultOrder = { win: 0, draw: 1, loss: 2 };
-          return resultOrder[a.result] - resultOrder[b.result];
-        default:
-          return 0;
+  window.updateRefereeSummary = function () {
+    const refereeValue = parseFloat(document.getElementById("refereeValue").value) || 0;
+    
+    let presentCount = 0;
+    let paidCount = 0;
+    
+    document.querySelectorAll("#playersPresent .checkbox-item-payment").forEach((item) => {
+      const attendanceCheckbox = item.querySelector('input[name^="attendance_"]');
+      const paymentCheckbox = item.querySelector('input[name^="payment_"]');
+      
+      if (attendanceCheckbox && attendanceCheckbox.checked) {
+        presentCount++;
+        
+        if (paymentCheckbox && paymentCheckbox.checked) {
+          paidCount++;
+          item.classList.add('paid');
+          item.classList.remove('not-paid');
+        } else {
+          item.classList.add('not-paid');
+          item.classList.remove('paid');
+        }
+      } else {
+        item.classList.remove('paid', 'not-paid');
+        if (paymentCheckbox) {
+          paymentCheckbox.checked = false;
+        }
       }
     });
-    updateMatchesList();
+    
+    const perPlayer = presentCount > 0 ? refereeValue / presentCount : 0;
+    const pendingCount = presentCount - paidCount;
+    const totalCollected = paidCount * perPlayer;
+    const totalPending = pendingCount * perPlayer;
+    
+    const summary = document.getElementById("refereeSummary");
+    summary.innerHTML = `
+      <div class="summary-row">
+        <span>Total Arbitraje:</span>
+        <strong>$${refereeValue.toFixed(0)} COP</strong>
+      </div>
+      <div class="summary-row">
+        <span>Jugadores Presentes:</span>
+        <strong>${presentCount}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Por Jugador:</span>
+        <strong>$${perPlayer.toFixed(0)} COP</strong>
+      </div>
+      <div class="payment-status-section">
+        <div class="payment-status-title">Estado de Cobro:</div>
+        <div class="summary-row">
+          <span>Jugadores que Pagaron:</span>
+          <strong id="playersPaidCount">${paidCount}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Jugadores Pendientes:</span>
+          <strong id="playersPendingCount">${pendingCount}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Total Recaudado:</span>
+          <strong id="totalCollectedReferee">$${totalCollected.toFixed(0)} COP</strong>
+        </div>
+        <div class="summary-row">
+          <span>Total Pendiente:</span>
+          <strong id="totalPendingReferee">$${totalPending.toFixed(0)} COP</strong>
+        </div>
+      </div>
+    `;
+  };
+
+  document.getElementById("refereeValue")?.addEventListener("input", updateRefereeSummary);
+
+  function updateMatchesList() {
+    const container = document.getElementById("matchesList");
+    const matchesToShow = filteredMatches;
+    
+    if (matchesToShow.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No hay partidos para mostrar</p>';
+      return;
+    }
+    
+    container.innerHTML = matchesToShow
+      .map((match) => {
+        const originalIndex = tournamentData.matches.indexOf(match);
+        const date = new Date(match.date).toLocaleDateString("es-CO");
+        
+        let paymentDetailsHTML = '';
+        if (match.refereePayments) {
+          const paymentList = match.presentPlayers.map(playerId => {
+            const player = players.find(p => p.id === playerId);
+            const playerName = player ? `${player.name} - #${player.number}` : 'Jugador no encontrado';
+            const paid = match.refereePayments[playerId];
+            const badge = paid 
+              ? '<span class="payment-badge paid">✓ Pagado</span>' 
+              : '<span class="payment-badge pending">⏳ Pendiente</span>';
+            
+            return `
+              <div class="payment-list-item">
+                <span class="player-name">${playerName}</span>
+                ${badge}
+              </div>
+            `;
+          }).join('');
+          
+          const paidCount = Object.values(match.refereePayments).filter(paid => paid).length;
+          const pendingCount = match.presentPlayers.length - paidCount;
+          
+          paymentDetailsHTML = `
+            <div class="payment-detail">
+              <div class="payment-detail-title">Control de Cobro (${paidCount} pagaron / ${pendingCount} pendientes)</div>
+              <div class="payment-list">
+                ${paymentList}
+              </div>
+            </div>
+          `;
+        }
+        
+        return `
+      <div class="match-card">
+        <h4 style="color: var(--primary); margin-bottom: 10px;">Partido #${originalIndex + 1} - ${date}</h4>
+        <div class="summary-row">
+          <span>Resultado:</span>
+          <strong>${match.result} (${match.points} pts)</strong>
+        </div>
+        <div class="summary-row">
+          <span>Goles:</span>
+          <strong>${match.goalsScored} - ${match.goalsConceded}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Tarjetas:</span>
+          <strong>🟨${match.yellowCards} 🟦${match.blueCards} 🟥${match.redCards}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Arbitraje Total:</span>
+          <strong>$${match.refereeValue.toFixed(0)}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Por Jugador:</span>
+          <strong>$${match.refereePerPlayer.toFixed(0)} (${match.presentPlayers.length} presentes)</strong>
+        </div>
+        ${paymentDetailsHTML}
+        <button class="btn btn-info" onclick="openMatchModal(${originalIndex})" style="margin-top: 10px;">
+          📝 Gestionar Partido
+        </button>
+      </div>
+    `;
+      })
+      .join("");
   }
 
-  function clearMatchFilters() {
-    document.getElementById('matchFilter').value = '';
-    document.getElementById('matchSortBy').value = 'date';
-    filteredMatches = [...matches];
-    updateMatchesList();
-  }
+  let filteredPlayerStats = [];
 
-  // ESTADÍSTICAS
   function updateStatistics() {
-    const stats = {
-      totalMatches: matches.length,
-      wins: matches.filter(m => m.result === 'win').length,
-      draws: matches.filter(m => m.result === 'draw').length,
-      losses: matches.filter(m => m.result === 'loss').length,
-      goalsScored: matches.reduce((sum, m) => sum + m.goalsFor, 0),
-      goalsConceded: matches.reduce((sum, m) => sum + m.goalsAgainst, 0),
-      yellowCards: matches.reduce((sum, m) => sum + (m.yellowCards || 0), 0),
-      blueCards: matches.reduce((sum, m) => sum + (m.blueCards || 0), 0),
-      redCards: matches.reduce((sum, m) => sum + (m.redCards || 0), 0),
-      totalReferee: matches.reduce((sum, m) => sum + (m.refereeCost || 0), 0)
-    };
-
-    document.getElementById('totalMatchesPlayed').textContent = stats.totalMatches;
-    document.getElementById('totalWins').textContent = stats.wins;
-    document.getElementById('totalLosses').textContent = stats.losses;
-    document.getElementById('totalDraws').textContent = stats.draws;
-
-    const totalMatches = stats.totalMatches || 1;
-    const winPercent = (stats.wins / totalMatches) * 100;
-    const drawPercent = (stats.draws / totalMatches) * 100;
-    const lossPercent = (stats.losses / totalMatches) * 100;
-    const avgGoalsScored = stats.goalsScored / totalMatches;
-    const avgGoalsConceded = stats.goalsConceded / totalMatches;
-    const goalDifference = stats.goalsScored - stats.goalsConceded;
-    const totalCards = stats.yellowCards + stats.blueCards + stats.redCards;
-    const avgCards = totalCards / totalMatches;
-
-    document.getElementById('generalStatsBody').innerHTML = `
+    const stats = tournamentData.stats || {};
+    const matches = tournamentData.matches || [];
+    const manualMatches = tournamentData.manualMatches || 0;
+    const totalMatches = matches.length + manualMatches;
+    
+    // Tabla de estadísticas del equipo
+    const teamStatsTable = document.getElementById("teamStatsTable");
+    
+    const avgGoalsScored = totalMatches > 0 ? (stats.goalsScored || 0) / totalMatches : 0;
+    const avgGoalsConceded = totalMatches > 0 ? (stats.goalsConceded || 0) / totalMatches : 0;
+    const winPercent = totalMatches > 0 ? ((stats.wins || 0) / totalMatches) * 100 : 0;
+    const drawPercent = totalMatches > 0 ? ((stats.draws || 0) / totalMatches) * 100 : 0;
+    const lossPercent = totalMatches > 0 ? ((stats.losses || 0) / totalMatches) * 100 : 0;
+    const goalDifference = (stats.goalsScored || 0) - (stats.goalsConceded || 0);
+    const totalCards = (stats.yellowCards || 0) + (stats.blueCards || 0) + (stats.redCards || 0);
+    const avgCards = totalMatches > 0 ? totalCards / totalMatches : 0;
+    
+    teamStatsTable.innerHTML = `
+      <tr>
+        <td><strong>⚽ Partidos Jugados</strong></td>
+        <td>${totalMatches}</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td><strong>🏆 Puntos</strong></td>
+        <td>${stats.points || 0}</td>
+        <td>${totalMatches > 0 ? ((stats.points || 0) / totalMatches).toFixed(2) : 0} pts/partido</td>
+      </tr>
       <tr style="background: #d4edda;">
         <td><strong>✅ Victorias</strong></td>
         <td>${stats.wins || 0}</td>
@@ -1784,6 +3257,157 @@
     
     document.getElementById("totalRefereeCollected").textContent = `$${totalRefereeCollected.toFixed(0)}`;
     document.getElementById("totalRefereePending").textContent = `$${totalRefereePending.toFixed(0)}`;
+    
+    // Actualizar tabla de deudas
+    updateDebtTable();
+  }
+
+  // ========== FUNCIÓN PARA ACTUALIZAR TABLA DE DEUDAS ==========
+  function updateDebtTable() {
+    const debtSummarySection = document.getElementById('debtSummarySection');
+    const debtTableContainer = document.getElementById('debtTableContainer');
+    
+    if (!debtSummarySection || !debtTableContainer) {
+      console.log('Elementos de deuda no encontrados');
+      return;
+    }
+    
+    // Calcular deudas por jugador agrupadas
+    const playerDebtsMap = new Map();
+    
+    // Primero agrupar jugadores por nombre normalizado
+    players.forEach(player => {
+      // Crear clave única basada en nombre normalizado
+      const normalizedName = player.name.trim().toLowerCase();
+      
+      if (!playerDebtsMap.has(normalizedName)) {
+        playerDebtsMap.set(normalizedName, {
+          name: player.name, // Usar el nombre original del primer registro
+          numbers: new Set([player.number]),
+          totalPaid: 0,
+          inscriptionDebt: 0,
+          refereeDebt: 0,
+          totalDebt: 0,
+          playerIds: []
+        });
+      }
+      
+      const debt = playerDebtsMap.get(normalizedName);
+      debt.numbers.add(player.number);
+      debt.totalPaid += (player.totalPaid || 0);
+      debt.playerIds.push(player.id);
+    });
+    
+    // Calcular deudas de inscripción
+    const inscriptionPerPlayer = tournamentData.inscriptionPerPlayer || 0;
+    playerDebtsMap.forEach((debt, key) => {
+      const expectedInscription = inscriptionPerPlayer * debt.playerIds.length;
+      debt.inscriptionDebt = Math.max(0, expectedInscription - debt.totalPaid);
+    });
+    
+    // Calcular deudas de árbitro
+    const matches = tournamentData.matches || [];
+    matches.forEach(match => {
+      if (match.presentPlayers && match.refereePayments) {
+        match.presentPlayers.forEach(playerId => {
+          const player = players.find(p => p.id === playerId);
+          if (!player) return;
+          
+          const normalizedName = player.name.trim().toLowerCase();
+          const debt = playerDebtsMap.get(normalizedName);
+          
+          if (debt && !match.refereePayments[playerId]) {
+            debt.refereeDebt += match.refereePerPlayer || 0;
+          }
+        });
+      }
+    });
+    
+    // Calcular deuda total
+    playerDebtsMap.forEach(debt => {
+      debt.totalDebt = debt.inscriptionDebt + debt.refereeDebt;
+    });
+    
+    // Convertir a array y ordenar por deuda total (mayor a menor)
+    const debtsArray = Array.from(playerDebtsMap.values())
+      .sort((a, b) => b.totalDebt - a.totalDebt);
+    
+    // Calcular totales
+    const totalInscriptionDebt = debtsArray.reduce((sum, d) => sum + d.inscriptionDebt, 0);
+    const totalRefereeDebt = debtsArray.reduce((sum, d) => sum + d.refereeDebt, 0);
+    const totalDebt = debtsArray.reduce((sum, d) => sum + d.totalDebt, 0);
+    const playersWithDebt = debtsArray.filter(d => d.totalDebt > 0).length;
+    
+    // Mostrar resumen si hay deudas
+    if (totalDebt > 0) {
+      debtSummarySection.innerHTML = `
+        <div class="debt-summary-card">
+          <h3>💡 Resumen de Deudas</h3>
+          <div class="debt-summary-stats">
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">👥 Jugadores con Deuda</div>
+              <div class="debt-stat-value">${playersWithDebt}</div>
+            </div>
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">💵 Deuda Inscripción</div>
+              <div class="debt-stat-value">$${totalInscriptionDebt.toFixed(0)}</div>
+            </div>
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">⚽ Deuda Árbitros</div>
+              <div class="debt-stat-value">$${totalRefereeDebt.toFixed(0)}</div>
+            </div>
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">💰 Deuda Total</div>
+              <div class="debt-stat-value">$${totalDebt.toFixed(0)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Generar tabla de deudas
+      const debtRows = debtsArray
+        .filter(debt => debt.totalDebt > 0)
+        .map(debt => {
+          const numbersDisplay = Array.from(debt.numbers).sort((a, b) => a - b).join(', ');
+          
+          return `
+            <tr>
+              <td class="player-name-cell">${debt.name}</td>
+              <td>#${numbersDisplay}</td>
+              <td class="debt-paid">$${debt.totalPaid.toFixed(0)}</td>
+              <td class="debt-amount">$${debt.inscriptionDebt.toFixed(0)}</td>
+              <td class="debt-amount">$${debt.refereeDebt.toFixed(0)}</td>
+              <td class="debt-amount debt-highlight">$${debt.totalDebt.toFixed(0)}</td>
+            </tr>
+          `;
+        }).join('');
+      
+      debtTableContainer.innerHTML = `
+        <table class="debt-table">
+          <thead>
+            <tr>
+              <th>👤 Jugador</th>
+              <th>🔢 Número(s)</th>
+              <th>✅ Pagado</th>
+              <th>💵 Deuda Inscripción</th>
+              <th>⚽ Deuda Árbitros</th>
+              <th>💰 Total a Pagar</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${debtRows}
+          </tbody>
+        </table>
+      `;
+    } else {
+      debtSummarySection.innerHTML = '';
+      debtTableContainer.innerHTML = `
+        <div class="no-debt">
+          <div class="no-debt-icon">🎉</div>
+          <p>¡Excelente! No hay deudas pendientes</p>
+        </div>
+      `;
+    }
   }
 
   function updatePlayerStatsTable() {
@@ -1909,168 +3533,6 @@
     filterPlayerStats();
   };
 
-  // ========== NUEVA FUNCIÓN: TABLA DE DEUDAS ==========
-  function updateDebtTable() {
-    const debtSummarySection = document.getElementById('debtSummarySection');
-    const debtTableContainer = document.getElementById('debtTableContainer');
-    
-    // Calcular deudas por jugador agrupadas
-    const playerDebtsMap = new Map();
-    
-    // Primero agrupar jugadores por nombre o número
-    players.forEach(player => {
-      // Crear clave única basada en nombre normalizado
-      const normalizedName = player.name.trim().toLowerCase();
-      
-      if (!playerDebtsMap.has(normalizedName)) {
-        playerDebtsMap.set(normalizedName, {
-          name: player.name, // Usar el nombre original del primer registro
-          numbers: new Set([player.number]),
-          totalPaid: 0,
-          inscriptionDebt: 0,
-          refereeDebt: 0,
-          totalDebt: 0,
-          playerIds: []
-        });
-      }
-      
-      const debt = playerDebtsMap.get(normalizedName);
-      debt.numbers.add(player.number);
-      debt.totalPaid += (player.totalPaid || 0);
-      debt.playerIds.push(player.id);
-    });
-    
-    // Calcular deudas de inscripción
-    const inscriptionPerPlayer = tournamentData.inscriptionPerPlayer || 0;
-    playerDebtsMap.forEach((debt, key) => {
-      const expectedInscription = inscriptionPerPlayer * debt.playerIds.length;
-      debt.inscriptionDebt = Math.max(0, expectedInscription - debt.totalPaid);
-    });
-    
-    // Calcular deudas de árbitro
-    matches.forEach(match => {
-      if (match.presentPlayers && match.refereePayments) {
-        match.presentPlayers.forEach(playerId => {
-          const player = players.find(p => p.id === playerId);
-          if (!player) return;
-          
-          const normalizedName = player.name.trim().toLowerCase();
-          const debt = playerDebtsMap.get(normalizedName);
-          
-          if (debt && !match.refereePayments[playerId]) {
-            debt.refereeDebt += match.refereePerPlayer || 0;
-          }
-        });
-      }
-    });
-    
-    // Calcular deuda total
-    playerDebtsMap.forEach(debt => {
-      debt.totalDebt = debt.inscriptionDebt + debt.refereeDebt;
-    });
-    
-    // Convertir a array y ordenar por deuda total (mayor a menor)
-    const debtsArray = Array.from(playerDebtsMap.values())
-      .sort((a, b) => b.totalDebt - a.totalDebt);
-    
-    // Calcular totales
-    const totalInscriptionDebt = debtsArray.reduce((sum, d) => sum + d.inscriptionDebt, 0);
-    const totalRefereeDebt = debtsArray.reduce((sum, d) => sum + d.refereeDebt, 0);
-    const totalDebt = debtsArray.reduce((sum, d) => sum + d.totalDebt, 0);
-    const playersWithDebt = debtsArray.filter(d => d.totalDebt > 0).length;
-    
-    // Mostrar resumen si hay deudas
-    if (totalDebt > 0) {
-      debtSummarySection.innerHTML = `
-        <div class="debt-summary-card">
-          <h3>💡 Resumen de Deudas</h3>
-          <div class="debt-summary-stats">
-            <div class="debt-stat-item">
-              <div class="debt-stat-label">👥 Jugadores con Deuda</div>
-              <div class="debt-stat-value">${playersWithDebt}</div>
-            </div>
-            <div class="debt-stat-item">
-              <div class="debt-stat-label">💵 Deuda Inscripción</div>
-              <div class="debt-stat-value">$${totalInscriptionDebt.toFixed(0)}</div>
-            </div>
-            <div class="debt-stat-item">
-              <div class="debt-stat-label">⚽ Deuda Árbitros</div>
-              <div class="debt-stat-value">$${totalRefereeDebt.toFixed(0)}</div>
-            </div>
-            <div class="debt-stat-item">
-              <div class="debt-stat-label">💰 Deuda Total</div>
-              <div class="debt-stat-value">$${totalDebt.toFixed(0)}</div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // Generar tabla de deudas
-      const debtRows = debtsArray
-        .filter(debt => debt.totalDebt > 0)
-        .map(debt => {
-          const numbersDisplay = Array.from(debt.numbers).sort((a, b) => a - b).join(', ');
-          
-          return `
-            <tr>
-              <td class="player-name-cell">${debt.name}</td>
-              <td>#${numbersDisplay}</td>
-              <td class="debt-paid">$${debt.totalPaid.toFixed(0)}</td>
-              <td class="debt-amount">$${debt.inscriptionDebt.toFixed(0)}</td>
-              <td class="debt-amount">$${debt.refereeDebt.toFixed(0)}</td>
-              <td class="debt-amount debt-highlight">$${debt.totalDebt.toFixed(0)}</td>
-            </tr>
-          `;
-        }).join('');
-      
-      debtTableContainer.innerHTML = `
-        <table class="debt-table">
-          <thead>
-            <tr>
-              <th>👤 Jugador</th>
-              <th>🔢 Número(s)</th>
-              <th>✅ Pagado</th>
-              <th>💵 Deuda Inscripción</th>
-              <th>⚽ Deuda Árbitros</th>
-              <th>💰 Total a Pagar</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${debtRows}
-          </tbody>
-        </table>
-      `;
-    } else {
-      debtSummarySection.innerHTML = '';
-      debtTableContainer.innerHTML = `
-        <div class="no-debt">
-          <div class="no-debt-icon">🎉</div>
-          <p>¡Excelente! No hay deudas pendientes</p>
-        </div>
-      `;
-    }
-  }
-
-  // CONFIGURACIÓN
-  function loadConfigForm() {
-    document.getElementById('tournamentName').value = tournamentData.name || '';
-    document.getElementById('inscriptionPerPlayer').value = tournamentData.inscriptionPerPlayer || 0;
-    document.getElementById('totalInscription').value = tournamentData.totalInscription || 0;
-    document.getElementById('manualMatches').value = tournamentData.manualMatches || 0;
-    updateInscriptionInfo();
-  }
-
-  function saveTournamentConfig() {
-    tournamentData.name = document.getElementById('tournamentName').value;
-    tournamentData.inscriptionPerPlayer = parseFloat(document.getElementById('inscriptionPerPlayer').value) || 0;
-    tournamentData.totalInscription = parseFloat(document.getElementById('totalInscription').value) || 0;
-    tournamentData.manualMatches = parseInt(document.getElementById('manualMatches').value) || 0;
-    
-    saveToLocalStorage();
-    updateInscriptionInfo();
-    alert('✅ Configuración guardada exitosamente');
-  }
-
   function updateInscriptionInfo() {
     const perPlayer = tournamentData.inscriptionPerPlayer || 0;
     const total = tournamentData.totalInscription || 0;
@@ -2081,100 +3543,9 @@
     `;
   }
 
-  function exportData() {
-    const dataStr = JSON.stringify(tournamentData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `torneo_${Date.now()}.json`;
-    link.click();
-  }
-
-  function importData(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        tournamentData = data;
-        players = data.players || [];
-        matches = data.matches || [];
-        saveToLocalStorage();
-        
-        filteredPlayers = [...players];
-        filteredMatches = [...matches];
-        
-        updatePlayersList();
-        updateMatchesList();
-        updateStatistics();
-        loadConfigForm();
-        
-        alert('✅ Datos importados exitosamente');
-      } catch (error) {
-        alert('❌ Error al importar datos: ' + error.message);
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function resetAllData() {
-    if (!confirm('⚠️ ¿Estás ABSOLUTAMENTE SEGURO de que quieres eliminar TODOS los datos? Esta acción NO se puede deshacer.')) {
-      return;
-    }
-    
-    if (!confirm('⚠️ ÚLTIMA ADVERTENCIA: Se borrarán todos los jugadores, partidos y configuración. ¿Continuar?')) {
-      return;
-    }
-
-    localStorage.removeItem(currentTournament);
-    tournamentData = {
-      name: "Torneo Champions",
-      inscriptionPerPlayer: 0,
-      totalInscription: 0,
-      manualMatches: 0,
-      players: [],
-      matches: []
-    };
-    players = [];
-    matches = [];
-    filteredPlayers = [];
-    filteredMatches = [];
-    
-    updatePlayersList();
-    updateMatchesList();
-    updateStatistics();
-    loadConfigForm();
-    
-    alert('🗑️ Todos los datos han sido eliminados');
-  }
-
-  async function selectTournament(tournamentId) {
-    currentTournament = tournamentId;
-    loadFromLocalStorage();
-    
-    filteredPlayers = [...players];
-    filteredMatches = [...matches];
-    
-    updatePlayersList();
-    updateMatchesList();
-    updateStatistics();
-    loadConfigForm();
-  }
-
-  // Inicialización
   window.addEventListener("load", async () => {
     await selectTournament("torneo1");
   });
-
-  // Cerrar modales al hacer clic fuera
-  window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-      event.target.style.display = 'none';
-    }
-  };
 </script>
 </body>
 </html>
