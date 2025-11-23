@@ -36,11 +36,24 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
         
-        /* Animación suave para actualizaciones */
+        /* Animación suave */
         .fade-in-up { animation: fadeInUp 0.3s ease-out; }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Indicador Torneo Fijo */
+        .tournament-badge {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: #0F172A;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
         }
     </style>
 </head>
@@ -60,7 +73,7 @@
         <!-- SELECCIÓN DE TORNEO -->
         <div class="px-4 mb-6">
             <div class="bg-dark p-4 rounded-xl border border-gray-700">
-                <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-2">Torneo Seleccionado</div>
+                <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-2">Torneo Activo</div>
                 <div class="flex justify-between items-center mb-3">
                     <span id="activeTournamentDisplay" class="font-bold text-primary truncate text-lg">Cargando...</span>
                 </div>
@@ -101,8 +114,8 @@
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-helmet-safety text-primary"></i>
             <div>
-                <span class="font-bold text-white block leading-none">CONSTRU-SANTAMARIA</span>
-                <span id="mobileTournamentBadge" class="text-[10px] text-primary font-bold">TORNEO: ...</span>
+                <span class="font-bold text-white block leading-none text-xs">CONSTRU-SANTAMARIA</span>
+                <div id="mobileTournamentBadge" class="tournament-badge mt-1 inline-block">...</div>
             </div>
         </div>
         <button onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute'); document.querySelector('aside').classList.toggle('z-50'); document.querySelector('aside').classList.toggle('h-full');" class="text-white text-xl"><i class="fa-solid fa-bars"></i></button>
@@ -451,7 +464,26 @@
             // Escuchar Torneo
             onSnapshot(doc(getCollection("tournaments"), currentTournament), (docSnap) => {
                 if(docSnap.exists()) {
-                    tournamentData = docSnap.data();
+                    let data = docSnap.data();
+                    
+                    // MIGRACIÓN SILENCIOSA: Asignar IDs a partidos antiguos
+                    let needsUpdate = false;
+                    if(data.matches && Array.isArray(data.matches)) {
+                        data.matches = data.matches.map(m => {
+                            if(!m.id) {
+                                m.id = crypto.randomUUID();
+                                needsUpdate = true;
+                            }
+                            return m;
+                        });
+                    }
+
+                    if(needsUpdate) {
+                        updateDoc(docSnap.ref, { matches: data.matches })
+                            .catch(e => console.warn("Migración falló (probablemente permisos)"));
+                    }
+
+                    tournamentData = data;
                     updateTournamentUI(tournamentData);
                     renderAll();
                 } else {
@@ -464,12 +496,11 @@
 
         function updateTournamentUI(data) {
             const name = data.name || "Sin Nombre";
-            // NO INTENTAMOS ACTUALIZAR activeTournamentName PORQUE NO EXISTE EN ESTA VERSIÓN
             if (document.getElementById('activeTournamentDisplay')) {
                 document.getElementById('activeTournamentDisplay').textContent = name;
             }
             if (document.getElementById('mobileTournamentBadge')) {
-                document.getElementById('mobileTournamentBadge').textContent = "TORNEO: " + name.toUpperCase();
+                document.getElementById('mobileTournamentBadge').textContent = name.toUpperCase();
             }
             if (document.getElementById('confName')) {
                 document.getElementById('confName').value = name;
@@ -922,6 +953,10 @@
 
         window.deleteMatch = async (matchId) => {
             // FIX: Ensure exact ID match and type safety
+            if (!matchId || matchId === 'undefined') {
+                showToast("Error: ID de partido no válido", true);
+                return;
+            }
             if(!confirm("¿Eliminar este partido definitivamente? Se recalcularán las estadísticas.")) return;
             
             // Filtrar usando String comparison para seguridad
