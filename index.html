@@ -464,11 +464,19 @@
 
         function updateTournamentUI(data) {
             const name = data.name || "Sin Nombre";
-            document.getElementById('activeTournamentName').textContent = name;
-            document.getElementById('activeTournamentDisplay').textContent = name;
-            document.getElementById('mobileTournamentBadge').textContent = "TORNEO: " + name.toUpperCase();
-            document.getElementById('confName').value = name;
-            document.getElementById('confPrice').value = data.totalInscription || 0;
+            // NO INTENTAMOS ACTUALIZAR activeTournamentName PORQUE NO EXISTE EN ESTA VERSIÓN
+            if (document.getElementById('activeTournamentDisplay')) {
+                document.getElementById('activeTournamentDisplay').textContent = name;
+            }
+            if (document.getElementById('mobileTournamentBadge')) {
+                document.getElementById('mobileTournamentBadge').textContent = "TORNEO: " + name.toUpperCase();
+            }
+            if (document.getElementById('confName')) {
+                document.getElementById('confName').value = name;
+            }
+            if (document.getElementById('confPrice')) {
+                document.getElementById('confPrice').value = data.totalInscription || 0;
+            }
         }
 
         // GLOBAL FUNCTIONS
@@ -480,8 +488,10 @@
                 b.classList.add('bg-gray-700', 'text-gray-300');
             });
             const activeBtn = document.getElementById('btn-' + (tId === 'torneo1' ? 't1' : 't2'));
-            activeBtn.classList.remove('bg-gray-700', 'text-gray-300');
-            activeBtn.classList.add('bg-primary', 'text-dark');
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-gray-700', 'text-gray-300');
+                activeBtn.classList.add('bg-primary', 'text-dark');
+            }
             
             loadData(); 
         };
