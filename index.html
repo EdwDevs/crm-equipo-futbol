@@ -301,23 +301,22 @@
             <div class="glass rounded-2xl p-6 space-y-6">
                 <div>
                     <label class="block text-sm text-gray-400 mb-1">Nombre del Torneo</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="confName" class="flex-1 bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white">
-                        <button onclick="saveConfName()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">Guardar</button>
-                    </div>
-                </div>
-                <div>
+                    <input type="text" id="confName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white mb-4">
+                    
                     <label class="block text-sm text-gray-400 mb-1">Costo Inscripción Total</label>
-                    <div class="flex gap-2">
-                        <input type="number" id="confPrice" class="flex-1 bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white">
-                        <button onclick="saveConfPrice()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">Calcular</button>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">Esto dividirá el costo entre todos los jugadores registrados.</p>
+                    <input type="number" id="confPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white">
+                    <p class="text-xs text-gray-500 mt-2 mb-4">Al guardar, este valor se dividirá automáticamente entre todos los jugadores actuales.</p>
+                    
+                    <button onclick="saveConfiguration()" class="w-full bg-primary hover:bg-amber-600 text-dark font-bold py-3 rounded-lg transition shadow-lg shadow-amber-900/20">
+                        <i class="fa-solid fa-save mr-2"></i> Guardar y Recalcular Cuotas
+                    </button>
                 </div>
                 
-                <div class="pt-4 border-t border-gray-700">
+                <div class="pt-6 border-t border-gray-700 mt-6">
                     <h4 class="text-danger font-bold mb-2">Zona de Peligro</h4>
-                    <button onclick="confirmResetTournament()" class="text-xs bg-red-900/30 text-red-400 border border-red-900 hover:bg-red-900/50 px-4 py-2 rounded transition">Reiniciar Torneo (Borrar Partidos)</button>
+                    <button onclick="confirmResetTournament()" class="text-xs bg-red-900/30 text-red-400 border border-red-900 hover:bg-red-900/50 px-4 py-2 rounded transition w-full">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Reiniciar Torneo (Borrar Partidos)
+                    </button>
                 </div>
             </div>
         </div>
@@ -403,7 +402,7 @@
     <!-- FIREBASE LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, query, where, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // CONFIGURACIÓN
@@ -456,7 +455,6 @@
                         console.error("Auth Error:", error);
                         statusEl.innerHTML = '<i class="fa-solid fa-circle text-danger text-[8px] mr-2"></i> Offline';
                         statusEl.className = 'text-xs text-center text-danger bg-red-900/20 py-2 rounded border border-red-900/30';
-                        // Intentar carga forzosa (por si reglas son publicas)
                         loadData();
                     });
                 }
@@ -464,42 +462,34 @@
         }
 
         function loadData() {
-            // Escuchar Jugadores
             const q = query(getCollection("players"), where("tournament", "==", currentTournament));
             onSnapshot(q, (snapshot) => {
                 players = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => a.number - b.number);
                 renderAll();
             }, (e) => console.error("Error loading players", e));
 
-            // Escuchar Torneo
             onSnapshot(doc(getCollection("tournaments"), currentTournament), (docSnap) => {
                 if(docSnap.exists()) {
                     let data = docSnap.data();
                     
-                    // MIGRACIÓN SILENCIOSA: Asignar IDs a partidos antiguos
+                    // MIGRACIÓN SILENCIOSA
                     let needsUpdate = false;
                     if(data.matches && Array.isArray(data.matches)) {
                         data.matches = data.matches.map(m => {
-                            if(!m.id) {
-                                m.id = crypto.randomUUID();
-                                needsUpdate = true;
-                            }
+                            if(!m.id) { m.id = crypto.randomUUID(); needsUpdate = true; }
                             return m;
                         });
                     }
-
                     if(needsUpdate) {
-                        updateDoc(docSnap.ref, { matches: data.matches })
-                            .catch(e => console.warn("Migración falló (probablemente permisos)"));
+                        updateDoc(docSnap.ref, { matches: data.matches }).catch(e => console.warn("Migración falló"));
                     }
 
                     tournamentData = data;
                     updateTournamentUI(tournamentData);
                     renderAll();
                 } else {
-                    // Crear si no existe
                     setDoc(docSnap.ref, { name: "Torneo Nuevo", totalInscription: 0, matches: [], stats: {} })
-                        .catch(e => console.warn("Lectura ok, escritura fallida (posiblemente por Auth)"));
+                        .catch(e => console.warn("Escritura fallida"));
                 }
             }, (e) => console.error("Error loading tournament", e));
         }
@@ -520,10 +510,34 @@
             }
         }
 
-        // GLOBAL FUNCTIONS
+        // --- LOGICA DE RECALCULO AUTOMATICO (NUEVO) ---
+        // Esta función es la clave para que el precio se actualice dinámicamente
+        async function autoRecalculateFees(explicitTotal = null) {
+            try {
+                const total = explicitTotal !== null ? parseFloat(explicitTotal) : (tournamentData.totalInscription || 0);
+                
+                // Obtener cantidad real de jugadores desde el servidor para evitar errores locales
+                const q = query(getCollection("players"), where("tournament", "==", currentTournament));
+                const snap = await getDocs(q);
+                const count = snap.size;
+
+                if (count > 0 && total > 0) {
+                    const newPerPlayer = total / count;
+                    await updateDoc(doc(getCollection("tournaments"), currentTournament), {
+                        totalInscription: total,
+                        inscriptionPerPlayer: newPerPlayer
+                    });
+                    console.log(`Recálculo Automático: Total $${total} / ${count} Jugadores = $${newPerPlayer} c/u`);
+                    showToast(`Cuota actualizada: ${formatCOP(newPerPlayer)} por jugador`);
+                }
+            } catch (e) {
+                console.error("Error recalculando cuotas:", e);
+            }
+        }
+
+        // GLOBAL FUNCTIONS UI
         window.selectTournament = (tId) => {
             currentTournament = tId;
-            // Visual update buttons
             document.querySelectorAll('[id^="btn-t"]').forEach(b => {
                 b.classList.remove('bg-primary', 'text-dark');
                 b.classList.add('bg-gray-700', 'text-gray-300');
@@ -533,7 +547,6 @@
                 activeBtn.classList.remove('bg-gray-700', 'text-gray-300');
                 activeBtn.classList.add('bg-primary', 'text-dark');
             }
-            
             loadData(); 
         };
 
@@ -563,7 +576,6 @@
 
             players.forEach(p => {
                 if(p.name.toLowerCase().includes(filter) || p.number.toString().includes(filter)) {
-                    // Card
                     const card = document.createElement('div');
                     card.className = 'glass p-4 rounded-xl border border-gray-800 hover:border-gray-600 transition group relative';
                     card.innerHTML = `
@@ -583,7 +595,6 @@
                     `;
                     grid.appendChild(card);
                 }
-                // Select option
                 const opt = document.createElement('option');
                 opt.value = p.id;
                 opt.textContent = `${p.number}. ${p.name}`;
@@ -619,7 +630,7 @@
             const recentList = document.getElementById('recentMatchesList');
             list.innerHTML = '';
             recentList.innerHTML = '';
-            const matches = (tournamentData.matches || []).slice().reverse(); // Más recientes primero
+            const matches = (tournamentData.matches || []).slice().reverse(); 
 
             document.getElementById('totalMatchesCount').textContent = `${matches.length} partidos`;
 
@@ -653,14 +664,11 @@
                 `;
                 list.appendChild(item);
 
-                // Para el dashboard (versión compacta)
                 if (recentList.children.length < 5) {
                     const miniItem = item.cloneNode(true);
-                    miniItem.querySelector('.flex.gap-2').remove(); // Quitar botones
-                    // Fix click handler on clone
+                    miniItem.querySelector('.flex.gap-2').remove(); 
                     const clickDiv = miniItem.querySelector('div');
                     clickDiv.onclick = () => viewMatchDetails(m.id);
-                    
                     miniItem.classList.remove('glass', 'p-4', 'rounded-xl');
                     miniItem.classList.add('py-2', 'border-b', 'border-gray-800');
                     recentList.appendChild(miniItem);
@@ -702,7 +710,6 @@
             document.getElementById('dashDebt').textContent = formatCOP(totalDebt);
             document.getElementById('dashMatches').textContent = matches.length;
 
-            // MVP Simplificado (Por partidos jugados)
             const sorted = [...players].map(p => {
                 const played = matches.filter(m => m.presentPlayers && m.presentPlayers.includes(p.id)).length;
                 return { ...p, played };
@@ -713,11 +720,7 @@
             `).join('');
         }
 
-        // --------------------------
-        // FUNCIONES CRUD
-        // --------------------------
-
-        // --- JUGADORES ---
+        // CRUD JUGADORES
         window.openPlayerModal = (playerId = null) => {
             const modal = document.getElementById('playerModal');
             const title = document.getElementById('playerModalTitle');
@@ -748,29 +751,29 @@
             if(!name || !number) return showToast("Faltan datos", true);
 
             if(id) {
-                // Update
                 await updateDoc(doc(getCollection("players"), id), { name, number });
                 showToast("Jugador actualizado");
             } else {
-                // Create
                 await setDoc(doc(getCollection("players")), {
                     name, number, tournament: currentTournament, totalPaid: 0, payments: []
                 });
                 showToast("Jugador creado");
             }
             closeModal('playerModal');
-            renderAll(); // Refresh manual
+            // RECALCULAR AUTOMÁTICAMENTE AL AGREGAR JUGADOR
+            setTimeout(autoRecalculateFees, 500);
         };
 
         window.deletePlayer = async (id) => {
             if(confirm("¿Seguro de eliminar este jugador? Se perderá su historial de pagos.")) {
                 await deleteDoc(doc(getCollection("players"), id));
                 showToast("Jugador eliminado");
-                renderAll();
+                // RECALCULAR AUTOMÁTICAMENTE AL BORRAR JUGADOR
+                setTimeout(autoRecalculateFees, 500);
             }
         };
 
-        // --- PAGOS ---
+        // PAGOS
         window.addPayment = async () => {
             const id = document.getElementById('payPlayerSelect').value;
             const amount = parseFloat(document.getElementById('payAmount').value);
@@ -784,7 +787,6 @@
             await updateDoc(doc(getCollection("players"), id), { totalPaid: newTotal, payments: newPayments });
             document.getElementById('payAmount').value = '';
             showToast('Pago registrado');
-            renderAll();
         };
 
         window.openPaymentHistory = (playerId) => {
@@ -814,17 +816,12 @@
             const newPayments = p.payments.filter(pay => pay.id !== paymentId);
             const newTotal = newPayments.reduce((sum, pay) => sum + pay.amount, 0);
             await updateDoc(doc(getCollection("players"), playerId), { totalPaid: newTotal, payments: newPayments });
-            
-            // Refrescar datos locales para UI inmediata
             p.payments = newPayments;
             p.totalPaid = newTotal;
             openPaymentHistory(playerId); 
-            renderAll();
             showToast("Pago eliminado");
         };
 
-        // --- PARTIDOS ---
-        // Helper para recalcular stats globales desde cero
         function recalcTournamentStats(matches) {
             const stats = { points: 0, goalsScored: 0, goalsConceded: 0 };
             matches.forEach(m => {
@@ -866,11 +863,9 @@
             let newMatches = [...(tournamentData.matches || [])];
             
             if(editId) {
-                // Editar existente
                 const idx = newMatches.findIndex(m => m.id === editId);
                 if(idx >= 0) newMatches[idx] = matchObj;
             } else {
-                // Crear nuevo
                 newMatches.push(matchObj);
             }
 
@@ -883,11 +878,6 @@
 
             resetMatchForm();
             showToast(editId ? 'Partido actualizado' : 'Partido registrado');
-            
-            // Forzar actualización local inmediata para sensación de rapidez
-            tournamentData.matches = newMatches;
-            tournamentData.stats = newStats;
-            renderAll();
         };
 
         window.viewMatchDetails = (matchId) => {
@@ -911,10 +901,8 @@
             list.innerHTML = present.map(pid => {
                 const p = players.find(x => x.id === pid) || {name: 'Jugador Borrado'};
                 let payInfo = {paid: false};
-                // Logic to find payment info in complex object or fallback
                 if (payments[pid]) payInfo = payments[pid];
                 else if (m.refereePayments && !m.refereePayments[pid] && Array.isArray(m.presentPlayers)) {
-                     // Legacy compat or bug
                      payInfo = { paid: false };
                 }
 
@@ -946,7 +934,6 @@
             document.getElementById('matchFormTitle').textContent = "Editar Partido";
             document.getElementById('matchFormCard').classList.add('border-amber-500');
 
-            // Restaurar selección
             matchSelection = match.refereePayments || {};
             if(!match.refereePayments && match.presentPlayers) {
                 matchSelection = {};
@@ -955,21 +942,17 @@
                 });
             }
             renderMatchSelector();
-            
-            // Scroll arriba
             document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
             showToast("Modo edición activado", false);
         };
 
         window.deleteMatch = async (matchId) => {
-            // FIX: Ensure exact ID match and type safety
             if (!matchId || matchId === 'undefined') {
                 showToast("Error: ID de partido no válido", true);
                 return;
             }
             if(!confirm("¿Eliminar este partido definitivamente? Se recalcularán las estadísticas.")) return;
             
-            // Filtrar usando String comparison para seguridad
             const newMatches = tournamentData.matches.filter(m => String(m.id) !== String(matchId));
             const newStats = recalcTournamentStats(newMatches);
 
@@ -977,11 +960,6 @@
                 matches: newMatches,
                 stats: newStats
             });
-            
-            // Actualizar localmente rápido
-            tournamentData.matches = newMatches;
-            renderMatchesList();
-            renderDashboard();
             showToast("Partido eliminado correctamente");
         };
 
@@ -1000,7 +978,6 @@
             renderMatchSelector();
         };
 
-        // --- LOGICA SELECCION PARTIDO ---
         window.toggleMatchSelection = (id) => {
             if(!matchSelection[id]) matchSelection[id] = { selected: false, paid: false };
             matchSelection[id].selected = !matchSelection[id].selected;
@@ -1027,19 +1004,23 @@
             document.getElementById('totalCollectedMatch').textContent = formatCOP(paidCount * perPlayer);
         };
 
-        // --- CONFIGURACION GENERAL ---
-        window.saveConfName = async () => {
-            await updateDoc(doc(getCollection("tournaments"), currentTournament), { name: document.getElementById('confName').value });
-            showToast('Nombre actualizado');
+        // CONFIGURACIÓN UNIFICADA
+        window.saveConfiguration = async () => {
+            const name = document.getElementById('confName').value;
+            const total = parseFloat(document.getElementById('confPrice').value);
+            
+            if (!name) return showToast("El nombre no puede estar vacío", true);
+            
+            // Guardar nombre y forzar recálculo con el precio ingresado
+            await updateDoc(doc(getCollection("tournaments"), currentTournament), { name: name });
+            await autoRecalculateFees(total);
+            
+            showToast('Configuración guardada y cuotas actualizadas');
         };
 
-        window.saveConfPrice = async () => {
-            const total = parseFloat(document.getElementById('confPrice').value);
-            if(players.length === 0) return;
-            const perPlayer = total / players.length;
-            await updateDoc(doc(getCollection("tournaments"), currentTournament), { totalInscription: total, inscriptionPerPlayer: perPlayer });
-            showToast('Precios recalculados');
-        };
+        // Funciones legacy para compatibilidad si se llaman individualmente (aunque ahora están unificadas en UI)
+        window.saveConfName = saveConfiguration; 
+        window.saveConfPrice = saveConfiguration;
 
         window.confirmResetTournament = async () => {
            if(!confirm("¿Seguro? Se borrarán TODOS los partidos y estadísticas. Los jugadores se mantendrán.")) return;
@@ -1049,10 +1030,8 @@
            loadData();
         };
 
-        // UTILIDADES
         window.selectTournament = (tId) => {
             currentTournament = tId;
-            // Visual update buttons
             document.querySelectorAll('[id^="btn-t"]').forEach(b => {
                 b.classList.remove('bg-primary', 'text-dark');
                 b.classList.add('bg-gray-700', 'text-gray-300');
@@ -1062,7 +1041,6 @@
                 activeBtn.classList.remove('bg-gray-700', 'text-gray-300');
                 activeBtn.classList.add('bg-primary', 'text-dark');
             }
-            
             loadData(); 
         };
 
