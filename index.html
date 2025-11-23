@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONSTRU-SANTAMARIA | CRM</title>
+    <title>CONSTRU-SANTAMARIA | CRM Pro</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -36,14 +36,12 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
         
-        /* Animación suave */
         .fade-in-up { animation: fadeInUp 0.3s ease-out; }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Indicador Torneo Fijo */
         .tournament-badge {
             background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
             color: #0F172A;
@@ -55,6 +53,8 @@
             font-size: 10px;
             box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
         }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden text-sm">
@@ -70,7 +70,6 @@
             </div>
         </div>
 
-        <!-- SELECCIÓN DE TORNEO -->
         <div class="px-4 mb-6">
             <div class="bg-dark p-4 rounded-xl border border-gray-700">
                 <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-2">Torneo Activo</div>
@@ -93,6 +92,9 @@
             </button>
             <button onclick="showView('matches')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition">
                 <i class="fa-solid fa-futbol w-5 text-center"></i> Partidos
+            </button>
+            <button onclick="showView('stats')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition">
+                <i class="fa-solid fa-chart-simple w-5 text-center"></i> Estadísticas
             </button>
             <button onclick="showView('finances')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition">
                 <i class="fa-solid fa-money-bill-wave w-5 text-center"></i> Finanzas
@@ -130,11 +132,11 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="glass p-6 rounded-2xl border-l-4 border-success">
-                    <div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Recaudado</div>
+                    <div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Recaudado Inscripción</div>
                     <div class="text-3xl font-bold text-white" id="dashCollected">$0</div>
                 </div>
                 <div class="glass p-6 rounded-2xl border-l-4 border-danger">
-                    <div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Deuda Total</div>
+                    <div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Deuda Total (Insc + Multas)</div>
                     <div class="text-3xl font-bold text-white" id="dashDebt">$0</div>
                 </div>
                 <div class="glass p-6 rounded-2xl border-l-4 border-primary">
@@ -144,16 +146,14 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Tabla Goleadores/Asistencia -->
                 <div class="glass rounded-2xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Top Asistencia</h3>
+                    <h3 class="text-lg font-bold text-white mb-4">Top Goleadores</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <tbody id="topPlayersTable" class="text-gray-300 divide-y divide-gray-800"></tbody>
+                            <tbody id="topScorersTable" class="text-gray-300 divide-y divide-gray-800"></tbody>
                         </table>
                     </div>
                 </div>
-                <!-- Últimos Partidos -->
                 <div class="glass rounded-2xl p-6">
                     <h3 class="text-lg font-bold text-white mb-4">Racha Reciente</h3>
                     <div id="recentMatchesList" class="space-y-3"></div>
@@ -169,31 +169,23 @@
                     <i class="fa-solid fa-plus mr-2"></i> Nuevo
                 </button>
             </div>
-
             <div class="glass rounded-2xl p-4 mb-6 sticky top-0 z-10 backdrop-blur-xl">
                 <div class="relative">
                     <i class="fa-solid fa-search absolute left-3 top-3 text-gray-500"></i>
                     <input type="text" id="searchPlayer" placeholder="Buscar por nombre o dorsal..." class="w-full bg-dark border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-white focus:border-primary focus:outline-none transition" onkeyup="renderPlayers()">
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="playersGrid">
-                <!-- Cards renderizadas por JS -->
-            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="playersGrid"></div>
         </div>
 
         <!-- VISTA: PARTIDOS -->
         <div id="view-matches" class="p-6 max-w-4xl mx-auto hidden fade-in-up">
             <h2 class="text-2xl font-bold text-white mb-6">Gestión de Partidos</h2>
-            
-            <!-- Formulario Nuevo Partido -->
             <div class="glass rounded-2xl p-6 mb-8 border-t-4 border-primary" id="matchFormCard">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-white text-lg" id="matchFormTitle">Registrar Resultado</h3>
                     <button onclick="resetMatchForm()" class="text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1 rounded-full"><i class="fa-solid fa-rotate-right mr-1"></i> Limpiar</button>
                 </div>
-
-                <!-- Marcador -->
                 <div class="flex items-center justify-center gap-4 md:gap-8 mb-8">
                     <div class="text-center">
                         <div class="text-[10px] md:text-xs text-primary mb-2 font-bold tracking-wider">CONSTRU</div>
@@ -205,64 +197,71 @@
                         <input type="number" id="gc" class="w-16 h-16 md:w-20 md:h-20 text-3xl md:text-4xl font-bold text-center bg-dark border border-gray-700 rounded-xl text-danger focus:border-danger focus:outline-none transition" value="0" min="0">
                     </div>
                 </div>
-
-                <!-- Tarjetas y Costo -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div>
-                        <label class="block text-[10px] text-yellow-500 mb-1 text-center font-bold">AMARILLAS</label>
-                        <input type="number" id="yc" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-center text-white font-mono" value="0">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-blue-400 mb-1 text-center font-bold">AZULES</label>
-                        <input type="number" id="bc" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-center text-white font-mono" value="0">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-red-500 mb-1 text-center font-bold">ROJAS</label>
-                        <input type="number" id="rc" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-center text-white font-mono" value="0">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-gray-400 mb-1 text-center font-bold uppercase">Costo Arbitraje</label>
-                        <input type="number" id="refPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-center text-white font-mono text-primary" placeholder="$" oninput="calcRef()">
-                    </div>
+                <div class="mb-6">
+                    <label class="block text-xs text-gray-400 mb-1 font-bold uppercase">Costo Arbitraje Total</label>
+                    <input type="number" id="refPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white font-mono text-primary text-lg" placeholder="$" oninput="calcRef()">
                 </div>
-
-                <!-- Selección Jugadores -->
+                <!-- Resumen Tarjetas (Solo Visual en form) -->
+                <div class="grid grid-cols-3 gap-2 mb-6 text-center">
+                    <div><label class="text-[10px] text-yellow-500 font-bold">AMARILLAS</label><input id="yc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
+                    <div><label class="text-[10px] text-blue-400 font-bold">AZULES</label><input id="bc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
+                    <div><label class="text-[10px] text-red-500 font-bold">ROJAS</label><input id="rc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
+                </div>
                 <div class="bg-dark/50 rounded-xl p-4 border border-gray-700/50 mb-6">
                     <div class="flex justify-between items-center mb-4">
-                        <span class="text-sm font-bold text-gray-300 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Convocatoria</span>
+                        <span class="text-sm font-bold text-gray-300 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Convocatoria & Pagos</span>
                         <span class="text-xs text-primary bg-primary/10 px-2 py-1 rounded" id="convocadosCount">0 seleccionados</span>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto p-1" id="matchPlayersGrid">
-                        <!-- Render JS -->
-                    </div>
-                    <div class="mt-4 flex justify-between items-center text-sm border-t border-gray-700 pt-3">
-                        <span class="text-gray-400 text-xs">Costo individual: <span id="costPerPlayer" class="text-white font-bold ml-1">$0</span></span>
-                        <span class="text-gray-400 text-xs">Recaudado hoy: <span id="totalCollectedMatch" class="text-success font-bold ml-1">$0</span></span>
+                    <button onclick="openPlayerStatsModal()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg mb-4 text-xs font-bold border border-gray-600 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-primary"></i> 📝 Registrar Goles y Tarjetas Individuales
+                    </button>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto p-1" id="matchPlayersGrid"></div>
+                    <div class="mt-4 flex justify-between items-center text-xs md:text-sm border-t border-gray-700 pt-3">
+                        <div><div class="text-gray-400">Costo/Jugador: <span id="costPerPlayer" class="text-white font-bold ml-1">$0</span></div></div>
+                        <div class="text-right">
+                            <div class="text-gray-400">Arbitraje: <span id="totalCollectedMatch" class="text-success font-bold ml-1">$0</span></div>
+                            <div class="text-gray-400">Multas Pagadas: <span id="totalFinesCollectedMatch" class="text-warning font-bold ml-1">$0</span></div>
+                        </div>
                     </div>
                 </div>
-
                 <input type="hidden" id="editingMatchId" value="">
                 <button onclick="saveMatch()" class="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-amber-900/30 transition flex justify-center items-center gap-2 transform active:scale-[0.98]">
                     <i class="fa-solid fa-floppy-disk"></i> <span id="saveMatchBtnText">Guardar Partido</span>
                 </button>
             </div>
-
-            <!-- Lista Historial Completo -->
             <div class="flex justify-between items-end mb-4">
                 <h3 class="text-lg font-bold text-white">Historial Completo</h3>
                 <span class="text-xs text-gray-500" id="totalMatchesCount">0 partidos</span>
             </div>
-            <div id="fullMatchesList" class="space-y-4 pb-10">
-                <!-- Render JS -->
+            <div id="fullMatchesList" class="space-y-4 pb-10"></div>
+        </div>
+
+        <!-- VISTA: ESTADÍSTICAS -->
+        <div id="view-stats" class="p-6 max-w-6xl mx-auto hidden fade-in-up">
+            <h2 class="text-2xl font-bold text-white mb-6">Estadísticas del Equipo</h2>
+            <div class="glass rounded-2xl p-6 overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-300">
+                    <thead class="text-xs uppercase text-gray-500 border-b border-gray-700">
+                        <tr>
+                            <th class="pb-3 pl-2">Jugador</th>
+                            <th class="pb-3 text-center">PJ</th>
+                            <th class="pb-3 text-center text-success">Goles</th>
+                            <th class="pb-3 text-center text-yellow-500">Ama</th>
+                            <th class="pb-3 text-center text-blue-400">Azul</th>
+                            <th class="pb-3 text-center text-red-500">Roja</th>
+                            <th class="pb-3 text-right text-danger">Deuda Multas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody" class="divide-y divide-gray-800"></tbody>
+                </table>
             </div>
         </div>
 
         <!-- VISTA: FINANZAS -->
         <div id="view-finances" class="p-6 max-w-6xl mx-auto hidden fade-in-up">
             <h2 class="text-2xl font-bold text-white mb-6">Control Financiero</h2>
-            
             <div class="glass rounded-2xl p-6 mb-6">
-                <h3 class="text-lg font-bold text-white mb-4">Registrar Abono Rápido</h3>
+                <h3 class="text-lg font-bold text-white mb-4">Registrar Abono (Inscripción)</h3>
                 <div class="flex flex-col md:flex-row gap-4 items-end">
                     <div class="flex-1 w-full">
                         <label class="block text-xs text-gray-400 mb-1">Jugador</label>
@@ -277,16 +276,16 @@
                     </button>
                 </div>
             </div>
-
             <div class="glass rounded-2xl p-6 overflow-x-auto">
                 <table class="w-full text-left text-sm text-gray-300">
                     <thead class="text-xs uppercase text-gray-500 border-b border-gray-700">
                         <tr>
                             <th class="pb-3 pl-2">Jugador</th>
-                            <th class="pb-3 text-right">Debe</th>
-                            <th class="pb-3 text-right">Pagado</th>
-                            <th class="pb-3 text-right">Saldo</th>
-                            <th class="pb-3 text-center">Estado</th>
+                            <th class="pb-3 text-right">Costo Insc.</th>
+                            <th class="pb-3 text-right">Abonado</th>
+                            <th class="pb-3 text-right">Deuda Insc.</th>
+                            <th class="pb-3 text-right text-danger font-bold">Deuda Multas</th>
+                            <th class="pb-3 text-right">Total Deuda</th>
                             <th class="pb-3 text-center">Acción</th>
                         </tr>
                     </thead>
@@ -302,110 +301,91 @@
                 <div>
                     <label class="block text-sm text-gray-400 mb-1">Nombre del Torneo</label>
                     <input type="text" id="confName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white mb-4">
-                    
                     <label class="block text-sm text-gray-400 mb-1">Costo Inscripción Total</label>
                     <input type="number" id="confPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white">
                     <p class="text-xs text-gray-500 mt-2 mb-4">Al guardar, este valor se dividirá automáticamente entre todos los jugadores actuales.</p>
-                    
                     <button onclick="saveConfiguration()" class="w-full bg-primary hover:bg-amber-600 text-dark font-bold py-3 rounded-lg transition shadow-lg shadow-amber-900/20">
                         <i class="fa-solid fa-save mr-2"></i> Guardar y Recalcular Cuotas
                     </button>
                 </div>
-                
                 <div class="pt-6 border-t border-gray-700 mt-6">
                     <h4 class="text-danger font-bold mb-2">Zona de Peligro</h4>
                     <button onclick="confirmResetTournament()" class="text-xs bg-red-900/30 text-red-400 border border-red-900 hover:bg-red-900/50 px-4 py-2 rounded transition w-full">
-                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Reiniciar Torneo (Borrar Partidos)
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Reiniciar Torneo (Borrar Partidos y Multas)
                     </button>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- MODAL JUGADOR (CREAR/EDITAR) -->
+    <!-- MODALES -->
     <div id="playerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
         <div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
             <button onclick="closeModal('playerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h3 class="text-xl font-bold text-white mb-4" id="playerModalTitle">Nuevo Jugador</h3>
             <input type="hidden" id="editPlayerId">
             <div class="space-y-4">
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Nombre</label>
-                    <input type="text" id="playerModalName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Dorsal</label>
-                    <input type="number" id="playerModalNum" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary outline-none">
-                </div>
+                <div><label class="block text-xs text-gray-400 mb-1">Nombre</label><input type="text" id="playerModalName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div>
+                <div><label class="block text-xs text-gray-400 mb-1">Dorsal</label><input type="number" id="playerModalNum" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div>
                 <button onclick="savePlayerForm()" class="w-full bg-primary hover:bg-amber-600 text-dark py-2 rounded-lg font-bold mt-2">Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL PAGOS -->
+    <div id="playerStatsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[80] flex items-center justify-center p-4">
+        <div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl h-[80vh] flex flex-col">
+            <div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="font-bold text-white">Estadísticas Individuales</h3>
+                <button onclick="closeModal('playerStatsModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-4 flex-1 overflow-y-auto" id="playerStatsInputs"></div>
+            <div class="p-4 bg-dark border-t border-gray-700">
+                <button onclick="closeModal('playerStatsModal'); renderMatchSelector();" class="w-full bg-success hover:bg-emerald-600 text-white py-3 rounded-lg font-bold">Confirmar y Volver</button>
+            </div>
+        </div>
+    </div>
+
     <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
         <div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl h-[500px] flex flex-col">
             <button onclick="closeModal('historyModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h3 class="text-xl font-bold text-white mb-1" id="historyModalTitle">Historial</h3>
-            <p class="text-xs text-gray-500 mb-4">Registro de pagos individuales</p>
-            
-            <div class="flex-1 overflow-y-auto pr-2" id="historyList">
-                <!-- Render JS -->
-            </div>
+            <div class="flex-1 overflow-y-auto pr-2" id="historyList"></div>
         </div>
     </div>
 
-    <!-- MODAL DETALLE PARTIDO -->
     <div id="matchDetailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4">
         <div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl overflow-hidden">
             <div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center">
-                <h3 class="font-bold text-white"><i class="fa-solid fa-circle-info text-primary mr-2"></i>Detalles del Partido</h3>
+                <h3 class="font-bold text-white">Detalles del Partido</h3>
                 <button onclick="closeModal('matchDetailModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-6 max-h-[70vh] overflow-y-auto">
-                <div class="flex justify-center items-center mb-6">
-                    <div class="text-center">
-                        <div class="text-4xl font-bold text-white" id="mdScore"></div>
-                        <div class="text-xs text-gray-500 mt-1" id="mdDate"></div>
-                    </div>
+                <div class="flex justify-center items-center mb-6 text-center">
+                    <div><div class="text-4xl font-bold text-white" id="mdScore"></div><div class="text-xs text-gray-500 mt-1" id="mdDate"></div></div>
                 </div>
-                
                 <div class="grid grid-cols-3 gap-2 text-center mb-6 bg-gray-800/50 p-3 rounded-xl">
-                    <div><div class="text-xs text-yellow-500 font-bold">Amarillas</div><div id="mdYC" class="text-white font-mono">0</div></div>
-                    <div><div class="text-xs text-blue-400 font-bold">Azules</div><div id="mdBC" class="text-white font-mono">0</div></div>
-                    <div><div class="text-xs text-red-500 font-bold">Rojas</div><div id="mdRC" class="text-white font-mono">0</div></div>
+                    <div><div class="text-xs text-yellow-500 font-bold">Ama</div><div id="mdYC" class="text-white font-mono">0</div></div>
+                    <div><div class="text-xs text-blue-400 font-bold">Azul</div><div id="mdBC" class="text-white font-mono">0</div></div>
+                    <div><div class="text-xs text-red-500 font-bold">Roja</div><div id="mdRC" class="text-white font-mono">0</div></div>
                 </div>
-
-                <div class="space-y-2">
-                    <div class="flex justify-between text-xs uppercase text-gray-500 font-bold border-b border-gray-700 pb-1">
-                        <span>Jugador Convocado</span>
-                        <span>Arbitraje</span>
-                    </div>
-                    <div id="mdPlayerList" class="text-sm space-y-1"></div>
-                </div>
-
+                <div class="space-y-2" id="mdPlayerList"></div>
                 <div class="mt-6 pt-4 border-t border-gray-700 flex justify-between items-center text-sm">
-                    <span class="text-gray-400">Costo Total Arbitraje:</span>
-                    <span class="text-white font-bold" id="mdRefTotal">$0</span>
+                    <span class="text-gray-400">Costo Total Arbitraje:</span><span class="text-white font-bold" id="mdRefTotal">$0</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- TOAST -->
     <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-surface border border-gray-700 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 opacity-0 pointer-events-none transition-opacity duration-300 z-[70]">
-        <i class="fa-solid fa-info-circle text-primary"></i>
-        <span id="toastMsg">Mensaje</span>
+        <i class="fa-solid fa-info-circle text-primary"></i><span id="toastMsg">Mensaje</span>
     </div>
 
-    <!-- FIREBASE LOGIC -->
+    <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, query, where, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // CONFIGURACIÓN
         const firebaseConfig = {
             apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
             authDomain: "crm-futbol.firebaseapp.com",
@@ -418,135 +398,23 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
-        // USAMOS COLECCIONES RAÍZ PARA DATOS EXISTENTES
         const getCollection = (name) => collection(db, name);
 
-        // HELPER CURRENCY
-        const formatCOP = (amount) => {
-            return new Intl.NumberFormat('es-CO', {
-                style: 'currency',
-                currency: 'COP',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(amount);
-        };
+        // HELPERS
+        const FINE_VALUES = { yellow: 5000, red: 10000, blue: 15000 };
+        const formatCOP = (amount) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
 
-        // ESTADO
+        // STATE
         let currentTournament = 'torneo1';
         let players = [];
         let tournamentData = {};
         let matchSelection = {}; 
 
-        // DOM Elements
-        const statusEl = document.getElementById('connectionStatus');
-
-        // INIT
-        async function init() {
-            try { await setPersistence(auth, inMemoryPersistence); } catch(e) {}
-
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    statusEl.innerHTML = '<i class="fa-solid fa-circle text-success text-[8px] mr-2"></i> Conectado';
-                    statusEl.className = 'text-xs text-center text-success bg-green-900/20 py-2 rounded border border-green-900/30';
-                    loadData();
-                } else {
-                    signInAnonymously(auth).catch((error) => {
-                        console.error("Auth Error:", error);
-                        statusEl.innerHTML = '<i class="fa-solid fa-circle text-danger text-[8px] mr-2"></i> Offline';
-                        statusEl.className = 'text-xs text-center text-danger bg-red-900/20 py-2 rounded border border-red-900/30';
-                        loadData();
-                    });
-                }
-            });
-        }
-
-        function loadData() {
-            const q = query(getCollection("players"), where("tournament", "==", currentTournament));
-            onSnapshot(q, (snapshot) => {
-                players = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => a.number - b.number);
-                renderAll();
-            }, (e) => console.error("Error loading players", e));
-
-            onSnapshot(doc(getCollection("tournaments"), currentTournament), (docSnap) => {
-                if(docSnap.exists()) {
-                    let data = docSnap.data();
-                    
-                    // MIGRACIÓN SILENCIOSA
-                    let needsUpdate = false;
-                    if(data.matches && Array.isArray(data.matches)) {
-                        data.matches = data.matches.map(m => {
-                            if(!m.id) { m.id = crypto.randomUUID(); needsUpdate = true; }
-                            return m;
-                        });
-                    }
-                    if(needsUpdate) {
-                        updateDoc(docSnap.ref, { matches: data.matches }).catch(e => console.warn("Migración falló"));
-                    }
-
-                    tournamentData = data;
-                    updateTournamentUI(tournamentData);
-                    renderAll();
-                } else {
-                    setDoc(docSnap.ref, { name: "Torneo Nuevo", totalInscription: 0, matches: [], stats: {} })
-                        .catch(e => console.warn("Escritura fallida"));
-                }
-            }, (e) => console.error("Error loading tournament", e));
-        }
-
-        function updateTournamentUI(data) {
-            const name = data.name || "Sin Nombre";
-            if (document.getElementById('activeTournamentDisplay')) {
-                document.getElementById('activeTournamentDisplay').textContent = name;
-            }
-            if (document.getElementById('mobileTournamentBadge')) {
-                document.getElementById('mobileTournamentBadge').textContent = name.toUpperCase();
-            }
-            if (document.getElementById('confName')) {
-                document.getElementById('confName').value = name;
-            }
-            if (document.getElementById('confPrice')) {
-                document.getElementById('confPrice').value = data.totalInscription || 0;
-            }
-        }
-
-        // --- LOGICA DE RECALCULO AUTOMATICO (NUEVO) ---
-        // Esta función es la clave para que el precio se actualice dinámicamente
-        async function autoRecalculateFees(explicitTotal = null) {
-            try {
-                const total = explicitTotal !== null ? parseFloat(explicitTotal) : (tournamentData.totalInscription || 0);
-                
-                // Obtener cantidad real de jugadores desde el servidor para evitar errores locales
-                const q = query(getCollection("players"), where("tournament", "==", currentTournament));
-                const snap = await getDocs(q);
-                const count = snap.size;
-
-                if (count > 0 && total > 0) {
-                    const newPerPlayer = total / count;
-                    await updateDoc(doc(getCollection("tournaments"), currentTournament), {
-                        totalInscription: total,
-                        inscriptionPerPlayer: newPerPlayer
-                    });
-                    console.log(`Recálculo Automático: Total $${total} / ${count} Jugadores = $${newPerPlayer} c/u`);
-                    showToast(`Cuota actualizada: ${formatCOP(newPerPlayer)} por jugador`);
-                }
-            } catch (e) {
-                console.error("Error recalculando cuotas:", e);
-            }
-        }
-
-        // GLOBAL FUNCTIONS UI
+        // DEFINICIONES GLOBALES (Antes de init)
         window.selectTournament = (tId) => {
             currentTournament = tId;
-            document.querySelectorAll('[id^="btn-t"]').forEach(b => {
-                b.classList.remove('bg-primary', 'text-dark');
-                b.classList.add('bg-gray-700', 'text-gray-300');
-            });
-            const activeBtn = document.getElementById('btn-' + (tId === 'torneo1' ? 't1' : 't2'));
-            if(activeBtn) {
-                activeBtn.classList.remove('bg-gray-700', 'text-gray-300');
-                activeBtn.classList.add('bg-primary', 'text-dark');
-            }
+            document.querySelectorAll('[id^="btn-t"]').forEach(b => { b.classList.remove('bg-primary', 'text-dark'); b.classList.add('bg-gray-700', 'text-gray-300'); });
+            document.getElementById('btn-' + (tId === 'torneo1' ? 't1' : 't2')).classList.add('bg-primary', 'text-dark');
             loadData(); 
         };
 
@@ -557,42 +425,19 @@
             event.currentTarget.classList.add('active', 'text-white');
         };
 
-        // RENDER FUNCTIONS
-        function renderAll() {
-            renderPlayers();
-            renderMatchSelector();
-            renderMatchesList();
-            renderFinances();
-            renderDashboard();
-        }
-
         window.renderPlayers = () => {
             const filter = document.getElementById('searchPlayer').value.toLowerCase();
             const grid = document.getElementById('playersGrid');
             const sel = document.getElementById('payPlayerSelect');
-            
             grid.innerHTML = '';
             sel.innerHTML = '<option value="">Seleccionar Jugador...</option>';
-
             players.forEach(p => {
                 if(p.name.toLowerCase().includes(filter) || p.number.toString().includes(filter)) {
+                    const debt = p.cardDebt || 0;
+                    const cardDebtHtml = debt > 0 ? `<div class="text-xs text-danger font-bold mt-1">Multas: ${formatCOP(debt)}</div>` : '';
                     const card = document.createElement('div');
                     card.className = 'glass p-4 rounded-xl border border-gray-800 hover:border-gray-600 transition group relative';
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-bold text-gray-300">${p.number}</div>
-                                <div>
-                                    <div class="font-bold text-white leading-tight">${p.name}</div>
-                                    <div class="text-xs text-gray-500">Abonado: ${formatCOP(p.totalPaid || 0)}</div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                                <button onclick="openPlayerModal('${p.id}')" class="text-gray-500 hover:text-primary"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deletePlayer('${p.id}')" class="text-gray-500 hover:text-danger"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
+                    card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-bold text-gray-300">${p.number}</div><div><div class="font-bold text-white leading-tight">${p.name}</div><div class="text-xs text-gray-500">Abonado: ${formatCOP(p.totalPaid || 0)}</div>${cardDebtHtml}</div></div><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="openPlayerModal('${p.id}')" class="text-gray-500 hover:text-primary"><i class="fa-solid fa-pen"></i></button><button onclick="deletePlayer('${p.id}')" class="text-gray-500 hover:text-danger"><i class="fa-solid fa-trash"></i></button></div></div>`;
                     grid.appendChild(card);
                 }
                 const opt = document.createElement('option');
@@ -602,68 +447,44 @@
             });
         };
 
-        function renderMatchSelector() {
+        window.renderMatchSelector = () => {
             const grid = document.getElementById('matchPlayersGrid');
             grid.innerHTML = '';
-            
             players.forEach(p => {
-                const state = matchSelection[p.id] || { selected: false, paid: false };
+                if(!matchSelection[p.id]) matchSelection[p.id] = { selected: false, paidRef: false, paidFines: false, stats: { goals:0, yellow:0, blue:0, red:0 } };
+                const state = matchSelection[p.id];
+                const hasDebt = (p.cardDebt || 0) > 0;
                 const div = document.createElement('div');
-                div.className = `p-2 rounded-lg border cursor-pointer transition flex flex-col items-center text-center relative ${state.selected ? 'bg-primary/20 border-primary' : 'bg-gray-800/50 border-transparent hover:bg-gray-800'}`;
-                div.onclick = () => toggleMatchSelection(p.id);
-                
-                div.innerHTML = `
-                    <div class="text-xs font-bold text-gray-300 mb-1">${p.name}</div>
-                    ${state.selected ? 
-                        `<button onclick="event.stopPropagation(); toggleMatchPay('${p.id}')" class="text-[10px] px-2 py-0.5 rounded ${state.paid ? 'bg-success text-white' : 'bg-gray-700 text-gray-400'}">
-                            ${state.paid ? '$ PAGADO' : '$ DEBE'}
-                        </button>` : ''
-                    }
-                `;
+                div.className = `p-3 rounded-lg border cursor-pointer transition flex flex-col relative ${state.selected ? 'bg-blue-900/20 border-secondary' : 'bg-gray-800/50 border-transparent hover:bg-gray-800'}`;
+                div.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'I') window.toggleMatchSelection(p.id); };
+                let content = `<div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-gray-300">${p.number}. ${p.name}</span>${state.selected ? '<i class="fa-solid fa-circle-check text-success"></i>' : '<i class="fa-regular fa-circle text-gray-600"></i>'}</div>`;
+                if(state.selected) {
+                    content += `<button onclick="toggleMatchPayRef('${p.id}')" class="w-full text-[10px] px-2 py-1 mb-1 rounded border ${state.paidRef ? 'bg-success text-white border-success' : 'bg-transparent text-gray-400 border-gray-600'}">Arbitraje: ${state.paidRef ? 'PAGADO' : 'PEND'}</button>`;
+                    if (hasDebt) content += `<button onclick="toggleMatchPayFines('${p.id}')" class="w-full text-[10px] px-2 py-1 rounded border ${state.paidFines ? 'bg-warning text-dark border-warning font-bold' : 'bg-transparent text-danger border-danger'}">Multa: ${formatCOP(p.cardDebt)} ${state.paidFines ? '(OK)' : ''}</button>`;
+                    const s = state.stats;
+                    if(s.goals > 0 || s.yellow > 0 || s.blue > 0 || s.red > 0) content += `<div class="mt-2 pt-1 border-t border-gray-700 flex gap-1 text-[10px] justify-center">${s.goals > 0 ? `<span class="text-success">⚽${s.goals}</span>` : ''}${s.yellow > 0 ? `<span class="text-yellow-500">🟨${s.yellow}</span>` : ''}${s.blue > 0 ? `<span class="text-blue-400">🟦${s.blue}</span>` : ''}${s.red > 0 ? `<span class="text-red-500">🟥${s.red}</span>` : ''}</div>`;
+                }
+                div.innerHTML = content;
                 grid.appendChild(div);
             });
             window.calcRef();
-        }
+        };
 
-        function renderMatchesList() {
+        window.renderMatchesList = () => {
             const list = document.getElementById('fullMatchesList');
             const recentList = document.getElementById('recentMatchesList');
-            list.innerHTML = '';
-            recentList.innerHTML = '';
+            list.innerHTML = ''; recentList.innerHTML = '';
             const matches = (tournamentData.matches || []).slice().reverse(); 
-
             document.getElementById('totalMatchesCount').textContent = `${matches.length} partidos`;
-
-            if(matches.length === 0) {
-                list.innerHTML = '<div class="text-center text-gray-500 py-4">No hay partidos registrados</div>';
-                recentList.innerHTML = '<div class="text-center text-gray-500 text-xs">Sin actividad reciente</div>';
-                return;
-            }
-
+            if(matches.length === 0) { list.innerHTML = '<div class="text-center text-gray-500 py-4">No hay partidos registrados</div>'; return; }
             matches.forEach(m => {
                 const item = document.createElement('div');
                 item.className = 'glass p-4 rounded-xl border-l-4 border-gray-700 flex justify-between items-center';
                 if (m.result === 'Victoria') item.classList.add('border-l-success');
                 else if (m.result === 'Derrota') item.classList.add('border-l-danger');
                 else item.classList.add('border-l-primary');
-
-                item.innerHTML = `
-                    <div class="cursor-pointer flex-1" onclick="viewMatchDetails('${m.id}')">
-                        <div class="text-xs text-gray-500 mb-1">${new Date(m.date).toLocaleDateString()}</div>
-                        <div class="text-lg font-bold text-white">
-                            <span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span> - 
-                            <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span>
-                        </div>
-                        <div class="text-xs font-bold uppercase text-gray-400 mt-1">${m.result}</div>
-                    </div>
-                    <div class="flex gap-2 items-center">
-                        <button onclick="viewMatchDetails('${m.id}')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 w-8 h-8 rounded-full transition" title="Ver Detalles"><i class="fa-solid fa-eye"></i></button>
-                        <button onclick="editMatch('${m.id}')" class="bg-gray-800 hover:bg-primary hover:text-dark text-white w-8 h-8 rounded-full transition" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteMatch('${m.id}')" class="bg-gray-800 hover:bg-danger text-white w-8 h-8 rounded-full transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
+                item.innerHTML = `<div class="cursor-pointer flex-1" onclick="viewMatchDetails('${m.id}')"><div class="text-xs text-gray-500 mb-1">${new Date(m.date).toLocaleDateString()}</div><div class="text-lg font-bold text-white"><span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span> - <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span></div><div class="text-xs font-bold uppercase text-gray-400 mt-1">${m.result}</div></div><div class="flex gap-2 items-center"><button onclick="viewMatchDetails('${m.id}')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 w-8 h-8 rounded-full transition"><i class="fa-solid fa-eye"></i></button><button onclick="editMatch('${m.id}')" class="bg-gray-800 hover:bg-primary hover:text-dark text-white w-8 h-8 rounded-full transition"><i class="fa-solid fa-pen"></i></button><button onclick="deleteMatch('${m.id}')" class="bg-gray-800 hover:bg-danger text-white w-8 h-8 rounded-full transition"><i class="fa-solid fa-trash"></i></button></div>`;
                 list.appendChild(item);
-
                 if (recentList.children.length < 5) {
                     const miniItem = item.cloneNode(true);
                     miniItem.querySelector('.flex.gap-2').remove(); 
@@ -674,255 +495,158 @@
                     recentList.appendChild(miniItem);
                 }
             });
-        }
+        };
 
-        function renderFinances() {
+        window.renderFinances = () => {
             const tbody = document.getElementById('financesTableBody');
             tbody.innerHTML = '';
             const cost = tournamentData.inscriptionPerPlayer || 0;
-
             players.forEach(p => {
                 const paid = p.totalPaid || 0;
                 const debt = cost - paid;
                 const status = debt <= 0 ? '<span class="text-success text-xs bg-green-900/30 px-2 py-1 rounded">Al día</span>' : '<span class="text-warning text-xs bg-yellow-900/30 px-2 py-1 rounded">Pendiente</span>';
-                
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="py-3 pl-2 font-medium text-white">${p.name}</td>
-                    <td class="py-3 text-right text-gray-400">${formatCOP(cost)}</td>
-                    <td class="py-3 text-right text-success">${formatCOP(paid)}</td>
-                    <td class="py-3 text-right ${debt > 0 ? 'text-danger font-bold' : 'text-gray-500'}">${formatCOP(Math.max(0, debt))}</td>
-                    <td class="py-3 text-center">${status}</td>
-                    <td class="py-3 text-center">
-                        <button onclick="openPaymentHistory('${p.id}')" class="text-xs bg-gray-700 hover:bg-secondary text-white px-3 py-1 rounded transition">Ver</button>
-                    </td>
-                `;
+                tr.innerHTML = `<td class="py-3 pl-2 font-medium text-white">${p.name}</td><td class="py-3 text-right text-gray-400">${formatCOP(cost)}</td><td class="py-3 text-right text-success">${formatCOP(paid)}</td><td class="py-3 text-right ${debt > 0 ? 'text-danger font-bold' : 'text-gray-500'}">${formatCOP(Math.max(0, debt))}</td><td class="py-3 text-right text-danger font-bold">${p.cardDebt > 0 ? formatCOP(p.cardDebt) : '-'}</td><td class="py-3 text-right font-bold text-white">${formatCOP(Math.max(0, debt) + (p.cardDebt || 0))}</td><td class="py-3 text-center"><button onclick="openPaymentHistory('${p.id}')" class="text-xs bg-gray-700 hover:bg-secondary text-white px-3 py-1 rounded transition">Ver</button></td>`;
                 tbody.appendChild(tr);
             });
-        }
+        };
 
-        function renderDashboard() {
+        window.renderDashboard = () => {
             const matches = tournamentData.matches || [];
             const totalPaid = players.reduce((acc, p) => acc + (p.totalPaid || 0), 0);
             const totalDebt = Math.max(0, (players.length * (tournamentData.inscriptionPerPlayer || 0)) - totalPaid);
-
+            const totalFinesDebt = players.reduce((acc, p) => acc + (p.cardDebt || 0), 0);
             document.getElementById('dashCollected').textContent = formatCOP(totalPaid);
-            document.getElementById('dashDebt').textContent = formatCOP(totalDebt);
+            document.getElementById('dashDebt').textContent = formatCOP(totalDebt + totalFinesDebt);
             document.getElementById('dashMatches').textContent = matches.length;
-
-            const sorted = [...players].map(p => {
-                const played = matches.filter(m => m.presentPlayers && m.presentPlayers.includes(p.id)).length;
-                return { ...p, played };
-            }).sort((a,b) => b.played - a.played).slice(0, 5);
-
-            document.getElementById('topPlayersTable').innerHTML = sorted.map(p => `
-                <tr><td class="py-2 text-sm border-b border-gray-800">${p.name}</td><td class="text-right font-bold text-primary border-b border-gray-800">${p.played} PJ</td></tr>
-            `).join('');
-        }
-
-        // CRUD JUGADORES
-        window.openPlayerModal = (playerId = null) => {
-            const modal = document.getElementById('playerModal');
-            const title = document.getElementById('playerModalTitle');
-            const nameIn = document.getElementById('playerModalName');
-            const numIn = document.getElementById('playerModalNum');
-            const idIn = document.getElementById('editPlayerId');
-
-            if (playerId) {
-                const p = players.find(x => x.id === playerId);
-                title.textContent = "Editar Jugador";
-                nameIn.value = p.name;
-                numIn.value = p.number;
-                idIn.value = p.id;
-            } else {
-                title.textContent = "Nuevo Jugador";
-                nameIn.value = "";
-                numIn.value = "";
-                idIn.value = "";
-            }
-            modal.classList.remove('hidden');
+            const statsMap = {};
+            players.forEach(p => statsMap[p.id] = {name: p.name, g:0});
+            matches.forEach(m => { if(m.playerDetails) { Object.keys(m.playerDetails).forEach(pid => { if(statsMap[pid]) statsMap[pid].g += (m.playerDetails[pid].goals || 0); }); } });
+            const sorted = Object.values(statsMap).sort((a,b) => b.g - a.g).slice(0, 5);
+            document.getElementById('topScorersTable').innerHTML = sorted.map(p => `<tr><td class="py-2 text-sm border-b border-gray-800">${p.name}</td><td class="text-right font-bold text-success border-b border-gray-800">${p.g} Goles</td></tr>`).join('');
         };
 
-        window.savePlayerForm = async () => {
-            const id = document.getElementById('editPlayerId').value;
-            const name = document.getElementById('playerModalName').value;
-            const number = parseInt(document.getElementById('playerModalNum').value);
-
-            if(!name || !number) return showToast("Faltan datos", true);
-
-            if(id) {
-                await updateDoc(doc(getCollection("players"), id), { name, number });
-                showToast("Jugador actualizado");
-            } else {
-                await setDoc(doc(getCollection("players")), {
-                    name, number, tournament: currentTournament, totalPaid: 0, payments: []
-                });
-                showToast("Jugador creado");
-            }
-            closeModal('playerModal');
-            // RECALCULAR AUTOMÁTICAMENTE AL AGREGAR JUGADOR
-            setTimeout(autoRecalculateFees, 500);
-        };
-
-        window.deletePlayer = async (id) => {
-            if(confirm("¿Seguro de eliminar este jugador? Se perderá su historial de pagos.")) {
-                await deleteDoc(doc(getCollection("players"), id));
-                showToast("Jugador eliminado");
-                // RECALCULAR AUTOMÁTICAMENTE AL BORRAR JUGADOR
-                setTimeout(autoRecalculateFees, 500);
-            }
-        };
-
-        // PAGOS
-        window.addPayment = async () => {
-            const id = document.getElementById('payPlayerSelect').value;
-            const amount = parseFloat(document.getElementById('payAmount').value);
-            if(!id || !amount) return showToast("Selecciona jugador y monto", true);
-
-            const p = players.find(x => x.id === id);
-            const newPayment = { id: crypto.randomUUID(), date: new Date().toISOString(), amount };
-            const newPayments = [...(p.payments || []), newPayment];
-            const newTotal = newPayments.reduce((sum, pay) => sum + pay.amount, 0);
-
-            await updateDoc(doc(getCollection("players"), id), { totalPaid: newTotal, payments: newPayments });
-            document.getElementById('payAmount').value = '';
-            showToast('Pago registrado');
-        };
-
-        window.openPaymentHistory = (playerId) => {
-            const p = players.find(x => x.id === playerId);
-            const list = document.getElementById('historyList');
-            document.getElementById('historyModalTitle').textContent = p.name;
-            
-            if(!p.payments || p.payments.length === 0) {
-                list.innerHTML = '<div class="text-center text-gray-500 mt-10">Sin pagos registrados</div>';
-            } else {
-                list.innerHTML = p.payments.map(pay => `
-                    <div class="flex justify-between items-center bg-dark p-3 rounded-lg mb-2 border border-gray-700">
-                        <div>
-                            <div class="font-bold text-success">${formatCOP(pay.amount)}</div>
-                            <div class="text-xs text-gray-500">${new Date(pay.date).toLocaleDateString()}</div>
-                        </div>
-                        <button onclick="deletePayment('${playerId}', '${pay.id}')" class="text-gray-500 hover:text-danger px-2"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `).join('');
-            }
-            document.getElementById('historyModal').classList.remove('hidden');
-        };
-
-        window.deletePayment = async (playerId, paymentId) => {
-            if(!confirm("¿Borrar este pago?")) return;
-            const p = players.find(x => x.id === playerId);
-            const newPayments = p.payments.filter(pay => pay.id !== paymentId);
-            const newTotal = newPayments.reduce((sum, pay) => sum + pay.amount, 0);
-            await updateDoc(doc(getCollection("players"), playerId), { totalPaid: newTotal, payments: newPayments });
-            p.payments = newPayments;
-            p.totalPaid = newTotal;
-            openPaymentHistory(playerId); 
-            showToast("Pago eliminado");
-        };
-
-        function recalcTournamentStats(matches) {
-            const stats = { points: 0, goalsScored: 0, goalsConceded: 0 };
+        window.renderStatsTable = () => {
+            const tbody = document.getElementById('statsTableBody');
+            tbody.innerHTML = '';
+            const matches = tournamentData.matches || [];
+            const statsMap = {}; 
+            players.forEach(p => statsMap[p.id] = { pj:0, g:0, y:0, b:0, r:0, name: p.name, debt: p.cardDebt || 0 });
             matches.forEach(m => {
-                stats.points += (m.points || 0);
-                stats.goalsScored += (m.goalsScored || 0);
-                stats.goalsConceded += (m.goalsConceded || 0);
+                if(m.playerDetails) {
+                    Object.keys(m.playerDetails).forEach(pid => { if(statsMap[pid]) { const details = m.playerDetails[pid]; statsMap[pid].pj++; statsMap[pid].g += (details.goals || 0); statsMap[pid].y += (details.yellow || 0); statsMap[pid].b += (details.blue || 0); statsMap[pid].r += (details.red || 0); } });
+                } else if (m.presentPlayers) {
+                    m.presentPlayers.forEach(pid => { if(statsMap[pid]) statsMap[pid].pj++; });
+                }
             });
-            return stats;
-        }
+            const sorted = Object.values(statsMap).sort((a,b) => b.g - a.g); 
+            sorted.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="py-2 pl-2 font-medium text-white">${s.name}</td><td class="text-center text-gray-400">${s.pj}</td><td class="text-center font-bold text-success">${s.g}</td><td class="text-center text-yellow-500">${s.y}</td><td class="text-center text-blue-400">${s.b}</td><td class="text-center text-red-500">${s.r}</td><td class="text-right text-danger font-mono pr-2">${s.debt > 0 ? formatCOP(s.debt) : '-'}</td>`;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.toggleMatchSelection = (id) => {
+            if(!matchSelection[id]) matchSelection[id] = { selected: false, paidRef: false, paidFines: false, stats: {goals:0, yellow:0, blue:0, red:0} };
+            matchSelection[id].selected = !matchSelection[id].selected;
+            if(!matchSelection[id].selected) { matchSelection[id].paidRef = false; matchSelection[id].paidFines = false; }
+            window.renderMatchSelector();
+        };
+        window.toggleMatchPayRef = (id) => { if(matchSelection[id]) { matchSelection[id].paidRef = !matchSelection[id].paidRef; window.renderMatchSelector(); } };
+        window.toggleMatchPayFines = (id) => { if(matchSelection[id]) { matchSelection[id].paidFines = !matchSelection[id].paidFines; window.renderMatchSelector(); } };
+        
+        window.openPlayerStatsModal = () => { window.renderPlayerStatsInputs(); document.getElementById('playerStatsModal').classList.remove('hidden'); };
+        window.renderPlayerStatsInputs = () => {
+            const container = document.getElementById('playerStatsInputs'); container.innerHTML = '';
+            const selectedIds = Object.keys(matchSelection).filter(id => matchSelection[id].selected);
+            if(selectedIds.length === 0) { container.innerHTML = '<div class="text-center text-gray-500 mt-10">Primero selecciona jugadores en la convocatoria.</div>'; return; }
+            selectedIds.forEach(pid => {
+                const p = players.find(x => x.id === pid);
+                const stats = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 };
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-gray-800/50 p-3 rounded-lg mb-2";
+                row.innerHTML = `<div class="w-1/3 font-bold text-gray-300 text-sm">${p.name}</div><div class="flex gap-3"><div class="flex flex-col items-center"><span class="text-[10px] text-success mb-1">Goles</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.goals}" onchange="updateStat('${pid}', 'goals', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-yellow-500 mb-1">Ama</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.yellow}" onchange="updateStat('${pid}', 'yellow', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-blue-400 mb-1">Azul</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.blue}" onchange="updateStat('${pid}', 'blue', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-red-500 mb-1">Roja</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.red}" onchange="updateStat('${pid}', 'red', this.value)"></div></div>`;
+                container.appendChild(row);
+            });
+        };
+        window.updateStat = (pid, stat, val) => { matchSelection[pid].stats[stat] = parseInt(val) || 0; };
+
+        window.calcRef = () => {
+            const total = parseFloat(document.getElementById('refPrice').value) || 0;
+            const selectedIds = Object.keys(matchSelection).filter(k => matchSelection[k].selected);
+            const count = selectedIds.length;
+            const perPlayer = count > 0 ? total / count : 0;
+            const paidRefCount = selectedIds.filter(k => matchSelection[k].paidRef).length;
+            const collectedRef = paidRefCount * perPlayer;
+            let collectedFines = 0;
+            selectedIds.forEach(pid => { if (matchSelection[pid].paidFines) { const p = players.find(x => x.id === pid); if(p) collectedFines += (p.cardDebt || 0); } });
+            document.getElementById('convocadosCount').textContent = `${count} Jugadores`;
+            document.getElementById('costPerPlayer').textContent = formatCOP(perPlayer);
+            document.getElementById('totalCollectedMatch').textContent = formatCOP(collectedRef);
+            document.getElementById('totalFinesCollectedMatch').textContent = formatCOP(collectedFines);
+        };
 
         window.saveMatch = async () => {
             const gf = parseInt(document.getElementById('gf').value);
             const gc = parseInt(document.getElementById('gc').value);
             const editId = document.getElementById('editingMatchId').value;
             const refValue = parseFloat(document.getElementById('refPrice').value) || 0;
-            
-            const selected = Object.keys(matchSelection).filter(k => matchSelection[k].selected);
-            if(selected.length === 0) return showToast('Selecciona al menos 1 jugador', true);
-
-            let result = 'Derrota';
-            let points = 0;
-            if(gf > gc) { result = 'Victoria'; points = 3; }
-            else if (gf === gc) { result = 'Empate'; points = 1; }
-
-            const matchObj = {
-                id: editId || crypto.randomUUID(),
-                date: new Date().toISOString(),
-                goalsScored: gf,
-                goalsConceded: gc,
-                yellowCards: parseInt(document.getElementById('yc').value) || 0,
-                blueCards: parseInt(document.getElementById('bc').value) || 0,
-                redCards: parseInt(document.getElementById('rc').value) || 0,
-                refereeValue: refValue,
-                presentPlayers: selected,
-                refereePayments: matchSelection,
-                result, points
-            };
-
+            const selectedIds = Object.keys(matchSelection).filter(k => matchSelection[k].selected);
+            if(selectedIds.length === 0) return showToast('Selecciona al menos 1 jugador', true);
+            let result = 'Derrota'; let points = 0;
+            if(gf > gc) { result = 'Victoria'; points = 3; } else if (gf === gc) { result = 'Empate'; points = 1; }
+            const playerDetailsMap = {};
+            selectedIds.forEach(pid => { playerDetailsMap[pid] = matchSelection[pid].stats; });
+            const matchObj = { id: editId || crypto.randomUUID(), date: new Date().toISOString(), goalsScored: gf, goalsConceded: gc, yellowCards: parseInt(document.getElementById('yc').value) || 0, blueCards: parseInt(document.getElementById('bc').value) || 0, redCards: parseInt(document.getElementById('rc').value) || 0, refereeValue: refValue, presentPlayers: selectedIds, refereePayments: matchSelection, playerDetails: playerDetailsMap, result, points };
             let newMatches = [...(tournamentData.matches || [])];
-            
-            if(editId) {
-                const idx = newMatches.findIndex(m => m.id === editId);
-                if(idx >= 0) newMatches[idx] = matchObj;
-            } else {
-                newMatches.push(matchObj);
+            if(editId) { const idx = newMatches.findIndex(m => m.id === editId); if(idx >= 0) newMatches[idx] = matchObj; } else { newMatches.push(matchObj); }
+            const batchUpdates = [];
+            for (const pid of selectedIds) {
+                const p = players.find(x => x.id === pid);
+                if(!p) continue;
+                let currentDebt = p.cardDebt || 0;
+                const stats = matchSelection[pid].stats;
+                if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); }
+                if (matchSelection[pid].paidFines) { currentDebt = 0; if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); } }
+                batchUpdates.push(updateDoc(doc(getCollection("players"), pid), { cardDebt: currentDebt }));
             }
-
-            const newStats = recalcTournamentStats(newMatches);
-
-            await updateDoc(doc(getCollection("tournaments"), currentTournament), {
-                matches: newMatches,
-                stats: newStats
-            });
-
-            resetMatchForm();
-            showToast(editId ? 'Partido actualizado' : 'Partido registrado');
+            await Promise.all(batchUpdates);
+            const newStats = { points: 0, goalsScored: 0, goalsConceded: 0 };
+            newMatches.forEach(m => { newStats.points += (m.points || 0); newStats.goalsScored += (m.goalsScored || 0); newStats.goalsConceded += (m.goalsConceded || 0); });
+            await updateDoc(doc(getCollection("tournaments"), currentTournament), { matches: newMatches, stats: newStats });
+            window.resetMatchForm();
+            showToast('Partido y estadísticas guardados');
         };
 
         window.viewMatchDetails = (matchId) => {
             const m = tournamentData.matches.find(x => x.id === matchId);
             if(!m) return;
-
-            document.getElementById('mdScore').innerHTML = 
-                `<span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span> - 
-                 <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span>`;
-            document.getElementById('mdDate').textContent = new Date(m.date).toLocaleDateString() + " - " + m.result;
-            
+            document.getElementById('mdScore').innerHTML = `<span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span> - <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span>`;
+            document.getElementById('mdDate').textContent = new Date(m.date).toLocaleDateString();
             document.getElementById('mdYC').textContent = m.yellowCards || 0;
             document.getElementById('mdBC').textContent = m.blueCards || 0;
             document.getElementById('mdRC').textContent = m.redCards || 0;
             document.getElementById('mdRefTotal').textContent = formatCOP(m.refereeValue || 0);
-
             const list = document.getElementById('mdPlayerList');
+            const details = m.playerDetails || {};
             const payments = m.refereePayments || {};
-            const present = m.presentPlayers || [];
-            
-            list.innerHTML = present.map(pid => {
-                const p = players.find(x => x.id === pid) || {name: 'Jugador Borrado'};
-                let payInfo = {paid: false};
-                if (payments[pid]) payInfo = payments[pid];
-                else if (m.refereePayments && !m.refereePayments[pid] && Array.isArray(m.presentPlayers)) {
-                     payInfo = { paid: false };
-                }
-
-                return `
-                    <div class="flex justify-between items-center py-1 border-b border-gray-800/50">
-                        <span class="text-gray-300">${p.name}</span>
-                        <span class="text-xs px-2 py-0.5 rounded ${payInfo.paid ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}">
-                            ${payInfo.paid ? 'PAGADO' : 'DEBE'}
-                        </span>
-                    </div>
-                `;
+            list.innerHTML = (m.presentPlayers || []).map(pid => {
+                const p = players.find(x => x.id === pid) || {name: 'Desconocido'};
+                const stats = details[pid] || { goals:0, yellow:0, blue:0, red:0 };
+                const payInfo = payments[pid] || { paidRef: false };
+                let statsHtml = '';
+                if(stats.goals) statsHtml += `<span class="ml-1 text-success">⚽${stats.goals}</span>`;
+                if(stats.yellow) statsHtml += `<span class="ml-1 text-yellow-500">🟨${stats.yellow}</span>`;
+                if(stats.red) statsHtml += `<span class="ml-1 text-red-500">🟥${stats.red}</span>`;
+                return `<div class="flex justify-between items-center py-1 border-b border-gray-800/50"><div class="text-gray-300">${p.name} ${statsHtml}</div><span class="text-xs px-2 py-0.5 rounded ${payInfo.paidRef ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}">${payInfo.paidRef ? 'PAGADO' : 'DEBE'}</span></div>`;
             }).join('');
-
             document.getElementById('matchDetailModal').classList.remove('hidden');
         };
 
         window.editMatch = (matchId) => {
             const match = tournamentData.matches.find(m => m.id === matchId);
             if(!match) return;
-
             document.getElementById('gf').value = match.goalsScored;
             document.getElementById('gc').value = match.goalsConceded;
             document.getElementById('yc').value = match.yellowCards || 0;
@@ -933,34 +657,21 @@
             document.getElementById('saveMatchBtnText').textContent = "Actualizar Partido";
             document.getElementById('matchFormTitle').textContent = "Editar Partido";
             document.getElementById('matchFormCard').classList.add('border-amber-500');
-
             matchSelection = match.refereePayments || {};
-            if(!match.refereePayments && match.presentPlayers) {
-                matchSelection = {};
-                match.presentPlayers.forEach(pid => {
-                    matchSelection[pid] = { selected: true, paid: false };
-                });
-            }
-            renderMatchSelector();
+            Object.keys(matchSelection).forEach(k => { if(!matchSelection[k].stats) matchSelection[k].stats = {goals:0, yellow:0, blue:0, red:0}; });
+            window.renderMatchSelector();
             document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
             showToast("Modo edición activado", false);
         };
 
         window.deleteMatch = async (matchId) => {
-            if (!matchId || matchId === 'undefined') {
-                showToast("Error: ID de partido no válido", true);
-                return;
-            }
-            if(!confirm("¿Eliminar este partido definitivamente? Se recalcularán las estadísticas.")) return;
-            
+            if (!matchId) return;
+            if(!confirm("¿Eliminar este partido?")) return;
             const newMatches = tournamentData.matches.filter(m => String(m.id) !== String(matchId));
-            const newStats = recalcTournamentStats(newMatches);
-
-            await updateDoc(doc(getCollection("tournaments"), currentTournament), {
-                matches: newMatches,
-                stats: newStats
-            });
-            showToast("Partido eliminado correctamente");
+            const newStats = { points: 0, goalsScored: 0, goalsConceded: 0 };
+            newMatches.forEach(m => { newStats.points += (m.points || 0); newStats.goalsScored += (m.goalsScored || 0); newStats.goalsConceded += (m.goalsConceded || 0); });
+            await updateDoc(doc(getCollection("tournaments"), currentTournament), { matches: newMatches, stats: newStats });
+            showToast("Partido eliminado");
         };
 
         window.resetMatchForm = () => {
@@ -975,92 +686,107 @@
             document.getElementById('matchFormTitle').textContent = "Registrar Resultado";
             document.getElementById('matchFormCard').classList.remove('border-amber-500');
             matchSelection = {};
-            renderMatchSelector();
+            window.renderMatchSelector();
         };
 
-        window.toggleMatchSelection = (id) => {
-            if(!matchSelection[id]) matchSelection[id] = { selected: false, paid: false };
-            matchSelection[id].selected = !matchSelection[id].selected;
-            if(!matchSelection[id].selected) matchSelection[id].paid = false;
-            renderMatchSelector();
+        window.saveConfName = async () => {
+            await updateDoc(doc(getCollection("tournaments"), currentTournament), { name: document.getElementById('confName').value });
+            showToast('Nombre actualizado');
         };
-
-        window.toggleMatchPay = (id) => {
-            if(matchSelection[id]) {
-                matchSelection[id].paid = !matchSelection[id].paid;
-                renderMatchSelector();
-            }
-        };
-
-        window.calcRef = () => {
-            const total = parseFloat(document.getElementById('refPrice').value) || 0;
-            const selected = Object.keys(matchSelection).filter(k => matchSelection[k].selected);
-            const count = selected.length;
-            const perPlayer = count > 0 ? total / count : 0;
-            const paidCount = selected.filter(k => matchSelection[k].paid).length;
-            
-            document.getElementById('convocadosCount').textContent = `${count} Jugadores`;
-            document.getElementById('costPerPlayer').textContent = formatCOP(perPlayer);
-            document.getElementById('totalCollectedMatch').textContent = formatCOP(paidCount * perPlayer);
-        };
-
-        // CONFIGURACIÓN UNIFICADA
         window.saveConfiguration = async () => {
             const name = document.getElementById('confName').value;
             const total = parseFloat(document.getElementById('confPrice').value);
-            
             if (!name) return showToast("El nombre no puede estar vacío", true);
-            
-            // Guardar nombre y forzar recálculo con el precio ingresado
             await updateDoc(doc(getCollection("tournaments"), currentTournament), { name: name });
             await autoRecalculateFees(total);
-            
             showToast('Configuración guardada y cuotas actualizadas');
         };
-
-        // Funciones legacy para compatibilidad si se llaman individualmente (aunque ahora están unificadas en UI)
-        window.saveConfName = saveConfiguration; 
-        window.saveConfPrice = saveConfiguration;
-
         window.confirmResetTournament = async () => {
-           if(!confirm("¿Seguro? Se borrarán TODOS los partidos y estadísticas. Los jugadores se mantendrán.")) return;
+           if(!confirm("¿Seguro? Se borrarán TODOS los partidos. Los jugadores se mantienen.")) return;
            await updateDoc(doc(getCollection("tournaments"), currentTournament), { matches: [], stats: {}, totalInscription: 0 });
-           for(let p of players) { await updateDoc(doc(getCollection("players"), p.id), { payments: [], totalPaid: 0 }); }
+           for(let p of players) { await updateDoc(doc(getCollection("players"), p.id), { payments: [], totalPaid: 0, cardDebt: 0 }); }
            showToast("Torneo reiniciado");
-           loadData();
         };
 
-        window.selectTournament = (tId) => {
-            currentTournament = tId;
-            document.querySelectorAll('[id^="btn-t"]').forEach(b => {
-                b.classList.remove('bg-primary', 'text-dark');
-                b.classList.add('bg-gray-700', 'text-gray-300');
-            });
-            const activeBtn = document.getElementById('btn-' + (tId === 'torneo1' ? 't1' : 't2'));
-            if(activeBtn) {
-                activeBtn.classList.remove('bg-gray-700', 'text-gray-300');
-                activeBtn.classList.add('bg-primary', 'text-dark');
-            }
-            loadData(); 
-        };
+        // LOAD DATA DECLARATION
+        async function loadData() {
+            const q = query(getCollection("players"), where("tournament", "==", currentTournament));
+            onSnapshot(q, (snapshot) => {
+                players = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => a.number - b.number);
+                renderAll();
+            }, (e) => console.error("Error loading players", e));
 
-        window.showView = (viewName) => {
-            document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
-            document.getElementById('view-' + viewName).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active', 'text-white'));
-            event.currentTarget.classList.add('active', 'text-white');
-        };
-
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-
-        function showToast(msg, isError = false) {
-            const el = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = msg;
-            el.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-opacity duration-300 z-[70] ${isError ? 'bg-red-900/90 border-red-500 text-white' : 'bg-surface border-gray-700 text-white'} opacity-100`;
-            setTimeout(() => el.classList.add('opacity-0'), 3000);
+            onSnapshot(doc(getCollection("tournaments"), currentTournament), (docSnap) => {
+                if(docSnap.exists()) {
+                    let data = docSnap.data();
+                    let needsUpdate = false;
+                    if(data.matches && Array.isArray(data.matches)) {
+                        data.matches = data.matches.map(m => {
+                            if(!m.id) { m.id = crypto.randomUUID(); needsUpdate = true; }
+                            return m;
+                        });
+                    }
+                    if(needsUpdate) {
+                        updateDoc(docSnap.ref, { matches: data.matches }).catch(e => console.warn("Migración falló"));
+                    }
+                    tournamentData = data;
+                    updateTournamentUI(tournamentData);
+                    renderAll();
+                } else {
+                    setDoc(docSnap.ref, { name: "Torneo Nuevo", totalInscription: 0, matches: [], stats: {} }).catch(e => console.warn("Error init tournament"));
+                }
+            }, (e) => console.error("Error loading tournament", e));
         }
 
-        // INICIAR APP
+        function updateTournamentUI(data) {
+            const name = data.name || "Sin Nombre";
+            if (document.getElementById('activeTournamentDisplay')) document.getElementById('activeTournamentDisplay').textContent = name;
+            if (document.getElementById('mobileTournamentBadge')) document.getElementById('mobileTournamentBadge').textContent = name.toUpperCase();
+            if (document.getElementById('confName')) document.getElementById('confName').value = name;
+            if (document.getElementById('confPrice')) document.getElementById('confPrice').value = data.totalInscription || 0;
+        }
+
+        async function autoRecalculateFees(explicitTotal = null) {
+            try {
+                const total = explicitTotal !== null ? parseFloat(explicitTotal) : (tournamentData.totalInscription || 0);
+                const q = query(getCollection("players"), where("tournament", "==", currentTournament));
+                const snap = await getDocs(q);
+                const count = snap.size;
+                if (count > 0 && total > 0) {
+                    const newPerPlayer = total / count;
+                    await updateDoc(doc(getCollection("tournaments"), currentTournament), {
+                        totalInscription: total,
+                        inscriptionPerPlayer: newPerPlayer
+                    });
+                    showToast(`Cuota: ${formatCOP(newPerPlayer)} por jugador`);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function renderAll() {
+            window.renderPlayers();
+            window.renderMatchSelector();
+            window.renderMatchesList();
+            window.renderFinances();
+            window.renderDashboard();
+            window.renderStatsTable();
+        }
+
+        // START
+        async function init() {
+            try { await setPersistence(auth, inMemoryPersistence); } catch(e) {}
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    document.getElementById('connectionStatus').innerHTML = '<i class="fa-solid fa-circle text-success text-[8px] mr-2"></i> Conectado';
+                    loadData();
+                } else {
+                    signInAnonymously(auth).catch(() => { 
+                        document.getElementById('connectionStatus').innerHTML = '<i class="fa-solid fa-circle text-danger text-[8px] mr-2"></i> Offline';
+                        loadData(); 
+                    });
+                }
+            });
+        }
         init();
     </script>
 </body>
