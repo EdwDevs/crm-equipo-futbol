@@ -15,7 +15,7 @@
     /* ===== SISTEMA DE DISEÑO CHAMPIONS PRO ===== */
     :root {
       /* Paleta Principal */
-      --bg-app: #0f172a;         
+      --bg-app: #0f172a;          
       --bg-card: #1e293b;        
       --bg-table-header: rgba(30, 41, 59, 0.98);
       --bg-input: #0f172a;
@@ -301,7 +301,7 @@
     }
     .player-info-check h5 { margin: 0; font-size: 13px; color: #fff; }
     .player-info-check span { font-size: 11px; color: var(--text-secondary); }
-    
+      
     .pay-toggle-btn {
       margin-top: 10px;
       width: 100%;
@@ -405,123 +405,53 @@
     .modal-content { background: #1e293b; width: 100%; max-width: 600px; border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.08); max-height: 85vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
 
-    /* === PREVIEW MODAL STYLES === */
-    .preview-score {
-      text-align: center;
-      padding: 30px 20px;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(245, 158, 11, 0.05));
-      border-radius: 16px;
-      margin-bottom: 24px;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-    .preview-score-display {
-      font-family: 'Exo 2', sans-serif;
-      font-size: 48px;
-      font-weight: 800;
-      color: #fff;
-      margin: 10px 0;
-      letter-spacing: 2px;
-    }
-    .preview-result-badge {
-      display: inline-block;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 10px;
-    }
-    .result-win { background: var(--success); color: #fff; }
-    .result-draw { background: #9ca3af; color: #000; }
-    .result-loss { background: var(--danger); color: #fff; }
-    
-    .preview-section {
-      background: rgba(255,255,255,0.02);
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-    .preview-section-title {
-      font-size: 12px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .preview-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    .preview-stat-item {
-      text-align: center;
-      padding: 12px;
-      background: rgba(0,0,0,0.2);
-      border-radius: 8px;
-    }
-    .preview-stat-label {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-bottom: 4px;
-    }
-    .preview-stat-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-    }
-    .preview-player-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .preview-player-badge {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .preview-player-badge.paid {
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-    .preview-finance-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .preview-finance-item:last-child {
-      border-bottom: none;
-      padding-top: 12px;
-      margin-top: 8px;
-      border-top: 2px solid rgba(255,255,255,0.1);
-    }
-
     /* Toast */
     #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 12px; width: 90%; max-width: 400px; pointer-events: none; }
     .toast { background: rgba(30, 41, 59, 0.95); color: #fff; padding: 14px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 12px; animation: slideUp 0.4s; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Preview Match Grid */
+    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .preview-stat { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; display:flex; justify-content: space-between; align-items: center; }
+    .preview-score-board { text-align: center; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
+    .preview-big-score { font-size: 32px; font-weight: 800; font-family: 'Exo 2'; letter-spacing: 2px; }
+
+    /* Loading Overlay */
+    #loadingOverlay {
+        position: fixed; top:0; left:0; width:100%; height:100%;
+        background: var(--bg-app); z-index: 9999;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        transition: opacity 0.5s;
+    }
+    .loader {
+        width: 48px; height: 48px;
+        border: 5px solid #fff;
+        border-bottom-color: var(--accent-gold);
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+        margin-bottom: 15px;
+    }
+    @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+      <span class="loader"></span>
+      <h3 style="font-family: 'Exo 2'; color: #fff;">Cargando Imperio Andino...</h3>
+      <p id="authStatusText" style="color: var(--text-muted); font-size: 12px;">Conectando con base de datos segura</p>
+  </div>
 
   <!-- HEADER -->
   <header class="app-header">
     <div class="container header-content">
       <div class="logo-area">
         <h1><i class="fa-solid fa-star text-gold" style="font-size:18px; margin-right:6px;"></i>IMPERIO ANDINO</h1>
-        <p id="currentTournamentName">Selecciona un torneo</p>
+        <p id="currentTournamentName">Cargando...</p>
       </div>
       <div class="tournament-switch">
         <button class="t-btn active" id="torneo1Global" onclick="selectTournament('torneo1')">T1</button>
@@ -699,8 +629,9 @@
           </div>
         </div>
 
+        <!-- Botón cambiado para PREVISUALIZAR -->
         <button class="btn btn-primary" onclick="previewMatch()" style="width: 100%; font-size: 16px; padding: 14px;">
-          <i class="fa-solid fa-eye"></i> Previsualizar Partido
+          <i class="fa-solid fa-eye"></i> Previsualizar & Guardar
         </button>
       </div>
 
@@ -737,7 +668,7 @@
         <h3 class="section-title">Métricas de Rendimiento</h3>
         <div class="table-responsive">
            <table class="table" id="detailedStatsTable">
-              <!-- Renderizado JS -->
+             <!-- Renderizado JS -->
            </table>
         </div>
       </div>
@@ -806,6 +737,63 @@
   <button class="fab" onclick="openDebtModal()" title="Ver Deudas"><i class="fa-solid fa-sack-dollar"></i></button>
 
   <!-- MODALES -->
+  
+  <!-- MODAL NUEVO: PREVISUALIZACION DE PARTIDO -->
+  <div id="matchPreviewModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h3><i class="fa-solid fa-clipboard-check text-info"></i> Confirmar Partido</h3>
+          <button class="btn-sm btn-info" onclick="document.getElementById('matchPreviewModal').classList.remove('active')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <!-- Marcador -->
+      <div class="preview-score-board">
+         <div style="color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;">Resultado</div>
+         <div class="preview-big-score">
+             <span class="text-success" id="prevGF">0</span> - <span class="text-danger" id="prevGC">0</span>
+         </div>
+         <div id="prevResultText" style="font-weight:600; font-size:16px; margin-top:5px;">Empate</div>
+      </div>
+
+      <!-- Resumen Tarjetas -->
+      <h4 style="font-size:13px; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">Disciplina</h4>
+      <div class="preview-grid">
+         <div class="preview-stat"><span class="text-warning"><i class="fa-solid fa-square"></i> Amarillas</span> <strong id="prevYC">0</strong></div>
+         <div class="preview-stat"><span class="text-info"><i class="fa-solid fa-square"></i> Azules</span> <strong id="prevBC">0</strong></div>
+         <div class="preview-stat"><span class="text-danger"><i class="fa-solid fa-square"></i> Rojas</span> <strong id="prevRC">0</strong></div>
+      </div>
+
+      <!-- Finanzas del Partido -->
+      <h4 style="font-size:13px; color:var(--text-muted); text-transform:uppercase; margin:15px 0 10px 0;">Finanzas Arbitraje</h4>
+      <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:15px; margin-bottom:15px;">
+         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Costo Total:</span> <strong id="prevRefTotal">$0</strong>
+         </div>
+         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Costo Jugador:</span> <strong class="text-gold" id="prevRefPerPlayer">$0</strong>
+         </div>
+         <div style="border-top:1px solid rgba(255,255,255,0.1); margin:8px 0;"></div>
+         <div style="display:flex; justify-content:space-between;">
+            <span>Recogido Hoy:</span> <strong class="text-success" id="prevRefCollected">$0</strong>
+         </div>
+         <div style="display:flex; justify-content:space-between; margin-top:5px;">
+             <span>Estado:</span> <span id="prevRefStatus">OK</span>
+         </div>
+      </div>
+
+      <!-- Lista Jugadores -->
+      <h4 style="font-size:13px; color:var(--text-muted); text-transform:uppercase; margin:15px 0 10px 0;">Asistencia (<span id="prevPlayerCount">0</span>)</h4>
+      <div id="prevPlayerList" style="font-size:12px; max-height:150px; overflow-y:auto; display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <!-- JS llena esto -->
+      </div>
+
+      <div style="margin-top:25px; display:flex; gap:10px;">
+         <button class="btn btn-info" onclick="document.getElementById('matchPreviewModal').classList.remove('active')" style="flex:1;">Cancelar</button>
+         <button class="btn btn-success" onclick="confirmSaveMatch()" style="flex:2;"><i class="fa-solid fa-floppy-disk"></i> Confirmar y Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="paymentModal" class="modal">
     <div class="modal-content">
       <div class="modal-header"><h3>Gestionar Pagos</h3><button class="btn-sm btn-info" onclick="closePaymentModal()"><i class="fa-solid fa-xmark"></i></button></div>
@@ -837,90 +825,6 @@
       <div style="display: flex; gap: 10px; margin-top: 20px;">
          <button class="btn btn-success" onclick="saveMatchChanges()" style="flex: 1;">Guardar</button>
          <button class="btn btn-danger" onclick="deleteMatch()" style="flex: 1;">Eliminar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🎯 NUEVO: MODAL DE PREVISUALIZACIÓN -->
-  <div id="matchPreviewModal" class="modal">
-    <div class="modal-content" style="max-width: 700px;">
-      <div class="modal-header">
-        <h3><i class="fa-solid fa-eye text-gold"></i> Previsualización del Partido</h3>
-        <button class="btn-sm btn-info" onclick="closePreviewModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <!-- MARCADOR -->
-      <div class="preview-score">
-        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Resultado</div>
-        <div class="preview-score-display" id="previewScoreDisplay">0 - 0</div>
-        <div id="previewResultBadge"></div>
-      </div>
-
-      <!-- ESTADÍSTICAS -->
-      <div class="preview-section">
-        <div class="preview-section-title">
-          <i class="fa-solid fa-chart-simple text-gold"></i>
-          Estadísticas del Partido
-        </div>
-        <div class="preview-stats-grid">
-          <div class="preview-stat-item">
-            <div class="preview-stat-label">Amarillas</div>
-            <div class="preview-stat-value text-warning" id="previewYellow">0</div>
-          </div>
-          <div class="preview-stat-item">
-            <div class="preview-stat-label">Azules</div>
-            <div class="preview-stat-value text-info" id="previewBlue">0</div>
-          </div>
-          <div class="preview-stat-item">
-            <div class="preview-stat-label">Rojas</div>
-            <div class="preview-stat-value text-danger" id="previewRed">0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- JUGADORES PRESENTES -->
-      <div class="preview-section">
-        <div class="preview-section-title">
-          <i class="fa-solid fa-users text-info"></i>
-          Jugadores Presentes (<span id="previewPlayerCount">0</span>)
-        </div>
-        <div class="preview-player-list" id="previewPlayerList"></div>
-      </div>
-
-      <!-- FINANZAS -->
-      <div class="preview-section">
-        <div class="preview-section-title">
-          <i class="fa-solid fa-money-bill-wave text-success"></i>
-          Detalles Financieros
-        </div>
-        <div>
-          <div class="preview-finance-item">
-            <span style="color: var(--text-secondary);">Costo Total Arbitraje:</span>
-            <strong class="text-warning" id="previewRefTotal">$0</strong>
-          </div>
-          <div class="preview-finance-item">
-            <span style="color: var(--text-secondary);">Costo por Jugador:</span>
-            <strong class="text-gold" id="previewRefPerPlayer">$0</strong>
-          </div>
-          <div class="preview-finance-item">
-            <span style="color: var(--text-secondary);">Ya Pagaron:</span>
-            <strong class="text-success" id="previewPaidCount">0 jugadores</strong>
-          </div>
-          <div class="preview-finance-item">
-            <span style="color: var(--text-secondary); font-weight: 700;">Total Recaudado:</span>
-            <strong class="text-success" style="font-size: 16px;" id="previewTotalPaid">$0</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- BOTONES DE ACCIÓN -->
-      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-top: 24px;">
-        <button class="btn btn-info" onclick="closePreviewModal()">
-          <i class="fa-solid fa-pen"></i> Editar
-        </button>
-        <button class="btn btn-success" onclick="confirmAndSaveMatch()">
-          <i class="fa-solid fa-check-circle"></i> Confirmar y Guardar
-        </button>
       </div>
     </div>
   </div>
@@ -962,9 +866,16 @@
   </script>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+    // --- CONFIGURACIÓN SEGURA PARA ESTE ENTORNO ---
+    // Para arreglar el error de permisos en este chat, usamos la configuración interna.
+    // SI DESCARGAS EL ARCHIVO: Puedes descomentar tu config original abajo.
+    
+    const firebaseConfig = JSON.parse(__firebase_config);
+    /* // Tu configuración original (Úsala solo si ejecutas esto en tu PC localmente)
     const firebaseConfig = {
       apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
       authDomain: "crm-futbol.firebaseapp.com",
@@ -972,11 +883,15 @@
       storageBucket: "crm-futbol.firebasestorage.app",
       messagingSenderId: "222709021751",
       appId: "1:222709021751:web:94168589472c2ee938d3b2",
-    };
+    }; 
+    */
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
-
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    
+    let userId = null;
     let currentTournament = "torneo1";
     let players = [];
     let tournamentData = {};
@@ -987,6 +902,42 @@
     let playerStatsGlobal = [];
     let attendanceState = {};
 
+    // Variables temporales para previsualización
+    let pendingMatchData = null;
+
+    // === HELPER FUNCTIONS FOR SECURE PATHS ===
+    const getUserCollection = (colName) => collection(db, 'artifacts', appId, 'users', userId, colName);
+    const getUserDoc = (colName, docId) => doc(db, 'artifacts', appId, 'users', userId, colName, docId);
+
+    // === AUTHENTICATION FLOW ===
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (e) {
+        console.error("Auth failed:", e);
+        document.getElementById("authStatusText").textContent = "Error de autenticación. Recarga la página.";
+      }
+    };
+    initAuth();
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userId = user.uid;
+            console.log("User authenticated:", userId);
+            // Ocultar loading
+            document.getElementById("loadingOverlay").style.opacity = '0';
+            setTimeout(() => document.getElementById("loadingOverlay").style.display = 'none', 500);
+            
+            selectTournament(currentTournament); 
+        } else {
+            console.warn("User logged out");
+        }
+    });
+
     window.showTab = function (tabName) {
       document.querySelectorAll(".tab-content").forEach(t => t.classList.add("hidden"));
       document.getElementById(tabName).classList.remove("hidden");
@@ -996,49 +947,74 @@
     };
 
     window.selectTournament = async function (t) {
+      if (!userId) return; 
       currentTournament = t;
       document.querySelectorAll(".t-btn").forEach(b => b.classList.remove("active"));
       const btn = document.getElementById(t + "Global");
       if(btn) btn.classList.add("active");
-      await loadTournamentData();
-      await loadPlayers();
-      toast.show(`Cargado: ${tournamentData.name || t}`, "success");
-      updateAllViews();
+      try {
+         await loadTournamentData();
+         await loadPlayers();
+         toast.show(`Cargado: ${tournamentData.name || t}`, "success");
+         updateAllViews();
+      } catch (e) {
+         console.error(e);
+         toast.show("Error cargando datos", "error");
+      }
     };
 
     async function loadTournamentData() {
-      const docRef = doc(db, "tournaments", currentTournament);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        tournamentData = snap.data();
-      } else {
-        tournamentData = { name: "Nuevo Torneo", totalInscription: 0, matches: [], stats: {} };
-        await setDoc(docRef, tournamentData);
+      if (!userId) return;
+      try {
+        const docRef = getUserDoc("tournaments", currentTournament);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          tournamentData = snap.data();
+        } else {
+          tournamentData = { name: "Nuevo Torneo", totalInscription: 0, matches: [], stats: {} };
+          await setDoc(docRef, tournamentData);
+        }
+        document.getElementById("currentTournamentName").textContent = tournamentData.name;
+        document.getElementById("tournamentName").value = tournamentData.name;
+        document.getElementById("totalInscription").value = tournamentData.totalInscription || 0;
+      } catch (e) {
+        console.error("Error loading tournament:", e);
       }
-      document.getElementById("currentTournamentName").textContent = tournamentData.name;
-      document.getElementById("tournamentName").value = tournamentData.name;
-      document.getElementById("totalInscription").value = tournamentData.totalInscription || 0;
     }
 
     async function loadPlayers() {
-      const q = query(collection(db, "players"), where("tournament", "==", currentTournament));
-      const snap = await getDocs(q);
-      players = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      players.sort((a,b) => a.number - b.number);
-      filteredPlayers = [...players];
-      filteredPayments = [...players];
+      if (!userId) return;
+      try {
+        const q = query(getUserCollection("players"), where("tournament", "==", currentTournament));
+        const snap = await getDocs(q);
+        players = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        players.sort((a,b) => a.number - b.number);
+        filteredPlayers = [...players];
+        filteredPayments = [...players];
+      } catch (e) {
+        console.error("Error loading players:", e);
+      }
     }
 
     window.addPlayer = async function () {
+      if (!userId) return toast.show("No autenticado", "error");
       const name = document.getElementById("playerName").value;
       const num = document.getElementById("playerNumber").value;
       if (!name || !num) return toast.show("Faltan datos", "error");
-      await setDoc(doc(collection(db, "players")), { name, number: parseInt(num), tournament: currentTournament, payments: [], totalPaid: 0 });
-      document.getElementById("playerName").value = "";
-      document.getElementById("playerNumber").value = "";
-      await loadPlayers();
-      updateAllViews();
-      toast.show("Jugador Agregado", "success");
+      
+      try {
+        const newPlayerRef = doc(getUserCollection("players"));
+        await setDoc(newPlayerRef, { name, number: parseInt(num), tournament: currentTournament, payments: [], totalPaid: 0 });
+        
+        document.getElementById("playerName").value = "";
+        document.getElementById("playerNumber").value = "";
+        await loadPlayers();
+        updateAllViews();
+        toast.show("Jugador Agregado", "success");
+      } catch (e) {
+        console.error(e);
+        toast.show("Error guardando: " + e.message, "error");
+      }
     };
 
     window.filterPlayers = function() {
@@ -1062,10 +1038,16 @@
     }
 
     window.deletePlayer = async (id) => {
+      if (!userId) return;
       if(!confirm("¿Eliminar jugador?")) return;
-      await deleteDoc(doc(db, "players", id));
-      await loadPlayers();
-      updateAllViews();
+      try {
+         await deleteDoc(getUserDoc("players", id));
+         await loadPlayers();
+         updateAllViews();
+         toast.show("Eliminado", "success");
+      } catch (e) {
+         toast.show("Error al eliminar", "error");
+      }
     };
 
     window.openEditPlayerModal = (id) => {
@@ -1076,38 +1058,54 @@
     };
     window.closeEditPlayerModal = () => document.getElementById("editPlayerModal").classList.remove("active");
     window.savePlayerEdit = async () => {
-      const name = document.getElementById("editPlayerName").value;
-      const number = parseInt(document.getElementById("editPlayerNumber").value);
-      await updateDoc(doc(db, "players", currentEditingPlayer.id), { name, number });
-      closeEditPlayerModal();
-      await loadPlayers();
-      updateAllViews();
+      if (!userId) return;
+      try {
+        const name = document.getElementById("editPlayerName").value;
+        const number = parseInt(document.getElementById("editPlayerNumber").value);
+        await updateDoc(getUserDoc("players", currentEditingPlayer.id), { name, number });
+        closeEditPlayerModal();
+        await loadPlayers();
+        updateAllViews();
+        toast.show("Actualizado", "success");
+      } catch (e) {
+        toast.show("Error actualizando", "error");
+      }
     };
 
     window.setInscriptionValue = async () => {
+      if (!userId) return;
       const total = parseFloat(document.getElementById("totalInscription").value);
       if(!total || players.length === 0) return toast.show("Error en datos", "error");
-      const perPlayer = total / players.length;
-      tournamentData.totalInscription = total;
-      tournamentData.inscriptionPerPlayer = perPlayer;
-      await updateDoc(doc(db, "tournaments", currentTournament), { totalInscription: total, inscriptionPerPlayer: perPlayer });
-      updateAllViews();
-      toast.show("Inscripción recalculada", "success");
+      try {
+        const perPlayer = total / players.length;
+        tournamentData.totalInscription = total;
+        tournamentData.inscriptionPerPlayer = perPlayer;
+        await updateDoc(getUserDoc("tournaments", currentTournament), { totalInscription: total, inscriptionPerPlayer: perPlayer });
+        updateAllViews();
+        toast.show("Inscripción recalculada", "success");
+      } catch (e) {
+        toast.show("Error guardando", "error");
+      }
     };
 
     window.registerPayment = async () => {
+      if (!userId) return;
       const id = document.getElementById("playerSelectPayment").value;
       const amount = parseFloat(document.getElementById("paymentAmount").value);
       if(!id || !amount) return toast.show("Datos incompletos", "error");
-      const p = players.find(pl => pl.id === id);
-      const newPay = { id: Date.now().toString(), amount, date: new Date().toISOString() };
-      const payments = [...(p.payments || []), newPay];
-      const totalPaid = payments.reduce((sum, x) => sum + x.amount, 0);
-      await updateDoc(doc(db, "players", id), { payments, totalPaid });
-      document.getElementById("paymentAmount").value = "";
-      await loadPlayers();
-      updateAllViews();
-      toast.show("Pago registrado", "success");
+      try {
+        const p = players.find(pl => pl.id === id);
+        const newPay = { id: Date.now().toString(), amount, date: new Date().toISOString() };
+        const payments = [...(p.payments || []), newPay];
+        const totalPaid = payments.reduce((sum, x) => sum + x.amount, 0);
+        await updateDoc(getUserDoc("players", id), { payments, totalPaid });
+        document.getElementById("paymentAmount").value = "";
+        await loadPlayers();
+        updateAllViews();
+        toast.show("Pago registrado", "success");
+      } catch (e) {
+        toast.show("Error registrando pago", "error");
+      }
     };
 
     window.filterPayments = () => {
@@ -1190,130 +1188,139 @@
       document.getElementById("selectedCount").textContent = count;
     }
 
-    // 🎯 NUEVA FUNCIÓN: Previsualizar antes de guardar
-    window.previewMatch = function() {
+    // ======================================================
+    // NUEVA LOGICA DE PREVISUALIZACION Y GUARDADO
+    // ======================================================
+
+    window.previewMatch = () => {
+      // 1. Recolectar datos
       const gf = parseInt(document.getElementById("goalsScored").value) || 0;
       const gc = parseInt(document.getElementById("goalsConceded").value) || 0;
       const yc = parseInt(document.getElementById("yellowCards").value) || 0;
       const bc = parseInt(document.getElementById("blueCards").value) || 0;
       const rc = parseInt(document.getElementById("redCards").value) || 0;
       const refVal = parseFloat(document.getElementById("refereeValue").value) || 0;
+      
       const presentIds = Object.keys(attendanceState).filter(id => attendanceState[id].present);
-      
-      if(presentIds.length === 0) {
-        return toast.show("⚠️ Debes seleccionar al menos un jugador", "warning");
-      }
-
-      // Calcular resultado
-      let result = "Derrota";
-      let resultClass = "result-loss";
-      if(gf > gc) { result = "Victoria ⭐"; resultClass = "result-win"; }
-      else if(gf === gc) { result = "Empate"; resultClass = "result-draw"; }
-
-      // Llenar modal de previsualización
-      document.getElementById("previewScoreDisplay").textContent = `${gf} - ${gc}`;
-      document.getElementById("previewResultBadge").innerHTML = `<span class="preview-result-badge ${resultClass}">${result}</span>`;
-      
-      document.getElementById("previewYellow").textContent = yc;
-      document.getElementById("previewBlue").textContent = bc;
-      document.getElementById("previewRed").textContent = rc;
-
-      // Jugadores presentes
-      document.getElementById("previewPlayerCount").textContent = presentIds.length;
-      const playerListHTML = presentIds.map(id => {
-        const player = players.find(p => p.id === id);
-        const isPaid = attendanceState[id].paid;
-        const badgeClass = isPaid ? 'paid' : '';
-        const icon = isPaid ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle"></i>';
-        return `<div class="preview-player-badge ${badgeClass}">${icon} ${player.name} #${player.number}</div>`;
-      }).join('');
-      document.getElementById("previewPlayerList").innerHTML = playerListHTML;
-
-      // Finanzas
-      const perPlayer = presentIds.length > 0 ? refVal / presentIds.length : 0;
-      const paidCount = presentIds.filter(id => attendanceState[id].paid).length;
-      const totalPaidAmount = paidCount * perPlayer;
-
-      document.getElementById("previewRefTotal").textContent = "$" + refVal.toLocaleString();
-      document.getElementById("previewRefPerPlayer").textContent = "$" + perPlayer.toLocaleString();
-      document.getElementById("previewPaidCount").textContent = `${paidCount} jugadores`;
-      document.getElementById("previewTotalPaid").textContent = "$" + totalPaidAmount.toLocaleString();
-
-      // Mostrar modal
-      document.getElementById("matchPreviewModal").classList.add("active");
-    };
-
-    window.closePreviewModal = function() {
-      document.getElementById("matchPreviewModal").classList.remove("active");
-    };
-
-    window.confirmAndSaveMatch = async function() {
-      // Cerrar modal de preview
-      closePreviewModal();
-      
-      // Ejecutar el guardado real
-      await registerMatchFinal();
-    };
-
-    // Función real de guardado (renombrada)
-    async function registerMatchFinal() {
-      const gf = parseInt(document.getElementById("goalsScored").value) || 0;
-      const gc = parseInt(document.getElementById("goalsConceded").value) || 0;
-      const yc = parseInt(document.getElementById("yellowCards").value) || 0;
-      const bc = parseInt(document.getElementById("blueCards").value) || 0;
-      const rc = parseInt(document.getElementById("redCards").value) || 0;
-      const refVal = parseFloat(document.getElementById("refereeValue").value) || 0;
-      const presentIds = Object.keys(attendanceState).filter(id => attendanceState[id].present);
-      
       if(presentIds.length === 0) return toast.show("Selecciona jugadores", "warning");
-      
+
       const refPayments = {};
       presentIds.forEach(id => { refPayments[id] = attendanceState[id].paid; });
       
       let pts = 0, res = "Derrota";
       if(gf > gc) { pts = 3; res = "Victoria"; }
       else if(gf === gc) { pts = 1; res = "Empate"; }
-      
-      const matchData = { 
-        date: new Date().toISOString(), 
-        goalsScored: gf, 
-        goalsConceded: gc, 
-        yellowCards: yc, 
-        blueCards: bc, 
-        redCards: rc, 
-        refereeValue: refVal, 
-        refereePerPlayer: refVal / presentIds.length, 
-        presentPlayers: presentIds, 
-        refereePayments: refPayments, 
-        points: pts, 
-        result: res 
+
+      // 2. Guardar en variable temporal
+      pendingMatchData = {
+         gf, gc, yc, bc, rc, refVal, presentIds, refPayments, pts, res,
+         date: new Date().toISOString(),
+         refereePerPlayer: refVal / presentIds.length
       };
+
+      // 3. Poblar Modal de Previsualización
+      document.getElementById("prevGF").textContent = gf;
+      document.getElementById("prevGC").textContent = gc;
+      const resText = document.getElementById("prevResultText");
+      resText.textContent = res.toUpperCase();
+      resText.style.color = res === "Victoria" ? "var(--success)" : res === "Empate" ? "var(--warning)" : "var(--danger)";
+
+      document.getElementById("prevYC").textContent = yc;
+      document.getElementById("prevBC").textContent = bc;
+      document.getElementById("prevRC").textContent = rc;
+
+      document.getElementById("prevRefTotal").textContent = "$" + refVal.toLocaleString();
+      document.getElementById("prevRefPerPlayer").textContent = "$" + pendingMatchData.refereePerPlayer.toLocaleString();
       
-      const newMatches = [...(tournamentData.matches || []), matchData];
-      const stats = tournamentData.stats || {};
-      stats.points = (stats.points||0) + pts;
-      stats.goalsScored = (stats.goalsScored||0) + gf;
-      stats.goalsConceded = (stats.goalsConceded||0) + gc;
-      stats.yellowCards = (stats.yellowCards||0) + yc;
-      stats.blueCards = (stats.blueCards||0) + bc;
-      stats.redCards = (stats.redCards||0) + rc;
-      
-      await updateDoc(doc(db, "tournaments", currentTournament), { matches: newMatches, stats });
-      
-      // Limpiar formulario
-      document.getElementById("goalsScored").value = 0;
-      document.getElementById("goalsConceded").value = 0;
-      document.getElementById("yellowCards").value = 0;
-      document.getElementById("blueCards").value = 0;
-      document.getElementById("redCards").value = 0;
-      document.getElementById("refereeValue").value = "";
-      attendanceState = {};
-      renderAttendanceGrid();
-      
-      await loadTournamentData();
-      updateAllViews();
-      toast.show("✅ Partido Registrado Exitosamente", "success");
-    }
+      const paidIds = presentIds.filter(id => refPayments[id]);
+      const collected = paidIds.length * pendingMatchData.refereePerPlayer;
+      document.getElementById("prevRefCollected").textContent = "$" + collected.toLocaleString();
+
+      const diff = refVal - collected;
+      const statusEl = document.getElementById("prevRefStatus");
+      if(diff > 5) {
+         statusEl.textContent = `Faltan $${diff.toLocaleString()}`;
+         statusEl.className = "text-danger";
+      } else {
+         statusEl.textContent = "Cubierto";
+         statusEl.className = "text-success";
+      }
+
+      // Lista de jugadores
+      document.getElementById("prevPlayerCount").textContent = presentIds.length;
+      const listEl = document.getElementById("prevPlayerList");
+      listEl.innerHTML = presentIds.map(id => {
+         const p = players.find(x => x.id === id);
+         const isPaid = refPayments[id];
+         const icon = isPaid ? '<i class="fa-solid fa-check text-success"></i>' : '<i class="fa-solid fa-xmark text-danger"></i>';
+         return `
+           <div style="background:rgba(0,0,0,0.2); padding:6px; border-radius:6px; display:flex; align-items:center; justify-content:space-between;">
+              <span>${p.name}</span>
+              ${icon}
+           </div>
+         `;
+      }).join('');
+
+      // 4. Abrir Modal
+      document.getElementById("matchPreviewModal").classList.add("active");
+    };
+
+    window.confirmSaveMatch = async () => {
+      if(!pendingMatchData || !userId) return;
+
+      try {
+        // Extraer datos de la variable temporal
+        const { gf, gc, yc, bc, rc, refVal, presentIds, refPayments, pts, res, date, refereePerPlayer } = pendingMatchData;
+
+        const matchData = { 
+           date, 
+           goalsScored: gf, 
+           goalsConceded: gc, 
+           yellowCards: yc, 
+           blueCards: bc, 
+           redCards: rc, 
+           refereeValue: refVal, 
+           refereePerPlayer, 
+           presentPlayers: presentIds, 
+           refereePayments: refPayments, 
+           points: pts, 
+           result: res 
+        };
+
+        const newMatches = [...(tournamentData.matches || []), matchData];
+        const stats = tournamentData.stats || {};
+        stats.points = (stats.points||0) + pts;
+        stats.goalsScored = (stats.goalsScored||0) + gf;
+        stats.goalsConceded = (stats.goalsConceded||0) + gc;
+        stats.yellowCards = (stats.yellowCards||0) + yc;
+        stats.blueCards = (stats.blueCards||0) + bc;
+        stats.redCards = (stats.redCards||0) + rc;
+        
+        await updateDoc(getUserDoc("tournaments", currentTournament), { matches: newMatches, stats });
+        
+        // Resetear Formulario
+        document.getElementById("goalsScored").value = 0;
+        document.getElementById("goalsConceded").value = 0;
+        document.getElementById("yellowCards").value = 0;
+        document.getElementById("blueCards").value = 0;
+        document.getElementById("redCards").value = 0;
+        attendanceState = {};
+        renderAttendanceGrid();
+        
+        // Cerrar modal y actualizar
+        document.getElementById("matchPreviewModal").classList.remove("active");
+        pendingMatchData = null;
+
+        await loadTournamentData();
+        updateAllViews();
+        toast.show("Partido Registrado Exitosamente", "success");
+      } catch (e) {
+        console.error(e);
+        toast.show("Error guardando partido: " + e.message, "error");
+      }
+    };
+
+    // ======================================================
 
     function updateMatchesList() {
       const list = document.getElementById("matchesList");
@@ -1370,12 +1377,12 @@
        const detailedTableHTML = `
           <thead><tr><th>Métrica</th><th class="numeric">Total</th><th class="numeric">Promedio / %</th></tr></thead>
           <tbody>
-             <tr><td><strong class="text-success">Goles a Favor</strong></td><td class="numeric">${stats.goalsScored || 0}</td><td class="numeric"><span style="margin-right:8px;">${avgGF}</span><div class="stat-bar-container"><div class="stat-bar-fill bar-green" style="width:${scaleGF}%"></div></div></td></tr>
-             <tr><td><strong class="text-danger">Goles en Contra</strong></td><td class="numeric">${stats.goalsConceded || 0}</td><td class="numeric"><span style="margin-right:8px;">${avgGC}</span><div class="stat-bar-container"><div class="stat-bar-fill bar-red" style="width:${scaleGC}%"></div></div></td></tr>
-             <tr><td><strong class="text-gold">Puntos</strong></td><td class="numeric">${stats.points || 0}</td><td class="numeric"><span style="margin-right:8px;">${avgPts}</span><div class="stat-bar-container"><div class="stat-bar-fill bar-gold" style="width:${scalePts}%"></div></div></td></tr>
-             <tr><td>Valla Invicta (Clean Sheets)</td><td class="numeric">${cleanSheets}</td><td class="numeric">${cleanSheetPct}%</td></tr>
-             <tr><td>Sin Anotar</td><td class="numeric">${failedToScore}</td><td class="numeric">${failedScorePct}%</td></tr>
-             <tr><td>Disciplina (Tarjetas)</td><td class="numeric">${totalCards}</td><td class="numeric">${avgCards}</td></tr>
+              <tr><td><strong class="text-success">Goles a Favor</strong></td><td class="numeric">${stats.goalsScored || 0}</td><td class="numeric"><span style="margin-right:8px;">${avgGF}</span><div class="stat-bar-container"><div class="stat-bar-fill bar-green" style="width:${scaleGF}%"></div></div></td></tr>
+              <tr><td><strong class="text-danger">Goles en Contra</strong></td><td class="numeric">${stats.goalsConceded || 0}</td><td class="numeric"><span style="margin-right:8px;">${avgGC}</span><div class="stat-bar-container"><div class="stat-bar-fill bar-red" style="width:${scaleGC}%"></div></div></td></tr>
+              <tr><td><strong class="text-gold">Puntos</strong></td><td class="numeric">${stats.points || 0}</td><td class="numeric"><span style="margin-right:8px;">${avgPts}</span><div class="stat-bar-container"><div class="stat-bar-fill bar-gold" style="width:${scalePts}%"></div></div></td></tr>
+              <tr><td>Valla Invicta (Clean Sheets)</td><td class="numeric">${cleanSheets}</td><td class="numeric">${cleanSheetPct}%</td></tr>
+              <tr><td>Sin Anotar</td><td class="numeric">${failedToScore}</td><td class="numeric">${failedScorePct}%</td></tr>
+              <tr><td>Disciplina (Tarjetas)</td><td class="numeric">${totalCards}</td><td class="numeric">${avgCards}</td></tr>
           </tbody>
        `;
        document.getElementById("detailedStatsTable").innerHTML = detailedTableHTML;
@@ -1467,97 +1474,21 @@
 
     window.openMatchModal = (idx) => {
       currentEditingMatchIndex = idx;
-      const match = tournamentData.matches[idx];
-      document.getElementById("editGoalsScored").value = match.goalsScored;
-      document.getElementById("editGoalsConceded").value = match.goalsConceded;
-      document.getElementById("editYellowCards").value = match.yellowCards || 0;
-      document.getElementById("editRefereeValue").value = match.refereeValue;
-      
-      const dateStr = new Date(match.date).toLocaleDateString();
-      const presentCount = match.presentPlayers ? match.presentPlayers.length : 0;
-      document.getElementById("modalMatchInfo").innerHTML = `
-        <div><strong>Fecha:</strong> ${dateStr}</div>
-        <div><strong>Jugadores:</strong> ${presentCount} presentes</div>
-        <div><strong>Resultado:</strong> ${match.result}</div>
-      `;
-      
       document.getElementById("matchModal").classList.add("active");
     };
-    
     window.closeMatchModal = () => document.getElementById("matchModal").classList.remove("active");
-    
-    window.saveMatchChanges = async () => {
-      const gf = parseInt(document.getElementById("editGoalsScored").value) || 0;
-      const gc = parseInt(document.getElementById("editGoalsConceded").value) || 0;
-      const yc = parseInt(document.getElementById("editYellowCards").value) || 0;
-      const refVal = parseFloat(document.getElementById("editRefereeValue").value) || 0;
-      
-      let pts = 0, res = "Derrota";
-      if(gf > gc) { pts = 3; res = "Victoria"; }
-      else if(gf === gc) { pts = 1; res = "Empate"; }
-      
-      const updatedMatch = {
-        ...tournamentData.matches[currentEditingMatchIndex],
-        goalsScored: gf,
-        goalsConceded: gc,
-        yellowCards: yc,
-        refereeValue: refVal,
-        refereePerPlayer: refVal / (tournamentData.matches[currentEditingMatchIndex].presentPlayers?.length || 1),
-        points: pts,
-        result: res
-      };
-      
-      const newMatches = [...tournamentData.matches];
-      newMatches[currentEditingMatchIndex] = updatedMatch;
-      
-      // Recalcular estadísticas
-      const stats = { points: 0, goalsScored: 0, goalsConceded: 0, yellowCards: 0, blueCards: 0, redCards: 0 };
-      newMatches.forEach(m => {
-        stats.points += m.points || 0;
-        stats.goalsScored += m.goalsScored || 0;
-        stats.goalsConceded += m.goalsConceded || 0;
-        stats.yellowCards += m.yellowCards || 0;
-        stats.blueCards += m.blueCards || 0;
-        stats.redCards += m.redCards || 0;
-      });
-      
-      await updateDoc(doc(db, "tournaments", currentTournament), { matches: newMatches, stats });
-      closeMatchModal();
-      await loadTournamentData();
-      updateAllViews();
-      toast.show("Partido actualizado", "success");
-    };
-    
-    window.deleteMatch = async () => {
-      if(!confirm("¿Eliminar este partido?")) return;
-      
-      const newMatches = tournamentData.matches.filter((_, i) => i !== currentEditingMatchIndex);
-      
-      // Recalcular estadísticas
-      const stats = { points: 0, goalsScored: 0, goalsConceded: 0, yellowCards: 0, blueCards: 0, redCards: 0 };
-      newMatches.forEach(m => {
-        stats.points += m.points || 0;
-        stats.goalsScored += m.goalsScored || 0;
-        stats.goalsConceded += m.goalsConceded || 0;
-        stats.yellowCards += m.yellowCards || 0;
-        stats.blueCards += m.blueCards || 0;
-        stats.redCards += m.redCards || 0;
-      });
-      
-      await updateDoc(doc(db, "tournaments", currentTournament), { matches: newMatches, stats });
-      closeMatchModal();
-      await loadTournamentData();
-      updateAllViews();
-      toast.show("Partido eliminado", "success");
-    };
 
     window.openDebtModal = async () => {
+      if (!userId) return;
       document.getElementById("debtModal").classList.add("active");
       document.getElementById("debtSummaryTotal").innerHTML = '<div style="text-align:center; padding:40px;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><br><br>Analizando deudas...</div>';
       try {
-        const [t1Snap, t2Snap] = await Promise.all([getDoc(doc(db, "tournaments", "torneo1")), getDoc(doc(db, "tournaments", "torneo2"))]);
+        const [t1Snap, t2Snap] = await Promise.all([
+            getDoc(getUserDoc("tournaments", "torneo1")), 
+            getDoc(getUserDoc("tournaments", "torneo2"))
+        ]);
         const tournaments = { "torneo1": t1Snap.exists() ? t1Snap.data() : {}, "torneo2": t2Snap.exists() ? t2Snap.data() : {} };
-        const playersSnap = await getDocs(collection(db, "players"));
+        const playersSnap = await getDocs(getUserCollection("players"));
         const allPlayers = playersSnap.docs.map(d => ({id: d.id, ...d.data()}));
         let grandTotalDebt = 0;
         const playerMap = new Map();
@@ -1613,18 +1544,18 @@
        updateStatistics();
     }
 
-    window.onload = () => selectTournament("torneo1");
-
     window.updateTournamentName = async () => {
+       if (!userId) return;
        const name = document.getElementById("tournamentName").value;
-       await updateDoc(doc(db, "tournaments", currentTournament), { name });
+       await updateDoc(getUserDoc("tournaments", currentTournament), { name });
        toast.show("Nombre actualizado", "success");
     };
     
     window.confirmResetTournament = async () => {
+       if (!userId) return;
        if(!confirm("¿Seguro? Se borrará todo menos jugadores.")) return;
-       await updateDoc(doc(db, "tournaments", currentTournament), { matches: [], stats: {}, totalInscription: 0 });
-       for(let p of players) { await updateDoc(doc(db, "players", p.id), { payments: [], totalPaid: 0 }); }
+       await updateDoc(getUserDoc("tournaments", currentTournament), { matches: [], stats: {}, totalInscription: 0 });
+       for(let p of players) { await updateDoc(getUserDoc("players", p.id), { payments: [], totalPaid: 0 }); }
        await selectTournament(currentTournament);
     };
   </script>
