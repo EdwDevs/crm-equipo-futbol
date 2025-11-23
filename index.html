@@ -99,6 +99,20 @@
     }
     .logo-area p { font-size: 11px; color: var(--text-secondary); font-weight: 500; margin: 0; }
 
+    .connection-status {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: 10px;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #64748b; }
+    .status-dot.connected { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-dot.error { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+
     .tournament-switch {
       background: rgba(0,0,0,0.3);
       padding: 4px;
@@ -465,7 +479,13 @@
     <div class="container header-content">
       <div class="logo-area">
         <h1><i class="fa-solid fa-star text-gold" style="font-size:18px; margin-right:6px;"></i>IMPERIO ANDINO</h1>
-        <p id="currentTournamentName">Selecciona un torneo</p>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <p id="currentTournamentName">Selecciona un torneo</p>
+            <div id="connectionStatus" class="connection-status">
+                <div class="status-dot"></div>
+                <span id="connectionText">Conectando...</span>
+            </div>
+        </div>
       </div>
       <div class="tournament-switch">
         <button class="t-btn active" id="torneo1Global" onclick="selectTournament('torneo1')">T1</button>
@@ -733,6 +753,13 @@
         <button class="btn btn-info" onclick="updateTournamentName()" style="margin-top:12px;">Actualizar Nombre</button>
       </div>
       <div class="card">
+        <h3 class="section-title">Diagnóstico</h3>
+        <div class="alert" style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;">
+            Si no ves tus datos antiguos, es porque esta versión usa una base de datos segura (artifacts) diferente a la anterior.
+        </div>
+        <button class="btn btn-primary" onclick="testConnection()" style="width: 100%;">🧪 Probar Conexión a Base de Datos</button>
+      </div>
+      <div class="card">
         <h3 class="section-title">Finanzas</h3>
         <div class="form-group"><label>Costo Total Inscripción Torneo</label><input type="number" id="totalInscription"></div>
         <button class="btn btn-success" onclick="setInscriptionValue()" style="margin-top:12px;">Calcular por Jugador</button>
@@ -912,9 +939,30 @@
     // Variable temporal para almacenar los datos antes de guardar
     let tempMatchData = null;
 
+    // --- MANEJO ESTADO CONEXION VISUAL ---
+    function updateConnectionStatus(status, type) {
+        const dot = document.querySelector('.status-dot');
+        const text = document.getElementById('connectionText');
+        
+        dot.className = 'status-dot';
+        if (type === 'connected') {
+            dot.classList.add('connected');
+            text.textContent = "Conectado";
+            text.style.color = "var(--success)";
+        } else if (type === 'error') {
+            dot.classList.add('error');
+            text.textContent = status;
+            text.style.color = "var(--danger)";
+        } else {
+            text.textContent = status;
+            text.style.color = "var(--text-muted)";
+        }
+    }
+
     // AUTH INIT
     async function initAuth() {
         try {
+            updateConnectionStatus("Autenticando...", "loading");
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
             } else {
@@ -922,6 +970,7 @@
             }
         } catch (e) {
             console.error("Auth failed", e);
+            updateConnectionStatus("Error Auth", "error");
             toast.show("Error de conexión: " + e.message, "error");
         }
     }
@@ -947,30 +996,55 @@
     };
 
     async function loadTournamentData() {
-      // Usamos el helper getCollection para obtener la referencia correcta
-      // doc(collectionRef, docId)
-      const docRef = doc(getCollection("tournaments"), currentTournament);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        tournamentData = snap.data();
-      } else {
-        tournamentData = { name: "Nuevo Torneo", totalInscription: 0, matches: [], stats: {} };
-        await setDoc(docRef, tournamentData);
+      try {
+          const docRef = doc(getCollection("tournaments"), currentTournament);
+          const snap = await getDoc(docRef);
+          if (snap.exists()) {
+            tournamentData = snap.data();
+            console.log("Torneo cargado:", tournamentData);
+          } else {
+            console.log("Creando nuevo torneo...");
+            tournamentData = { name: "Nuevo Torneo", totalInscription: 0, matches: [], stats: {} };
+            await setDoc(docRef, tournamentData);
+          }
+          document.getElementById("currentTournamentName").textContent = tournamentData.name;
+          document.getElementById("tournamentName").value = tournamentData.name;
+          document.getElementById("totalInscription").value = tournamentData.totalInscription || 0;
+      } catch (error) {
+          console.error("Error cargando torneo:", error);
+          toast.show("Error cargando datos: " + error.code, "error");
       }
-      document.getElementById("currentTournamentName").textContent = tournamentData.name;
-      document.getElementById("tournamentName").value = tournamentData.name;
-      document.getElementById("totalInscription").value = tournamentData.totalInscription || 0;
     }
 
     async function loadPlayers() {
-      // Usamos getCollection("players")
-      const q = query(getCollection("players"), where("tournament", "==", currentTournament));
-      const snap = await getDocs(q);
-      players = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      players.sort((a,b) => a.number - b.number);
-      filteredPlayers = [...players];
-      filteredPayments = [...players];
+      try {
+          const q = query(getCollection("players"), where("tournament", "==", currentTournament));
+          const snap = await getDocs(q);
+          console.log(`Jugadores encontrados: ${snap.docs.length}`);
+          players = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          players.sort((a,b) => a.number - b.number);
+          filteredPlayers = [...players];
+          filteredPayments = [...players];
+      } catch (error) {
+          console.error("Error cargando jugadores:", error);
+      }
     }
+
+    window.testConnection = async () => {
+        try {
+            const testId = "test_" + Date.now();
+            await setDoc(doc(getCollection("diagnostics"), testId), { timestamp: new Date(), status: "OK" });
+            const snap = await getDoc(doc(getCollection("diagnostics"), testId));
+            if (snap.exists()) {
+                toast.show("✅ Conexión EXITOSA. Base de datos responde.", "success");
+            } else {
+                toast.show("⚠️ Escritura exitosa pero lectura falló.", "warning");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.show("❌ Error de conexión: " + error.code, "error");
+        }
+    };
 
     window.addPlayer = async function () {
       const name = document.getElementById("playerName").value;
@@ -1466,8 +1540,10 @@
       await initAuth();
       onAuthStateChanged(auth, (user) => {
           if (user) {
+              updateConnectionStatus("Conectado", "connected");
               selectTournament("torneo1");
           } else {
+             updateConnectionStatus("Desconectado", "error");
              toast.show("No se pudo iniciar sesión", "error");
           }
       });
