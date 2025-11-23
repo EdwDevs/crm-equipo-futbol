@@ -870,27 +870,18 @@
     import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // --- CONFIGURACIÓN SEGURA PARA ESTE ENTORNO ---
-    // Para arreglar el error de permisos en este chat, usamos la configuración interna.
-    // SI DESCARGAS EL ARCHIVO: Puedes descomentar tu config original abajo.
+    // ======================================================
+    // CONFIGURACIÓN SEGURA DEL ENTORNO (Evita errores de Auth y Permisos)
+    // ======================================================
+    // NOTA: Para ver tus datos antiguos, debes descargar este archivo y ejecutarlo localmente
+    // con tu configuración original. En este visor, usamos la config segura.
     
     const firebaseConfig = JSON.parse(__firebase_config);
-    /* // Tu configuración original (Úsala solo si ejecutas esto en tu PC localmente)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
-      authDomain: "crm-futbol.firebaseapp.com",
-      projectId: "crm-futbol",
-      storageBucket: "crm-futbol.firebasestorage.app",
-      messagingSenderId: "222709021751",
-      appId: "1:222709021751:web:94168589472c2ee938d3b2",
-    }; 
-    */
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    
+
     let userId = null;
     let currentTournament = "torneo1";
     let players = [];
@@ -901,8 +892,6 @@
     let currentEditingMatchIndex = null;
     let playerStatsGlobal = [];
     let attendanceState = {};
-
-    // Variables temporales para previsualización
     let pendingMatchData = null;
 
     // === HELPER FUNCTIONS FOR SECURE PATHS ===
@@ -938,6 +927,8 @@
         }
     });
 
+    // --- LÓGICA DE LA APP ---
+
     window.showTab = function (tabName) {
       document.querySelectorAll(".tab-content").forEach(t => t.classList.add("hidden"));
       document.getElementById(tabName).classList.remove("hidden");
@@ -965,35 +956,27 @@
 
     async function loadTournamentData() {
       if (!userId) return;
-      try {
-        const docRef = getUserDoc("tournaments", currentTournament);
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          tournamentData = snap.data();
-        } else {
-          tournamentData = { name: "Nuevo Torneo", totalInscription: 0, matches: [], stats: {} };
-          await setDoc(docRef, tournamentData);
-        }
-        document.getElementById("currentTournamentName").textContent = tournamentData.name;
-        document.getElementById("tournamentName").value = tournamentData.name;
-        document.getElementById("totalInscription").value = tournamentData.totalInscription || 0;
-      } catch (e) {
-        console.error("Error loading tournament:", e);
+      const docRef = getUserDoc("tournaments", currentTournament);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        tournamentData = snap.data();
+      } else {
+        tournamentData = { name: "Nuevo Torneo", totalInscription: 0, matches: [], stats: {} };
+        await setDoc(docRef, tournamentData);
       }
+      document.getElementById("currentTournamentName").textContent = tournamentData.name || "Torneo";
+      document.getElementById("tournamentName").value = tournamentData.name || "";
+      document.getElementById("totalInscription").value = tournamentData.totalInscription || 0;
     }
 
     async function loadPlayers() {
       if (!userId) return;
-      try {
-        const q = query(getUserCollection("players"), where("tournament", "==", currentTournament));
-        const snap = await getDocs(q);
-        players = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        players.sort((a,b) => a.number - b.number);
-        filteredPlayers = [...players];
-        filteredPayments = [...players];
-      } catch (e) {
-        console.error("Error loading players:", e);
-      }
+      const q = query(getUserCollection("players"), where("tournament", "==", currentTournament));
+      const snap = await getDocs(q);
+      players = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      players.sort((a,b) => a.number - b.number);
+      filteredPlayers = [...players];
+      filteredPayments = [...players];
     }
 
     window.addPlayer = async function () {
