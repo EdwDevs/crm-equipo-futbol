@@ -1467,9 +1467,89 @@
 
     window.openMatchModal = (idx) => {
       currentEditingMatchIndex = idx;
+      const match = tournamentData.matches[idx];
+      document.getElementById("editGoalsScored").value = match.goalsScored;
+      document.getElementById("editGoalsConceded").value = match.goalsConceded;
+      document.getElementById("editYellowCards").value = match.yellowCards || 0;
+      document.getElementById("editRefereeValue").value = match.refereeValue;
+      
+      const dateStr = new Date(match.date).toLocaleDateString();
+      const presentCount = match.presentPlayers ? match.presentPlayers.length : 0;
+      document.getElementById("modalMatchInfo").innerHTML = `
+        <div><strong>Fecha:</strong> ${dateStr}</div>
+        <div><strong>Jugadores:</strong> ${presentCount} presentes</div>
+        <div><strong>Resultado:</strong> ${match.result}</div>
+      `;
+      
       document.getElementById("matchModal").classList.add("active");
     };
+    
     window.closeMatchModal = () => document.getElementById("matchModal").classList.remove("active");
+    
+    window.saveMatchChanges = async () => {
+      const gf = parseInt(document.getElementById("editGoalsScored").value) || 0;
+      const gc = parseInt(document.getElementById("editGoalsConceded").value) || 0;
+      const yc = parseInt(document.getElementById("editYellowCards").value) || 0;
+      const refVal = parseFloat(document.getElementById("editRefereeValue").value) || 0;
+      
+      let pts = 0, res = "Derrota";
+      if(gf > gc) { pts = 3; res = "Victoria"; }
+      else if(gf === gc) { pts = 1; res = "Empate"; }
+      
+      const updatedMatch = {
+        ...tournamentData.matches[currentEditingMatchIndex],
+        goalsScored: gf,
+        goalsConceded: gc,
+        yellowCards: yc,
+        refereeValue: refVal,
+        refereePerPlayer: refVal / (tournamentData.matches[currentEditingMatchIndex].presentPlayers?.length || 1),
+        points: pts,
+        result: res
+      };
+      
+      const newMatches = [...tournamentData.matches];
+      newMatches[currentEditingMatchIndex] = updatedMatch;
+      
+      // Recalcular estadísticas
+      const stats = { points: 0, goalsScored: 0, goalsConceded: 0, yellowCards: 0, blueCards: 0, redCards: 0 };
+      newMatches.forEach(m => {
+        stats.points += m.points || 0;
+        stats.goalsScored += m.goalsScored || 0;
+        stats.goalsConceded += m.goalsConceded || 0;
+        stats.yellowCards += m.yellowCards || 0;
+        stats.blueCards += m.blueCards || 0;
+        stats.redCards += m.redCards || 0;
+      });
+      
+      await updateDoc(doc(db, "tournaments", currentTournament), { matches: newMatches, stats });
+      closeMatchModal();
+      await loadTournamentData();
+      updateAllViews();
+      toast.show("Partido actualizado", "success");
+    };
+    
+    window.deleteMatch = async () => {
+      if(!confirm("¿Eliminar este partido?")) return;
+      
+      const newMatches = tournamentData.matches.filter((_, i) => i !== currentEditingMatchIndex);
+      
+      // Recalcular estadísticas
+      const stats = { points: 0, goalsScored: 0, goalsConceded: 0, yellowCards: 0, blueCards: 0, redCards: 0 };
+      newMatches.forEach(m => {
+        stats.points += m.points || 0;
+        stats.goalsScored += m.goalsScored || 0;
+        stats.goalsConceded += m.goalsConceded || 0;
+        stats.yellowCards += m.yellowCards || 0;
+        stats.blueCards += m.blueCards || 0;
+        stats.redCards += m.redCards || 0;
+      });
+      
+      await updateDoc(doc(db, "tournaments", currentTournament), { matches: newMatches, stats });
+      closeMatchModal();
+      await loadTournamentData();
+      updateAllViews();
+      toast.show("Partido eliminado", "success");
+    };
 
     window.openDebtModal = async () => {
       document.getElementById("debtModal").classList.add("active");
