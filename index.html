@@ -405,6 +405,109 @@
     .modal-content { background: #1e293b; width: 100%; max-width: 600px; border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.08); max-height: 85vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
 
+    /* === PREVIEW MODAL STYLES === */
+    .preview-score {
+      text-align: center;
+      padding: 30px 20px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(245, 158, 11, 0.05));
+      border-radius: 16px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .preview-score-display {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      color: #fff;
+      margin: 10px 0;
+      letter-spacing: 2px;
+    }
+    .preview-result-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+    .result-win { background: var(--success); color: #fff; }
+    .result-draw { background: #9ca3af; color: #000; }
+    .result-loss { background: var(--danger); color: #fff; }
+    
+    .preview-section {
+      background: rgba(255,255,255,0.02);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .preview-section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .preview-stat-item {
+      text-align: center;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    .preview-stat-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .preview-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .preview-player-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .preview-player-badge {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preview-player-badge.paid {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .preview-finance-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .preview-finance-item:last-child {
+      border-bottom: none;
+      padding-top: 12px;
+      margin-top: 8px;
+      border-top: 2px solid rgba(255,255,255,0.1);
+    }
+
     /* Toast */
     #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 12px; width: 90%; max-width: 400px; pointer-events: none; }
     .toast { background: rgba(30, 41, 59, 0.95); color: #fff; padding: 14px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 12px; animation: slideUp 0.4s; }
@@ -596,8 +699,8 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" onclick="registerMatch()" style="width: 100%; font-size: 16px; padding: 14px;">
-          <i class="fa-solid fa-floppy-disk"></i> Guardar Partido
+        <button class="btn btn-primary" onclick="previewMatch()" style="width: 100%; font-size: 16px; padding: 14px;">
+          <i class="fa-solid fa-eye"></i> Previsualizar Partido
         </button>
       </div>
 
@@ -734,6 +837,90 @@
       <div style="display: flex; gap: 10px; margin-top: 20px;">
          <button class="btn btn-success" onclick="saveMatchChanges()" style="flex: 1;">Guardar</button>
          <button class="btn btn-danger" onclick="deleteMatch()" style="flex: 1;">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎯 NUEVO: MODAL DE PREVISUALIZACIÓN -->
+  <div id="matchPreviewModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-eye text-gold"></i> Previsualización del Partido</h3>
+        <button class="btn-sm btn-info" onclick="closePreviewModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- MARCADOR -->
+      <div class="preview-score">
+        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Resultado</div>
+        <div class="preview-score-display" id="previewScoreDisplay">0 - 0</div>
+        <div id="previewResultBadge"></div>
+      </div>
+
+      <!-- ESTADÍSTICAS -->
+      <div class="preview-section">
+        <div class="preview-section-title">
+          <i class="fa-solid fa-chart-simple text-gold"></i>
+          Estadísticas del Partido
+        </div>
+        <div class="preview-stats-grid">
+          <div class="preview-stat-item">
+            <div class="preview-stat-label">Amarillas</div>
+            <div class="preview-stat-value text-warning" id="previewYellow">0</div>
+          </div>
+          <div class="preview-stat-item">
+            <div class="preview-stat-label">Azules</div>
+            <div class="preview-stat-value text-info" id="previewBlue">0</div>
+          </div>
+          <div class="preview-stat-item">
+            <div class="preview-stat-label">Rojas</div>
+            <div class="preview-stat-value text-danger" id="previewRed">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JUGADORES PRESENTES -->
+      <div class="preview-section">
+        <div class="preview-section-title">
+          <i class="fa-solid fa-users text-info"></i>
+          Jugadores Presentes (<span id="previewPlayerCount">0</span>)
+        </div>
+        <div class="preview-player-list" id="previewPlayerList"></div>
+      </div>
+
+      <!-- FINANZAS -->
+      <div class="preview-section">
+        <div class="preview-section-title">
+          <i class="fa-solid fa-money-bill-wave text-success"></i>
+          Detalles Financieros
+        </div>
+        <div>
+          <div class="preview-finance-item">
+            <span style="color: var(--text-secondary);">Costo Total Arbitraje:</span>
+            <strong class="text-warning" id="previewRefTotal">$0</strong>
+          </div>
+          <div class="preview-finance-item">
+            <span style="color: var(--text-secondary);">Costo por Jugador:</span>
+            <strong class="text-gold" id="previewRefPerPlayer">$0</strong>
+          </div>
+          <div class="preview-finance-item">
+            <span style="color: var(--text-secondary);">Ya Pagaron:</span>
+            <strong class="text-success" id="previewPaidCount">0 jugadores</strong>
+          </div>
+          <div class="preview-finance-item">
+            <span style="color: var(--text-secondary); font-weight: 700;">Total Recaudado:</span>
+            <strong class="text-success" style="font-size: 16px;" id="previewTotalPaid">$0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-info" onclick="closePreviewModal()">
+          <i class="fa-solid fa-pen"></i> Editar
+        </button>
+        <button class="btn btn-success" onclick="confirmAndSaveMatch()">
+          <i class="fa-solid fa-check-circle"></i> Confirmar y Guardar
+        </button>
       </div>
     </div>
   </div>
@@ -1003,7 +1190,8 @@
       document.getElementById("selectedCount").textContent = count;
     }
 
-    window.registerMatch = async () => {
+    // 🎯 NUEVA FUNCIÓN: Previsualizar antes de guardar
+    window.previewMatch = function() {
       const gf = parseInt(document.getElementById("goalsScored").value) || 0;
       const gc = parseInt(document.getElementById("goalsConceded").value) || 0;
       const yc = parseInt(document.getElementById("yellowCards").value) || 0;
@@ -1011,13 +1199,96 @@
       const rc = parseInt(document.getElementById("redCards").value) || 0;
       const refVal = parseFloat(document.getElementById("refereeValue").value) || 0;
       const presentIds = Object.keys(attendanceState).filter(id => attendanceState[id].present);
+      
+      if(presentIds.length === 0) {
+        return toast.show("⚠️ Debes seleccionar al menos un jugador", "warning");
+      }
+
+      // Calcular resultado
+      let result = "Derrota";
+      let resultClass = "result-loss";
+      if(gf > gc) { result = "Victoria ⭐"; resultClass = "result-win"; }
+      else if(gf === gc) { result = "Empate"; resultClass = "result-draw"; }
+
+      // Llenar modal de previsualización
+      document.getElementById("previewScoreDisplay").textContent = `${gf} - ${gc}`;
+      document.getElementById("previewResultBadge").innerHTML = `<span class="preview-result-badge ${resultClass}">${result}</span>`;
+      
+      document.getElementById("previewYellow").textContent = yc;
+      document.getElementById("previewBlue").textContent = bc;
+      document.getElementById("previewRed").textContent = rc;
+
+      // Jugadores presentes
+      document.getElementById("previewPlayerCount").textContent = presentIds.length;
+      const playerListHTML = presentIds.map(id => {
+        const player = players.find(p => p.id === id);
+        const isPaid = attendanceState[id].paid;
+        const badgeClass = isPaid ? 'paid' : '';
+        const icon = isPaid ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle"></i>';
+        return `<div class="preview-player-badge ${badgeClass}">${icon} ${player.name} #${player.number}</div>`;
+      }).join('');
+      document.getElementById("previewPlayerList").innerHTML = playerListHTML;
+
+      // Finanzas
+      const perPlayer = presentIds.length > 0 ? refVal / presentIds.length : 0;
+      const paidCount = presentIds.filter(id => attendanceState[id].paid).length;
+      const totalPaidAmount = paidCount * perPlayer;
+
+      document.getElementById("previewRefTotal").textContent = "$" + refVal.toLocaleString();
+      document.getElementById("previewRefPerPlayer").textContent = "$" + perPlayer.toLocaleString();
+      document.getElementById("previewPaidCount").textContent = `${paidCount} jugadores`;
+      document.getElementById("previewTotalPaid").textContent = "$" + totalPaidAmount.toLocaleString();
+
+      // Mostrar modal
+      document.getElementById("matchPreviewModal").classList.add("active");
+    };
+
+    window.closePreviewModal = function() {
+      document.getElementById("matchPreviewModal").classList.remove("active");
+    };
+
+    window.confirmAndSaveMatch = async function() {
+      // Cerrar modal de preview
+      closePreviewModal();
+      
+      // Ejecutar el guardado real
+      await registerMatchFinal();
+    };
+
+    // Función real de guardado (renombrada)
+    async function registerMatchFinal() {
+      const gf = parseInt(document.getElementById("goalsScored").value) || 0;
+      const gc = parseInt(document.getElementById("goalsConceded").value) || 0;
+      const yc = parseInt(document.getElementById("yellowCards").value) || 0;
+      const bc = parseInt(document.getElementById("blueCards").value) || 0;
+      const rc = parseInt(document.getElementById("redCards").value) || 0;
+      const refVal = parseFloat(document.getElementById("refereeValue").value) || 0;
+      const presentIds = Object.keys(attendanceState).filter(id => attendanceState[id].present);
+      
       if(presentIds.length === 0) return toast.show("Selecciona jugadores", "warning");
+      
       const refPayments = {};
       presentIds.forEach(id => { refPayments[id] = attendanceState[id].paid; });
+      
       let pts = 0, res = "Derrota";
       if(gf > gc) { pts = 3; res = "Victoria"; }
       else if(gf === gc) { pts = 1; res = "Empate"; }
-      const matchData = { date: new Date().toISOString(), goalsScored: gf, goalsConceded: gc, yellowCards: yc, blueCards: bc, redCards: rc, refereeValue: refVal, refereePerPlayer: refVal / presentIds.length, presentPlayers: presentIds, refereePayments: refPayments, points: pts, result: res };
+      
+      const matchData = { 
+        date: new Date().toISOString(), 
+        goalsScored: gf, 
+        goalsConceded: gc, 
+        yellowCards: yc, 
+        blueCards: bc, 
+        redCards: rc, 
+        refereeValue: refVal, 
+        refereePerPlayer: refVal / presentIds.length, 
+        presentPlayers: presentIds, 
+        refereePayments: refPayments, 
+        points: pts, 
+        result: res 
+      };
+      
       const newMatches = [...(tournamentData.matches || []), matchData];
       const stats = tournamentData.stats || {};
       stats.points = (stats.points||0) + pts;
@@ -1028,17 +1299,21 @@
       stats.redCards = (stats.redCards||0) + rc;
       
       await updateDoc(doc(db, "tournaments", currentTournament), { matches: newMatches, stats });
+      
+      // Limpiar formulario
       document.getElementById("goalsScored").value = 0;
       document.getElementById("goalsConceded").value = 0;
       document.getElementById("yellowCards").value = 0;
       document.getElementById("blueCards").value = 0;
       document.getElementById("redCards").value = 0;
+      document.getElementById("refereeValue").value = "";
       attendanceState = {};
       renderAttendanceGrid();
+      
       await loadTournamentData();
       updateAllViews();
-      toast.show("Partido Registrado", "success");
-    };
+      toast.show("✅ Partido Registrado Exitosamente", "success");
+    }
 
     function updateMatchesList() {
       const list = document.getElementById("matchesList");
