@@ -15,7 +15,7 @@
                     fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
                         dark: '#0F172A', surface: '#1E293B', primary: '#F59E0B', secondary: '#3B82F6',
-                        success: '#10B981', danger: '#EF4444', warning: '#F59E0B'
+                        success: '#10B981', danger: '#EF4444', warning: '#F59E0B', pitch: '#2f855a'
                     }
                 }
             }
@@ -32,7 +32,51 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .badge-tournament { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); margin-left: auto; }
-        .badge-source { font-size: 0.6rem; padding: 1px 4px; border-radius: 3px; margin-left: 4px; opacity: 0.7; }
+        
+        /* Estilos Cancha */
+        .soccer-pitch {
+            background-color: #2f855a;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 2px, transparent 2px),
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+            background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+            border: 2px solid rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .pitch-center-circle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80px; height: 80px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
+        }
+        .pitch-half-line {
+            position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.3);
+        }
+        .pitch-area-top {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 40%; height: 15%; border: 2px solid rgba(255,255,255,0.3); border-top: none;
+        }
+        .pitch-area-bottom {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 40%; height: 15%; border: 2px solid rgba(255,255,255,0.3); border-bottom: none;
+        }
+        .player-node {
+            position: absolute; transform: translate(-50%, -50%);
+            width: 44px; height: 44px;
+            background: #1E293B; border: 2px solid #F59E0B; color: #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 12px; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.2s; z-index: 10;
+        }
+        .player-node:hover { transform: translate(-50%, -50%) scale(1.1); background: #F59E0B; color: #0F172A; }
+        .player-node-label {
+            position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px;
+            font-size: 10px; white-space: nowrap; color: white; pointer-events: none;
+        }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden text-sm">
@@ -48,12 +92,9 @@
 
         <div class="px-4 mb-6">
             <div class="bg-dark p-4 rounded-xl border border-gray-700">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Torneos Detectados</div>
-                    <button onclick="window.loadTournamentsList()" class="text-gray-500 hover:text-white" title="Recargar"><i class="fa-solid fa-rotate-right"></i></button>
-                </div>
+                <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-2">Torneos Encontrados</div>
                 <div id="tournamentButtons" class="flex flex-col gap-2 max-h-40 overflow-y-auto">
-                    <div class="text-xs text-gray-500 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+                    <div class="text-xs text-gray-500 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Buscando datos...</div>
                 </div>
                 <div class="mt-2 pt-2 border-t border-gray-700">
                      <button onclick="window.createOfficialTournament('Interempresas anillo vial')" class="w-full text-left text-[10px] text-primary hover:text-white py-1">+ Interempresas anillo vial</button>
@@ -63,28 +104,30 @@
         </div>
 
         <nav class="flex-1 px-2 space-y-1 overflow-y-auto">
-            <button id="nav-dashboard" onclick="window.showView('dashboard')" class="nav-item active w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard</button>
-            <button id="nav-players" onclick="window.showView('players')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-users w-5 text-center"></i> Jugadores</button>
-            <button id="nav-matches" onclick="window.showView('matches')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-futbol w-5 text-center"></i> Partidos</button>
-            <button id="nav-stats" onclick="window.showView('stats')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-simple w-5 text-center"></i> Estadísticas</button>
-            <button id="nav-finances" onclick="window.showView('finances')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-money-bill-wave w-5 text-center"></i> Finanzas</button>
-            <button id="nav-settings" onclick="window.showView('settings')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-gear w-5 text-center"></i> Configuración</button>
+            <button onclick="window.showView('dashboard')" class="nav-item active w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard</button>
+            <button onclick="window.showView('tactics')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-list w-5 text-center"></i> Pizarra Táctica</button>
+            <button onclick="window.showView('players')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-users w-5 text-center"></i> Jugadores</button>
+            <button onclick="window.showView('matches')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-futbol w-5 text-center"></i> Partidos</button>
+            <button onclick="window.showView('stats')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-simple w-5 text-center"></i> Estadísticas</button>
+            <button onclick="window.showView('finances')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-money-bill-wave w-5 text-center"></i> Finanzas</button>
+            <button onclick="window.showView('settings')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-gear w-5 text-center"></i> Configuración</button>
         </nav>
+
         <div class="p-4"><div id="connectionStatus" class="text-xs text-center text-gray-500 bg-gray-900 py-2 rounded border border-gray-800"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Iniciando...</div></div>
     </aside>
 
     <!-- MOBILE HEADER -->
     <div class="md:hidden fixed top-0 w-full bg-surface z-50 flex justify-between items-center p-4 border-b border-gray-800 shadow-lg">
-        <div class="flex items-center gap-2"><i class="fa-solid fa-helmet-safety text-primary"></i><div><span class="font-bold text-white block leading-none text-xs">CONSTRU-SANTAMARIA</span><div id="mobileTournamentBadge" class="text-[10px] text-primary font-bold mt-0.5">...</div></div></div>
+        <div class="flex items-center gap-2"><i class="fa-solid fa-helmet-safety text-primary"></i><div><span class="font-bold text-white block leading-none text-xs">CONSTRU-SANTAMARIA</span><div id="mobileTournamentBadge" class="text-[10px] text-primary font-bold mt-0.5">CARGANDO...</div></div></div>
         <button onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute'); document.querySelector('aside').classList.toggle('z-50'); document.querySelector('aside').classList.toggle('h-full');" class="text-white text-xl"><i class="fa-solid fa-bars"></i></button>
     </div>
 
-    <!-- MAIN -->
+    <!-- MAIN CONTENT -->
     <main class="flex-1 overflow-y-auto bg-dark relative md:pt-0 pt-20">
         
         <!-- DASHBOARD -->
         <div id="view-dashboard" class="p-6 max-w-6xl mx-auto fade-in-up">
-            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-line text-primary"></i> Resumen General</h2><span id="dashTournamentName" class="text-xs font-mono text-gray-500 bg-gray-800 px-2 py-1 rounded">...</span></div>
+            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-line text-primary"></i> Resumen General</h2><span id="dashTournamentName" class="text-xs font-mono text-gray-500 bg-gray-800 px-2 py-1 rounded">Seleccione Torneo</span></div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="glass p-6 rounded-2xl border-l-4 border-success"><div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Recaudado Inscripción</div><div class="text-3xl font-bold text-white" id="dashCollected">$0</div></div>
                 <div class="glass p-6 rounded-2xl border-l-4 border-danger"><div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Deuda Total</div><div class="text-3xl font-bold text-white" id="dashDebt">$0</div></div>
@@ -96,14 +139,46 @@
             </div>
         </div>
 
-        <!-- JUGADORES -->
+        <!-- NUEVA VISTA: TÁCTICAS -->
+        <div id="view-tactics" class="p-6 max-w-4xl mx-auto hidden fade-in-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Pizarra Táctica</h2>
+                <div class="flex gap-3">
+                     <select id="formationSelect" onchange="window.renderFormation()" class="bg-dark border border-gray-700 text-white rounded px-3 py-1 text-sm">
+                        <!-- Populated by JS -->
+                     </select>
+                     <button onclick="window.saveLineup()" class="bg-primary text-dark px-3 py-1 rounded text-sm font-bold hover:bg-amber-600">Guardar</button>
+                </div>
+            </div>
+            <div class="text-xs text-gray-400 mb-2 flex gap-2 items-center">
+                <i class="fa-solid fa-circle-info"></i> 
+                <span id="tacticsInfo">Detectando tipo de juego...</span>
+            </div>
+
+            <div class="relative w-full aspect-[2/3] md:aspect-[3/4] lg:aspect-[4/3] max-h-[600px] mx-auto soccer-pitch rounded-xl shadow-2xl shadow-green-900/20" id="pitchContainer">
+                <div class="pitch-half-line"></div>
+                <div class="pitch-center-circle"></div>
+                <div class="pitch-area-top"></div>
+                <div class="pitch-area-bottom"></div>
+                <!-- Players will be injected here -->
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-white font-bold mb-2">Suplentes / No Convocados</h3>
+                <div id="benchList" class="flex flex-wrap gap-2">
+                    <!-- Bench -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA: JUGADORES -->
         <div id="view-players" class="p-6 max-w-6xl mx-auto hidden fade-in-up">
             <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white">Plantilla</h2><button onclick="window.openPlayerModal()" class="bg-primary hover:bg-amber-600 text-dark px-4 py-2 rounded-lg font-bold transition shadow-lg shadow-amber-900/20"><i class="fa-solid fa-plus mr-2"></i> Nuevo</button></div>
             <div class="glass rounded-2xl p-4 mb-6 sticky top-0 z-10 backdrop-blur-xl"><div class="relative"><i class="fa-solid fa-search absolute left-3 top-3 text-gray-500"></i><input type="text" id="searchPlayer" placeholder="Buscar..." class="w-full bg-dark border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-white focus:border-primary focus:outline-none transition" onkeyup="window.renderPlayers()"></div></div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="playersGrid"></div>
         </div>
 
-        <!-- PARTIDOS -->
+        <!-- VISTA: PARTIDOS -->
         <div id="view-matches" class="p-6 max-w-4xl mx-auto hidden fade-in-up">
             <h2 class="text-2xl font-bold text-white mb-6">Gestión de Partidos</h2>
             <div class="glass rounded-2xl p-6 mb-8 border-t-4 border-primary" id="matchFormCard">
@@ -115,6 +190,7 @@
                 </div>
                 <div class="mb-6"><label class="block text-xs text-gray-400 mb-1 font-bold uppercase">Costo Arbitraje Total</label><input type="number" id="refPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white font-mono text-primary text-lg" placeholder="$" oninput="window.calcRef()"></div>
                 
+                <!-- Resumen Tarjetas -->
                 <div class="grid grid-cols-3 gap-2 mb-6 text-center">
                     <div><label class="text-[10px] text-yellow-500 font-bold">AMARILLAS</label><input id="yc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
                     <div><label class="text-[10px] text-blue-400 font-bold">AZULES</label><input id="bc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
@@ -143,7 +219,7 @@
             <div class="glass rounded-2xl p-6 overflow-x-auto">
                 <table class="w-full text-left text-sm text-gray-300">
                     <thead class="text-xs uppercase text-gray-500 border-b border-gray-700">
-                        <tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-center">PJ</th><th class="pb-3 text-center text-success">G</th><th class="pb-3 text-center text-yellow-500">A</th><th class="pb-3 text-center text-blue-400">Az</th><th class="pb-3 text-center text-red-500">R</th><th class="pb-3 text-right text-danger">Deuda Multas</th></tr>
+                        <tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-center">PJ</th><th class="pb-3 text-center text-success">G</th><th class="pb-3 text-center text-gray-400 text-[10px]">Prom G/P</th><th class="pb-3 text-center text-yellow-500">A</th><th class="pb-3 text-center text-blue-400">Az</th><th class="pb-3 text-center text-red-500">R</th><th class="pb-3 text-right text-danger">Deuda Multas</th></tr>
                     </thead>
                     <tbody id="statsTableBody" class="divide-y divide-gray-800"></tbody>
                 </table>
@@ -154,7 +230,7 @@
         <div id="view-finances" class="p-6 max-w-6xl mx-auto hidden fade-in-up">
             <h2 class="text-2xl font-bold text-white mb-6">Control Financiero</h2>
             <div class="glass rounded-2xl p-6 mb-6">
-                <h3 class="text-lg font-bold text-white mb-4">Registrar Abono</h3>
+                <h3 class="text-lg font-bold text-white mb-4">Registrar Abono (Inscripción)</h3>
                 <div class="flex flex-col md:flex-row gap-4 items-end"><div class="flex-1 w-full"><label class="block text-xs text-gray-400 mb-1">Jugador</label><select id="payPlayerSelect" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none"></select></div><div class="w-full md:w-48"><label class="block text-xs text-gray-400 mb-1">Monto</label><input type="number" id="payAmount" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none" placeholder="$"></div><button onclick="window.addPayment()" class="w-full md:w-auto bg-success hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-medium transition"><i class="fa-solid fa-check mr-1"></i> Registrar</button></div>
             </div>
             <div class="glass rounded-2xl p-6 overflow-x-auto">
@@ -183,7 +259,7 @@
                     <h4 class="text-danger font-bold mb-2">Zona de Peligro</h4>
                     <div class="flex flex-col gap-2">
                         <button onclick="window.confirmResetTournament()" class="text-xs bg-red-900/30 text-red-400 border border-red-900 hover:bg-red-900/50 px-4 py-3 rounded transition w-full text-left flex items-center gap-2"><i class="fa-solid fa-eraser"></i> Reiniciar Datos del Torneo Actual</button>
-                        <button onclick="window.purgeTrashTournaments()" class="text-xs bg-red-600 text-white border border-red-500 hover:bg-red-700 px-4 py-3 rounded transition w-full text-left flex items-center gap-2 font-bold"><i class="fa-solid fa-broom"></i> 🧹 Eliminar Torneos NO Oficiales</button>
+                        <button onclick="window.purgeTrashTournaments()" class="text-xs bg-red-600 text-white border border-red-500 hover:bg-red-700 px-4 py-3 rounded transition w-full text-left flex items-center gap-2 font-bold"><i class="fa-solid fa-broom"></i> 🧹 Eliminar Torneos Basura</button>
                         <button onclick="window.deleteCurrentTournament()" class="text-xs bg-red-600 text-white border border-red-500 hover:bg-red-700 px-4 py-3 rounded transition w-full text-left flex items-center gap-2 font-bold"><i class="fa-solid fa-trash"></i> Eliminar ESTE Torneo</button>
                     </div>
                 </div>
@@ -191,14 +267,20 @@
         </div>
     </main>
 
-    <!-- MODALES -->
+    <!-- MODALES (Mantienen misma estructura, omitiendo duplicidad visual pero funcionales) -->
     <div id="playerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl"><button onclick="window.closeModal('playerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-4" id="playerModalTitle">Nuevo Jugador</h3><input type="hidden" id="editPlayerId"><div class="space-y-4"><div><label class="block text-xs text-gray-400 mb-1">Nombre</label><input type="text" id="playerModalName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><div><label class="block text-xs text-gray-400 mb-1">Dorsal</label><input type="number" id="playerModalNum" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><button onclick="window.savePlayerForm()" class="w-full bg-primary hover:bg-amber-600 text-dark py-2 rounded-lg font-bold mt-2">Guardar</button></div></div></div>
-    
     <div id="playerStatsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[80] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl h-[80vh] flex flex-col"><div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center"><h3 class="font-bold text-white">Estadísticas Individuales</h3><button onclick="window.closeModal('playerStatsModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-4 flex-1 overflow-y-auto" id="playerStatsInputs"></div><div class="p-4 bg-dark border-t border-gray-700"><button onclick="window.closeModal('playerStatsModal'); window.renderMatchSelector();" class="w-full bg-success hover:bg-emerald-600 text-white py-3 rounded-lg font-bold">Confirmar y Volver</button></div></div></div>
-    
     <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl h-[500px] flex flex-col"><button onclick="window.closeModal('historyModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-1" id="historyModalTitle">Historial</h3><div class="flex-1 overflow-y-auto pr-2" id="historyList"></div></div></div>
-    
     <div id="matchDetailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl overflow-hidden"><div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center"><h3 class="font-bold text-white">Detalles del Partido</h3><button onclick="window.closeModal('matchDetailModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 max-h-[70vh] overflow-y-auto"><div class="flex justify-center items-center mb-6 text-center"><div><div class="text-4xl font-bold text-white" id="mdScore"></div><div class="text-xs text-gray-500 mt-1" id="mdDate"></div></div></div><div class="grid grid-cols-3 gap-2 text-center mb-6 bg-gray-800/50 p-3 rounded-xl"><div><div class="text-xs text-yellow-500 font-bold">Ama</div><div id="mdYC" class="text-white font-mono">0</div></div><div><div class="text-xs text-blue-400 font-bold">Azul</div><div id="mdBC" class="text-white font-mono">0</div></div><div><div class="text-xs text-red-500 font-bold">Roja</div><div id="mdRC" class="text-white font-mono">0</div></div></div><div class="space-y-2" id="mdPlayerList"></div><div class="mt-6 pt-4 border-t border-gray-700 flex justify-between items-center text-sm"><span class="text-gray-400">Costo Total Arbitraje:</span><span class="text-white font-bold" id="mdRefTotal">$0</span></div></div></div></div>
+    
+    <!-- SELECCIÓN JUGADOR PARA TÁCTICA -->
+    <div id="playerPickModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden z-[90] flex items-center justify-center p-4">
+        <div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-xs p-4">
+            <h3 class="text-center text-white font-bold mb-4">Seleccionar Jugador</h3>
+            <div id="playerPickList" class="space-y-2 max-h-60 overflow-y-auto"></div>
+            <button onclick="window.closeModal('playerPickModal')" class="w-full mt-4 bg-gray-700 text-white py-2 rounded">Cancelar</button>
+        </div>
+    </div>
 
     <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-surface border border-gray-700 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 opacity-0 pointer-events-none transition-opacity duration-300 z-[70]"><i class="fa-solid fa-info-circle text-primary"></i><span id="toastMsg">Mensaje</span></div>
 
@@ -219,24 +301,45 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        const ROOT_TOURNAMENTS = "tournaments"; 
-        const ROOT_PLAYERS = "players";
-        const ROOT_TOURNAMENTS_ES = "torneos";
-        const ROOT_PLAYERS_ES = "jugadores";
+        const getCollection = (name) => collection(db, name);
 
         const FINE_VALUES = { yellow: 5000, red: 10000, blue: 15000 };
         const formatCOP = (amount) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
         const OFFICIAL_TOURNAMENTS = ["Interempresas anillo vial", "Intercompany HIC"];
+        
+        // Formaciones
+        const FORMATIONS = {
+            5: [
+                { id: '1-2-1', name: '1-2-1 (Diamante)', pos: [[50, 85], [20, 50], [80, 50], [50, 20]] }, // GK no se cuenta aqui, asumimos GK siempre
+                { id: '2-2', name: '2-2 (Cuadrado)', pos: [[30, 75], [70, 75], [30, 25], [70, 25]] },
+                { id: '3-1', name: '3-1 (Muro)', pos: [[50, 80], [20, 60], [80, 60], [50, 20]] }
+            ],
+            6: [
+                { id: '2-2-1', name: '2-2-1 (Equilibrio)', pos: [[30, 80], [70, 80], [20, 45], [80, 45], [50, 20]] },
+                { id: '3-1-1', name: '3-1-1 (Defensiva)', pos: [[50, 80], [20, 70], [80, 70], [50, 45], [50, 20]] },
+                { id: '2-1-2', name: '2-1-2 (Ofensiva)', pos: [[30, 80], [70, 80], [50, 50], [30, 20], [70, 20]] },
+                { id: '1-3-1', name: '1-3-1 (Posesión)', pos: [[50, 80], [20, 50], [50, 50], [80, 50], [50, 15]] }
+            ]
+        };
 
         let currentTournament = null;
-        let currentTournamentCollection = ROOT_TOURNAMENTS; 
-        let currentPlayersCollection = ROOT_PLAYERS; 
+        let currentTournamentCollection = "tournaments"; 
+        let currentPlayersCollection = "players"; 
         let players = [];
         let tournamentData = {};
         let matchSelection = {}; 
+        // Tactics State
+        let currentFormation = [];
+        let currentLineup = {}; // { posIndex: playerId }
+        let activePosIndex = null;
 
-        // --- GLOBAL FUNCTIONS ASSIGNMENT FIRST ---
+        window.selectTournament = (tId, tColl = "tournaments", pColl = "players") => {
+            currentTournament = tId;
+            currentTournamentCollection = tColl;
+            currentPlayersCollection = pColl;
+            loadData();
+            loadTournamentsList(); 
+        };
 
         window.showView = (viewName) => {
             document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
@@ -245,81 +348,158 @@
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active', 'text-white'));
             const activeBtn = document.getElementById('nav-' + viewName);
             if(activeBtn) activeBtn.classList.add('active', 'text-white');
+            
+            if(viewName === 'tactics') window.initTactics();
         };
 
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-        
         window.showToast = (msg, isError = false) => {
-            const el = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = msg;
+            const el = document.getElementById('toast'); document.getElementById('toastMsg').textContent = msg;
             el.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-opacity duration-300 z-[70] ${isError ? 'bg-red-900/90 border-red-500 text-white' : 'bg-surface border-gray-700 text-white'} opacity-100`;
             setTimeout(() => el.classList.add('opacity-0'), 3000);
         };
 
-        window.selectTournament = (tId, tColl = ROOT_TOURNAMENTS, pColl = ROOT_PLAYERS) => {
-            currentTournament = tId;
-            currentTournamentCollection = tColl;
-            currentPlayersCollection = pColl;
-            loadData();
-            loadTournamentsList(); 
+        // --- TACTICS LOGIC ---
+        window.initTactics = () => {
+            const tName = tournamentData.name || "";
+            const is5v5 = tName.includes("HIC");
+            const type = is5v5 ? 5 : 6;
+            
+            document.getElementById('tacticsInfo').textContent = is5v5 ? "Modo: Futbol 5 (HIC)" : "Modo: Futbol 6 (Anillo Vial)";
+            
+            const select = document.getElementById('formationSelect');
+            select.innerHTML = '';
+            FORMATIONS[type].forEach((f, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = f.name;
+                select.appendChild(opt);
+            });
+            
+            // Load saved lineup if exists or default
+            currentLineup = tournamentData.savedLineup || {};
+            window.renderFormation();
         };
 
-        window.createOfficialTournament = async (name) => {
-            const newId = "tourn_" + name.replace(/\s+/g, '_').toLowerCase();
-            await setDoc(doc(db, ROOT_TOURNAMENTS, newId), { name: name, totalInscription: 0, matches: [], stats: {} });
-            loadTournamentsList();
-            window.showToast("Torneo creado");
+        window.renderFormation = () => {
+            const tName = tournamentData.name || "";
+            const is5v5 = tName.includes("HIC");
+            const type = is5v5 ? 5 : 6;
+            
+            const formIndex = document.getElementById('formationSelect').value || 0;
+            const formation = FORMATIONS[type][formIndex];
+            const container = document.getElementById('pitchContainer');
+            
+            // Clear existing nodes (keep bg elements)
+            const nodes = container.querySelectorAll('.player-node, .player-node-label');
+            nodes.forEach(n => n.remove());
+
+            // 1. GK (Always fixed at bottom center)
+            window.createNode(container, 50, 90, 'gk');
+
+            // 2. Field Players
+            formation.pos.forEach((pos, i) => {
+                window.createNode(container, pos[0], pos[1], i);
+            });
+            
+            // 3. Render Bench
+            window.renderBench();
         };
 
-        window.deleteCurrentTournament = async () => {
-            if(!currentTournament) return;
-            if(!confirm("¿ELIMINAR TORNEO ACTUAL? ESTO ES IRREVERSIBLE.")) return;
+        window.createNode = (container, left, top, index) => {
+            const playerId = currentLineup[index];
+            const player = players.find(p => p.id === playerId);
+            
+            const node = document.createElement('div');
+            node.className = 'player-node';
+            node.style.left = left + '%';
+            node.style.top = top + '%';
+            node.textContent = player ? player.number : (index === 'gk' ? 'GK' : '+');
+            if(player) {
+                node.style.background = '#F59E0B'; node.style.color = '#0F172A'; node.style.border = '2px solid #fff';
+            }
+            node.onclick = () => window.openPlayerPick(index);
+            
+            if(player) {
+                const label = document.createElement('div');
+                label.className = 'player-node-label';
+                label.textContent = player.name.split(' ')[0];
+                label.style.left = left + '%';
+                label.style.top = (top + 6) + '%';
+                container.appendChild(label);
+            }
+            
+            container.appendChild(node);
+        };
+
+        window.openPlayerPick = (posIndex) => {
+            activePosIndex = posIndex;
+            const list = document.getElementById('playerPickList');
+            list.innerHTML = '<button onclick="window.selectPlayerForPos(null)" class="w-full text-left p-2 hover:bg-gray-700 rounded text-gray-400 text-xs">--- Vacío ---</button>';
+            
+            // Filter players not already on pitch (except current pos)
+            const usedIds = Object.values(currentLineup);
+            
+            players.forEach(p => {
+                if (!usedIds.includes(p.id) || currentLineup[activePosIndex] === p.id) {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left p-2 hover:bg-gray-700 rounded text-white text-sm border-b border-gray-800';
+                    btn.innerHTML = `<b>${p.number}</b> ${p.name}`;
+                    btn.onclick = () => window.selectPlayerForPos(p.id);
+                    list.appendChild(btn);
+                }
+            });
+            document.getElementById('playerPickModal').classList.remove('hidden');
+        };
+
+        window.selectPlayerForPos = (pid) => {
+            if(pid) currentLineup[activePosIndex] = pid;
+            else delete currentLineup[activePosIndex];
+            window.closeModal('playerPickModal');
+            window.renderFormation();
+        };
+
+        window.renderBench = () => {
+            const benchDiv = document.getElementById('benchList');
+            benchDiv.innerHTML = '';
+            const usedIds = Object.values(currentLineup);
+            const bench = players.filter(p => !usedIds.includes(p.id));
+            
+            if(bench.length === 0) {
+                benchDiv.innerHTML = '<span class="text-xs text-gray-500">Todos convocados</span>';
+                return;
+            }
+            
+            bench.forEach(p => {
+                const tag = document.createElement('div');
+                tag.className = 'text-xs bg-gray-800 px-2 py-1 rounded text-gray-300 border border-gray-700';
+                tag.textContent = `${p.number}. ${p.name}`;
+                benchDiv.appendChild(tag);
+            });
+        };
+
+        window.saveLineup = async () => {
             try {
-                const q = query(collection(db, currentPlayersCollection), where("tournament", "==", currentTournament));
-                const snap = await getDocs(q);
-                const batchPromises = snap.docs.map(d => deleteDoc(d.ref));
-                await Promise.all(batchPromises);
-                await deleteDoc(doc(collection(db, currentTournamentCollection), currentTournament));
-                window.showToast("Torneo eliminado");
-                currentTournament = null;
-                loadTournamentsList(); 
-            } catch(e) { console.error(e); window.showToast("Error: " + e.message, true); }
-        };
-
-        window.purgeTrashTournaments = async () => {
-            if(!confirm("¿Borrar torneos NO oficiales?")) return;
-            try {
-                const snap = await getDocs(collection(db, ROOT_TOURNAMENTS));
-                const batchPromises = [];
-                snap.forEach(d => {
-                    if(!OFFICIAL_TOURNAMENTS.includes(d.data().name)) {
-                        batchPromises.push(deleteDoc(d.ref));
-                    }
+                await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), {
+                    savedLineup: currentLineup
                 });
-                await Promise.all(batchPromises);
-                window.showToast("Limpieza completada");
-                loadTournamentsList();
+                window.showToast("Alineación guardada");
             } catch(e) { console.error(e); }
         };
 
-        window.loadTournamentsList = async function() {
+        // --- DATA & CRUD ---
+        async function loadTournamentsList() {
             try {
                 const container = document.getElementById('tournamentButtons');
                 container.innerHTML = '<div class="text-xs text-gray-500 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Buscando datos...</div>';
 
                 const found = [];
-                const qRoot = query(collection(db, ROOT_TOURNAMENTS));
+                // Scan Root
+                const qRoot = query(collection(db, "tournaments"));
                 const snapRoot = await getDocs(qRoot);
-                snapRoot.forEach(d => found.push({id: d.id, ...d.data(), sourceColl: ROOT_TOURNAMENTS, playerColl: ROOT_PLAYERS}));
-
-                try {
-                    const qLegacy = query(collection(db, ROOT_TOURNAMENTS_ES));
-                    const snapLegacy = await getDocs(qLegacy);
-                    snapLegacy.forEach(d => found.push({id: d.id, ...d.data(), sourceColl: ROOT_TOURNAMENTS_ES, playerColl: ROOT_PLAYERS_ES}));
-                } catch(e) { }
+                snapRoot.forEach(d => found.push({id: d.id, ...d.data(), sourceColl: "tournaments", playerColl: "players"}));
 
                 container.innerHTML = '';
-                
                 if (found.length === 0) {
                     container.innerHTML = '<div class="text-xs text-red-400 text-center p-2">No se encontraron datos.</div>';
                     return;
@@ -328,22 +508,15 @@
                 found.forEach(t => {
                     const btn = document.createElement('button');
                     const isActive = t.id === currentTournament;
-                    const sourceLabel = t.sourceColl === ROOT_TOURNAMENTS_ES ? '<span class="badge-source bg-yellow-500 text-black">Legacy</span>' : '';
-
                     btn.className = `w-full text-left px-3 py-2 rounded text-xs font-bold transition mb-1 flex justify-between items-center ${isActive ? 'bg-primary text-dark' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`;
-                    btn.innerHTML = `<div class="truncate">${t.name || t.id}</div> <div>${sourceLabel} ${isActive ? '<i class="fa-solid fa-check ml-1"></i>' : ''}</div>`;
+                    btn.innerHTML = `<div class="truncate">${t.name || t.id}</div>`;
                     btn.onclick = () => window.selectTournament(t.id, t.sourceColl, t.playerColl);
                     container.appendChild(btn);
                 });
 
-                if (!currentTournament && found.length > 0) {
-                    window.selectTournament(found[0].id, found[0].sourceColl, found[0].playerColl);
-                }
-            } catch(e) {
-                console.error(e);
-                document.getElementById('tournamentButtons').innerHTML = '<div class="text-xs text-red-400 p-2">Error de conexión.</div>';
-            }
-        };
+                if (!currentTournament && found.length > 0) window.selectTournament(found[0].id, found[0].sourceColl, found[0].playerColl);
+            } catch(e) { console.error(e); }
+        }
 
         function loadData() {
             if(!currentTournament) return;
@@ -355,6 +528,7 @@
             onSnapshot(q, (snapshot) => {
                 players = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => a.number - b.number);
                 window.renderAll();
+                if(document.getElementById('view-tactics') && !document.getElementById('view-tactics').classList.contains('hidden')) window.renderFormation();
             });
 
             onSnapshot(doc(collection(db, currentTournamentCollection), currentTournament), (docSnap) => {
@@ -367,6 +541,7 @@
                     safeVal('confName', name);
                     safeVal('confPrice', tournamentData.totalInscription || 0);
                     
+                    // Fix Legacy Data
                     if(tournamentData.matches && tournamentData.matches.some(m => !m.id)) {
                          const fixedMatches = tournamentData.matches.map(m => (!m.id ? {...m, id: crypto.randomUUID()} : m));
                          updateDoc(docSnap.ref, { matches: fixedMatches });
@@ -376,7 +551,36 @@
             });
         }
 
-        // --- RECALCULO HISTORICO ---
+        window.createOfficialTournament = async (name) => {
+            const newId = "tourn_" + name.replace(/\s+/g, '_').toLowerCase();
+            await setDoc(doc(db, "tournaments", newId), { name: name, totalInscription: 0, matches: [], stats: {} });
+            loadTournamentsList();
+            window.showToast("Torneo creado");
+        };
+        
+        window.deleteCurrentTournament = async () => {
+            if(!currentTournament) return;
+            if(!confirm("¿ELIMINAR TORNEO ACTUAL?")) return;
+            try {
+                const q = query(collection(db, currentPlayersCollection), where("tournament", "==", currentTournament));
+                const snap = await getDocs(q);
+                const batchPromises = snap.docs.map(d => deleteDoc(d.ref));
+                await Promise.all(batchPromises);
+                await deleteDoc(doc(collection(db, currentTournamentCollection), currentTournament));
+                window.showToast("Torneo eliminado");
+                currentTournament = null; loadTournamentsList(); 
+            } catch(e) { console.error(e); }
+        };
+
+        window.purgeTrashTournaments = async () => {
+            if(!confirm("¿Borrar torneos NO oficiales?")) return;
+            const snap = await getDocs(collection(db, "tournaments"));
+            const batchPromises = [];
+            snap.forEach(d => { if(!OFFICIAL_TOURNAMENTS.includes(d.data().name)) batchPromises.push(deleteDoc(d.ref)); });
+            await Promise.all(batchPromises);
+            window.showToast("Limpieza completada"); loadTournamentsList();
+        };
+
         async function recalculateAllDebts() {
             if (!tournamentData.matches) return;
             const playerDebts = {};
@@ -387,7 +591,6 @@
                 const details = m.playerDetails || {};
                 const payments = m.refereePayments || {};
                 const present = m.presentPlayers || [];
-
                 present.forEach(pid => {
                     if (playerDebts[pid] === undefined) playerDebts[pid] = 0;
                     const stats = details[pid] || { yellow: 0, blue: 0, red: 0 };
@@ -410,11 +613,9 @@
             if (batchUpdates.length > 0) await Promise.all(batchUpdates);
         }
 
-        // --- RENDERIZADORES ---
-        window.renderAll = () => {
-            window.renderPlayers(); window.renderMatchSelector(); window.renderMatchesList(); window.renderFinances(); window.renderDashboard(); window.renderStatsTable();
-        };
-
+        // RENDERERS & ACTIONS (Standardized)
+        window.renderAll = () => { window.renderPlayers(); window.renderMatchSelector(); window.renderMatchesList(); window.renderFinances(); window.renderDashboard(); window.renderStatsTable(); };
+        
         window.renderPlayers = () => {
             const filter = document.getElementById('searchPlayer').value.toLowerCase();
             const grid = document.getElementById('playersGrid');
@@ -429,8 +630,7 @@
                     card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-bold text-gray-300">${p.number}</div><div><div class="font-bold text-white leading-tight">${p.name}</div><div class="text-xs text-gray-500">Abonado: ${formatCOP(p.totalPaid || 0)}</div>${cardDebtHtml}</div></div><div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.openPlayerModal('${p.id}')" class="text-gray-500 hover:text-primary"><i class="fa-solid fa-pen"></i></button><button onclick="window.deletePlayer('${p.id}')" class="text-gray-500 hover:text-danger"><i class="fa-solid fa-trash"></i></button></div></div>`;
                     grid.appendChild(card);
                 }
-                const opt = document.createElement('option');
-                opt.value = p.id; opt.textContent = `${p.number}. ${p.name}`; sel.appendChild(opt);
+                const opt = document.createElement('option'); opt.value = p.id; opt.textContent = `${p.number}. ${p.name}`; sel.appendChild(opt);
             });
         };
 
@@ -503,19 +703,19 @@
         window.renderStatsTable = () => {
             const tbody = document.getElementById('statsTableBody'); tbody.innerHTML = '';
             const matches = tournamentData.matches || [];
-            const statsMap = {}; players.forEach(p => statsMap[p.id] = { pj:0, g:0, y:0, b:0, r:0, name: p.name, debt: p.cardDebt || 0 });
+            const statsMap = {}; 
+            players.forEach(p => statsMap[p.id] = { pj:0, g:0, y:0, b:0, r:0, name: p.name, debt: p.cardDebt || 0 });
             matches.forEach(m => {
                 if(m.playerDetails) { Object.keys(m.playerDetails).forEach(pid => { if(statsMap[pid]) { const details = m.playerDetails[pid]; statsMap[pid].pj++; statsMap[pid].g += (details.goals || 0); statsMap[pid].y += (details.yellow || 0); statsMap[pid].b += (details.blue || 0); statsMap[pid].r += (details.red || 0); } }); } else if (m.presentPlayers) { m.presentPlayers.forEach(pid => { if(statsMap[pid]) statsMap[pid].pj++; }); }
             });
             Object.values(statsMap).sort((a,b) => b.g - a.g).forEach(s => {
                 let avgGoals = s.pj > 0 ? (s.g / s.pj).toFixed(2) : "0.00";
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="py-2 pl-2 font-medium text-white">${s.name}</td><td class="text-center text-gray-400">${s.pj}</td><td class="text-center font-bold text-success">${s.g}</td><td class="text-center text-gray-500 text-[10px]">${avgGoals}</td><td class="text-center text-yellow-500">${s.y}</td><td class="text-center text-blue-400">${s.b}</td><td class="text-center text-red-500">${s.r}</td><td class="text-right text-danger font-mono pr-2">${s.debt > 0 ? formatCOP(s.debt) : '-'}</td>`;
+                tr.innerHTML = `<td class="py-2 pl-2 font-medium text-white">${s.name}</td><td class="text-center text-gray-400">${s.pj}</td><td class="text-center font-bold text-success">${s.g}</td><td class="text-center text-gray-400 text-[10px]">${avgGoals}</td><td class="text-center text-yellow-500">${s.y}</td><td class="text-center text-blue-400">${s.b}</td><td class="text-center text-red-500">${s.r}</td><td class="text-right text-danger font-mono pr-2">${s.debt > 0 ? formatCOP(s.debt) : '-'}</td>`;
                 tbody.appendChild(tr);
             });
         };
 
-        // --- CRUD ---
         window.openPlayerModal = (playerId = null) => {
             const modal = document.getElementById('playerModal'); const nameIn = document.getElementById('playerModalName'); const numIn = document.getElementById('playerModalNum'); const idIn = document.getElementById('editPlayerId');
             if (playerId) { const p = players.find(x => x.id === playerId); document.getElementById('playerModalTitle').textContent = "Editar Jugador"; nameIn.value = p.name; numIn.value = p.number; idIn.value = p.id; } else { document.getElementById('playerModalTitle').textContent = "Nuevo Jugador"; nameIn.value = ""; numIn.value = ""; idIn.value = ""; }
@@ -538,7 +738,7 @@
         };
         window.openPaymentHistory = (playerId) => {
             const p = players.find(x => x.id === playerId); const list = document.getElementById('historyList'); document.getElementById('historyModalTitle').textContent = p.name;
-            if(!p.payments || p.payments.length === 0) list.innerHTML = '<div class="text-center text-gray-500 mt-10">Sin pagos registrados</div>';
+            if(!p.payments || p.payments.length === 0) list.innerHTML = '<div class="text-center text-gray-500 mt-10">Sin pagos</div>';
             else list.innerHTML = p.payments.map(pay => `<div class="flex justify-between items-center bg-dark p-3 rounded-lg mb-2 border border-gray-700"><div><div class="font-bold text-success">${formatCOP(pay.amount)}</div><div class="text-xs text-gray-500">${new Date(pay.date).toLocaleDateString()}</div></div><button onclick="window.deletePayment('${playerId}', '${pay.id}')" class="text-gray-500 hover:text-danger px-2"><i class="fa-solid fa-trash"></i></button></div>`).join('');
             document.getElementById('historyModal').classList.remove('hidden');
         };
@@ -564,7 +764,7 @@
         window.renderPlayerStatsInputs = () => {
             const container = document.getElementById('playerStatsInputs'); container.innerHTML = '';
             const selectedIds = Object.keys(matchSelection).filter(id => matchSelection[id].selected);
-            if(selectedIds.length === 0) { container.innerHTML = '<div class="text-center text-gray-500 mt-10">Selecciona jugadores primero.</div>'; return; }
+            if(selectedIds.length === 0) { container.innerHTML = '<div class="text-center text-gray-500 mt-10">Selecciona jugadores.</div>'; return; }
             selectedIds.forEach(pid => {
                 const p = players.find(x => x.id === pid); const stats = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 };
                 const row = document.createElement('div'); row.className = "flex items-center justify-between bg-gray-800/50 p-3 rounded-lg mb-2";
@@ -577,19 +777,25 @@
         window.saveMatch = async () => {
             try {
                 const gf = parseInt(document.getElementById('gf').value); const gc = parseInt(document.getElementById('gc').value); const editId = document.getElementById('editingMatchId').value; const refValue = parseFloat(document.getElementById('refPrice').value) || 0; const selectedIds = Object.keys(matchSelection).filter(k => matchSelection[k].selected);
-                if(selectedIds.length === 0) return window.showToast('Selecciona al menos 1 jugador', true);
+                if(selectedIds.length === 0) return window.showToast('Selecciona jugadores', true);
                 let result = 'Derrota'; let points = 0; if(gf > gc) { result = 'Victoria'; points = 3; } else if (gf === gc) { result = 'Empate'; points = 1; }
                 const playerDetailsMap = {}; selectedIds.forEach(pid => { playerDetailsMap[pid] = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 }; });
                 const matchObj = { id: editId || crypto.randomUUID(), date: new Date().toISOString(), goalsScored: gf, goalsConceded: gc, yellowCards: parseInt(document.getElementById('yc').value)||0, blueCards: parseInt(document.getElementById('bc').value)||0, redCards: parseInt(document.getElementById('rc').value)||0, refereeValue: refValue, presentPlayers: selectedIds, refereePayments: matchSelection, playerDetails: playerDetailsMap, result, points };
                 let newMatches = [...(tournamentData.matches || [])];
                 if(editId) { const idx = newMatches.findIndex(m => m.id === editId); if(idx >= 0) newMatches[idx] = matchObj; } else { newMatches.push(matchObj); }
-                
+                const batchUpdates = [];
+                for (const pid of selectedIds) {
+                    const p = players.find(x => x.id === pid); if(!p) continue;
+                    let currentDebt = p.cardDebt || 0; const stats = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 };
+                    if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); }
+                    if (matchSelection[pid].paidFines) { currentDebt = 0; if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); } }
+                    batchUpdates.push(updateDoc(doc(collection(db, currentPlayersCollection), pid), { cardDebt: currentDebt }));
+                }
+                await Promise.all(batchUpdates);
                 await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches: newMatches });
                 await recalculateAllDebts();
-
-                window.resetMatchForm();
-                window.showToast('Partido guardado y deudas recalculadas');
-            } catch(e) { console.error(e); window.showToast("Error: " + e.message, true); }
+                window.resetMatchForm(); window.showToast('Guardado');
+            } catch(e) { console.error(e); window.showToast("Error", true); }
         };
 
         window.viewMatchDetails = (matchId) => {
@@ -629,16 +835,16 @@
             Object.keys(matchSelection).forEach(k => { if(!matchSelection[k].stats) matchSelection[k].stats = {goals:0, yellow:0, blue:0, red:0}; });
             window.renderMatchSelector();
             document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
-            window.showToast("Modo edición activado", false);
+            window.showToast("Modo edición", false);
         };
 
         window.deleteMatch = async (matchId) => {
-            if (!matchId || matchId === 'undefined') { window.showToast("Error: ID inválido", true); return; }
-            if(!confirm("¿Eliminar este partido definitivamente?")) return;
+            if (!matchId) return;
+            if(!confirm("¿Eliminar?")) return;
             const newMatches = tournamentData.matches.filter(m => String(m.id) !== String(matchId));
             await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches: newMatches });
             await recalculateAllDebts();
-            window.showToast("Partido eliminado correctamente");
+            window.showToast("Borrado");
         };
 
         window.resetMatchForm = () => {
@@ -657,7 +863,6 @@
         window.autoRecalculateFees = async (explicitTotal = null) => { try { const total = explicitTotal !== null ? parseFloat(explicitTotal) : (tournamentData.totalInscription || 0); if (players.length > 0 && total > 0) { const newPerPlayer = total / players.length; await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { totalInscription: total, inscriptionPerPlayer: newPerPlayer }); window.showToast(`Cuota: ${formatCOP(newPerPlayer)}`); } } catch(e) { console.error(e); } };
         window.confirmResetTournament = async () => { if(!confirm("¿Seguro?")) return; await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches: [], stats: {}, totalInscription: 0 }); for(let p of players) { await updateDoc(doc(collection(db, currentPlayersCollection), p.id), { payments: [], totalPaid: 0, cardDebt: 0 }); } window.showToast("Reiniciado"); };
 
-        // START
         async function init() {
             try { await setPersistence(auth, inMemoryPersistence); } catch(e) {}
             onAuthStateChanged(auth, (user) => {
