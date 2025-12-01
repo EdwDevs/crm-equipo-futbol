@@ -63,6 +63,10 @@
         .player-node { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; background: #1E293B; border: 2px solid #F59E0B; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.2s; z-index: 10; }
         .player-node:hover { transform: translate(-50%, -50%) scale(1.1); background: #F59E0B; color: #0F172A; }
         .player-node-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px; font-size: 10px; white-space: nowrap; color: white; pointer-events: none; }
+        
+        /* Table Styles */
+        .stat-header { @apply text-[10px] uppercase text-gray-500 font-bold tracking-wider pb-2 text-center; }
+        .stat-cell { @apply py-3 text-center text-sm border-b border-gray-800; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden text-sm">
@@ -113,12 +117,61 @@
         <!-- DASHBOARD -->
         <div id="view-dashboard" class="p-6 max-w-6xl mx-auto fade-in-up">
             <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-line text-primary"></i> Resumen General</h2><span id="dashTournamentName" class="text-xs font-mono text-gray-500 bg-gray-800 px-2 py-1 rounded">...</span></div>
+            
+            <!-- Cards de Resumen -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div class="glass p-5 rounded-2xl border-l-4 border-success"><div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Recaudado</div><div class="text-2xl font-bold text-white" id="dashCollected">$0</div><div class="text-[10px] text-gray-500 mt-1">Inscripciones</div></div>
                 <div class="glass p-5 rounded-2xl border-l-4 border-danger"><div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Deuda Total</div><div class="text-2xl font-bold text-white" id="dashDebt">$0</div><div class="text-[10px] text-gray-500 mt-1">Inscripción + Multas</div></div>
                 <div class="glass p-5 rounded-2xl border-l-4 border-primary relative"><div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Promedio Goles</div><div class="flex justify-between items-end"><div><div class="text-xl font-bold text-success"><i class="fa-solid fa-arrow-up text-xs mr-1"></i><span id="dashAvgGF">0.0</span></div><div class="text-[10px] text-gray-500">Anotados/P</div></div><div class="text-right"><div class="text-xl font-bold text-red-400"><i class="fa-solid fa-arrow-down text-xs mr-1"></i><span id="dashAvgGC">0.0</span></div><div class="text-[10px] text-gray-500">Recibidos/P</div></div></div></div>
                 <div class="glass p-5 rounded-2xl border-l-4 border-yellow-500"><div class="text-gray-400 text-xs uppercase tracking-wide mb-1">Disciplina</div><div class="flex justify-between items-center"><div><div class="text-2xl font-bold text-white" id="dashAvgCards">0.0</div><div class="text-[10px] text-gray-500">Tarjetas/Partido</div></div><div class="text-right"><div class="text-xs font-bold text-white truncate w-20" id="dashBadBoyName">-</div><div class="text-[10px] text-yellow-500"><span id="dashBadBoyAvg">0.0</span>/P (Más Alto)</div></div></div></div>
             </div>
+
+            <!-- NUEVA SECCION: TABLA DE RENDIMIENTO -->
+            <div class="glass p-6 rounded-2xl mb-8 border border-gray-700 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition duration-500">
+                    <i class="fa-solid fa-trophy text-9xl text-white transform rotate-12"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 relative z-10">
+                    <i class="fa-solid fa-ranking-star text-primary"></i> Rendimiento del Equipo
+                </h3>
+                
+                <div class="overflow-x-auto relative z-10">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-700">
+                                <th class="stat-header text-left pl-4">Equipo</th>
+                                <th class="stat-header" title="Partidos Jugados">PJ</th>
+                                <th class="stat-header text-success" title="Partidos Ganados">PG</th>
+                                <th class="stat-header text-yellow-500" title="Partidos Empatados">PE</th>
+                                <th class="stat-header text-red-500" title="Partidos Perdidos">PP</th>
+                                <th class="stat-header" title="Goles a Favor">GF</th>
+                                <th class="stat-header" title="Goles en Contra">GC</th>
+                                <th class="stat-header" title="Diferencia de Gol">DG</th>
+                                <th class="stat-header text-primary text-base">PTS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamStatsTableBody" class="text-gray-300">
+                            <tr><td colspan="9" class="text-center py-4 text-xs text-gray-500">Cargando datos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Barra de Rendimiento Visual -->
+                <div class="mt-4 relative z-10">
+                    <div class="flex justify-between text-[10px] text-gray-400 mb-1 uppercase font-bold tracking-wider">
+                        <span>Victorias</span>
+                        <span>Empates</span>
+                        <span>Derrotas</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-800 rounded-full flex overflow-hidden" id="performanceBar">
+                        <!-- Se llena dinámicamente -->
+                        <div class="bg-success h-full w-0" id="barWins"></div>
+                        <div class="bg-yellow-500 h-full w-0" id="barDraws"></div>
+                        <div class="bg-danger h-full w-0" id="barLosses"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="glass rounded-2xl p-6"><h3 class="text-lg font-bold text-white mb-4">Top Goleadores</h3><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><tbody id="topScorersTable" class="text-gray-300 divide-y divide-gray-800"></tbody></table></div></div>
                 <div class="glass rounded-2xl p-6"><h3 class="text-lg font-bold text-white mb-4">Racha Reciente</h3><div id="recentMatchesList" class="space-y-3"></div></div>
@@ -191,7 +244,6 @@
             </div>
         </div>
 
-        <!-- JUGADORES, PARTIDOS, FINANZAS, CONFIG (Omitidos para brevedad, son iguales) -->
         <!-- VISTA JUGADORES -->
         <div id="view-players" class="p-6 max-w-6xl mx-auto hidden fade-in-up">
              <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white">Plantilla</h2><button onclick="window.openPlayerModal()" class="bg-primary hover:bg-amber-600 text-dark px-4 py-2 rounded-lg font-bold transition shadow-lg shadow-amber-900/20"><i class="fa-solid fa-plus mr-2"></i> Nuevo</button></div>
@@ -251,7 +303,7 @@
         </div>
     </main>
 
-    <!-- MODALES (Misma estructura) -->
+    <!-- MODALES -->
     <div id="playerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl"><button onclick="window.closeModal('playerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-4" id="playerModalTitle">Nuevo Jugador</h3><input type="hidden" id="editPlayerId"><div class="space-y-4"><div><label class="block text-xs text-gray-400 mb-1">Nombre</label><input type="text" id="playerModalName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><div><label class="block text-xs text-gray-400 mb-1">Dorsal</label><input type="number" id="playerModalNum" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><button onclick="window.savePlayerForm()" class="w-full bg-primary hover:bg-amber-600 text-dark py-2 rounded-lg font-bold mt-2">Guardar</button></div></div></div>
     <div id="playerStatsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[80] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl h-[80vh] flex flex-col"><div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center"><h3 class="font-bold text-white">Estadísticas Individuales</h3><button onclick="window.closeModal('playerStatsModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-4 flex-1 overflow-y-auto" id="playerStatsInputs"></div><div class="p-4 bg-dark border-t border-gray-700"><button onclick="window.closeModal('playerStatsModal'); window.renderMatchSelector();" class="w-full bg-success hover:bg-emerald-600 text-white py-3 rounded-lg font-bold">Confirmar y Volver</button></div></div></div>
     <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl h-[500px] flex flex-col"><button onclick="window.closeModal('historyModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-1" id="historyModalTitle">Historial</h3><div class="flex-1 overflow-y-auto pr-2" id="historyList"></div></div></div>
@@ -841,10 +893,22 @@
             
             // Match Stats
             let totalGF = 0, totalGC = 0, totalCards = 0;
+            // NEW: Team Stats Logic
+            let teamStats = { pj: 0, pg: 0, pe: 0, pp: 0, pts: 0 };
+            
             matches.forEach(m => {
                 totalGF += (m.goalsScored || 0);
                 totalGC += (m.goalsConceded || 0);
                 totalCards += (m.yellowCards || 0) + (m.blueCards || 0) + (m.redCards || 0);
+                
+                // Calculate Record
+                if (m.result) {
+                    teamStats.pj++;
+                    // *** CAMBIO APLICADO AQUÍ: 2 PUNTOS POR VICTORIA ***
+                    if (m.result === 'Victoria') { teamStats.pg++; teamStats.pts += 2; }
+                    else if (m.result === 'Empate') { teamStats.pe++; teamStats.pts += 1; }
+                    else if (m.result === 'Derrota') { teamStats.pp++; }
+                }
             });
             const avgGF = matches.length > 0 ? (totalGF / matches.length).toFixed(1) : "0.0";
             const avgGC = matches.length > 0 ? (totalGC / matches.length).toFixed(1) : "0.0";
@@ -884,6 +948,34 @@
             safeText('dashAvgCards', avgCards);
             safeText('dashBadBoyName', badBoy.name);
             safeText('dashBadBoyAvg', badBoy.avg);
+            
+            // --- NUEVO: Render Team Stats Table ---
+            const statsTable = document.getElementById('teamStatsTableBody');
+            if (statsTable) {
+                const diff = totalGF - totalGC;
+                const diffClass = diff > 0 ? 'text-success' : (diff < 0 ? 'text-danger' : 'text-gray-400');
+                const tName = tournamentData.name || "CONSTRU-SANTAMARIA";
+                
+                statsTable.innerHTML = `
+                    <tr class="hover:bg-gray-800/50 transition">
+                        <td class="stat-cell text-left pl-4 font-bold text-white">${tName}</td>
+                        <td class="stat-cell font-mono">${teamStats.pj}</td>
+                        <td class="stat-cell text-success font-bold">${teamStats.pg}</td>
+                        <td class="stat-cell text-yellow-500 font-bold">${teamStats.pe}</td>
+                        <td class="stat-cell text-red-500 font-bold">${teamStats.pp}</td>
+                        <td class="stat-cell text-gray-400">${totalGF}</td>
+                        <td class="stat-cell text-gray-400">${totalGC}</td>
+                        <td class="stat-cell ${diffClass} font-bold">${diff > 0 ? '+'+diff : diff}</td>
+                        <td class="stat-cell text-primary font-bold text-lg">${teamStats.pts}</td>
+                    </tr>
+                `;
+                
+                // Update Performance Bar
+                const totalPlayed = teamStats.pj || 1; // avoid div by zero
+                document.getElementById('barWins').style.width = ((teamStats.pg / totalPlayed) * 100) + '%';
+                document.getElementById('barDraws').style.width = ((teamStats.pe / totalPlayed) * 100) + '%';
+                document.getElementById('barLosses').style.width = ((teamStats.pp / totalPlayed) * 100) + '%';
+            }
 
             const table = document.getElementById('topScorersTable');
             if(table) {
@@ -976,7 +1068,8 @@
             try {
                 const gf = parseInt(document.getElementById('gf').value); const gc = parseInt(document.getElementById('gc').value); const editId = document.getElementById('editingMatchId').value; const refValue = parseFloat(document.getElementById('refPrice').value) || 0; const selectedIds = Object.keys(matchSelection).filter(k => matchSelection[k].selected);
                 if(selectedIds.length === 0) return window.showToast('Selecciona al menos 1 jugador', true);
-                let result = 'Derrota'; let points = 0; if(gf > gc) { result = 'Victoria'; points = 3; } else if (gf === gc) { result = 'Empate'; points = 1; }
+                // *** CAMBIO APLICADO AQUÍ: 2 PUNTOS POR VICTORIA ***
+                let result = 'Derrota'; let points = 0; if(gf > gc) { result = 'Victoria'; points = 2; } else if (gf === gc) { result = 'Empate'; points = 1; }
                 const playerDetailsMap = {}; selectedIds.forEach(pid => { playerDetailsMap[pid] = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 }; });
                 const matchObj = { id: editId || crypto.randomUUID(), date: new Date().toISOString(), goalsScored: gf, goalsConceded: gc, yellowCards: parseInt(document.getElementById('yc').value)||0, blueCards: parseInt(document.getElementById('bc').value)||0, redCards: parseInt(document.getElementById('rc').value)||0, refereeValue: refValue, presentPlayers: selectedIds, refereePayments: matchSelection, playerDetails: playerDetailsMap, result, points };
                 let newMatches = [...(tournamentData.matches || [])];
