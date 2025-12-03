@@ -67,6 +67,74 @@
         /* Table Styles */
         .stat-header { @apply text-[10px] uppercase text-gray-500 font-bold tracking-wider pb-2 text-center; }
         .stat-cell { @apply py-3 text-center text-sm border-b border-gray-800; }
+        
+        /* Mejoras para móviles */
+        @media (max-width: 768px) {
+            .stat-cell {
+                font-size: 12px;
+                padding: 8px 4px;
+            }
+            
+            .player-node {
+                width: 36px;
+                height: 36px;
+                font-size: 10px;
+            }
+            
+            .glass {
+                margin: 4px;
+                padding: 12px;
+            }
+            
+            /* Botones más grandes para toque */
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Scroll horizontal para tablas */
+            .overflow-x-auto {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Focus styles for keyboard navigation */
+        *:focus {
+            outline: 2px solid #F59E0B;
+            outline-offset: 2px;
+        }
+        
+        button:focus,
+        input:focus,
+        select:focus {
+            outline: 2px solid #F59E0B;
+            outline-offset: 2px;
+        }
+        
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden text-sm">
@@ -94,13 +162,13 @@
         </div>
 
         <nav class="flex-1 px-2 space-y-1 overflow-y-auto">
-            <button id="nav-dashboard" onclick="window.showView('dashboard')" class="nav-item active w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard</button>
-            <button id="nav-tactics" onclick="window.showView('tactics')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-clipboard-list w-5 text-center"></i> Pizarra Táctica</button>
-            <button id="nav-players" onclick="window.showView('players')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-users w-5 text-center"></i> Jugadores</button>
-            <button id="nav-matches" onclick="window.showView('matches')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-futbol w-5 text-center"></i> Partidos</button>
-            <button id="nav-stats" onclick="window.showView('stats')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-chart-simple w-5 text-center"></i> Estadísticas</button>
-            <button id="nav-finances" onclick="window.showView('finances')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-money-bill-wave w-5 text-center"></i> Finanzas</button>
-            <button id="nav-settings" onclick="window.showView('settings')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition"><i class="fa-solid fa-gear w-5 text-center"></i> Configuración</button>
+            <button id="nav-dashboard" onclick="window.showView('dashboard')" class="nav-item active w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition" aria-label="Dashboard"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard</button>
+            <button id="nav-tactics" onclick="window.showView('tactics')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition" aria-label="Pizarra Táctica"><i class="fa-solid fa-clipboard-list w-5 text-center"></i> Pizarra Táctica</button>
+            <button id="nav-players" onclick="window.showView('players')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition" aria-label="Jugadores"><i class="fa-solid fa-users w-5 text-center"></i> Jugadores</button>
+            <button id="nav-matches" onclick="window.showView('matches')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition" aria-label="Partidos"><i class="fa-solid fa-futbol w-5 text-center"></i> Partidos</button>
+            <button id="nav-stats" onclick="window.showView('stats')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition" aria-label="Estadísticas"><i class="fa-solid fa-chart-simple w-5 text-center"></i> Estadísticas</button>
+            <button id="nav-finances" onclick="window.showView('finances')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition" aria-label="Finanzas"><i class="fa-solid fa-money-bill-wave w-5 text-center"></i> Finanzas</button>
+            <button id="nav-settings" onclick="window.showView('settings')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition" aria-label="Configuración"><i class="fa-solid fa-gear w-5 text-center"></i> Configuración</button>
         </nav>
         <div class="p-4"><div id="connectionStatus" class="text-xs text-center text-gray-500 bg-gray-900 py-2 rounded border border-gray-800"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Iniciando...</div></div>
     </aside>
@@ -108,7 +176,7 @@
     <!-- MOBILE HEADER -->
     <div class="md:hidden fixed top-0 w-full bg-surface z-50 flex justify-between items-center p-4 border-b border-gray-800 shadow-lg">
         <div class="flex items-center gap-2"><i class="fa-solid fa-helmet-safety text-primary"></i><div><span class="font-bold text-white block leading-none text-xs">CONSTRU-SANTAMARIA</span><div id="mobileTournamentBadge" class="text-[10px] text-primary font-bold mt-0.5">CARGANDO...</div></div></div>
-        <button onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute'); document.querySelector('aside').classList.toggle('z-50'); document.querySelector('aside').classList.toggle('h-full');" class="text-white text-xl"><i class="fa-solid fa-bars"></i></button>
+        <button onclick="document.querySelector('aside').classList.toggle('hidden'); document.querySelector('aside').classList.toggle('absolute'); document.querySelector('aside').classList.toggle('z-50'); document.querySelector('aside').classList.toggle('h-full');" class="text-white text-xl" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -246,8 +314,8 @@
 
         <!-- VISTA JUGADORES -->
         <div id="view-players" class="p-6 max-w-6xl mx-auto hidden fade-in-up">
-             <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white">Plantilla</h2><button onclick="window.openPlayerModal()" class="bg-primary hover:bg-amber-600 text-dark px-4 py-2 rounded-lg font-bold transition shadow-lg shadow-amber-900/20"><i class="fa-solid fa-plus mr-2"></i> Nuevo</button></div>
-             <div class="glass rounded-2xl p-4 mb-6 sticky top-0 z-10 backdrop-blur-xl"><input type="text" id="searchPlayer" placeholder="Buscar..." class="w-full bg-dark border border-gray-700 rounded-lg pl-4 py-3 text-white focus:border-primary focus:outline-none transition" onkeyup="window.renderPlayers()"></div>
+             <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white">Plantilla</h2><button onclick="window.openPlayerModal()" class="bg-primary hover:bg-amber-600 text-dark px-4 py-2 rounded-lg font-bold transition shadow-lg shadow-amber-900/20" aria-label="Nuevo jugador"><i class="fa-solid fa-plus mr-2"></i> Nuevo</button></div>
+             <div class="glass rounded-2xl p-4 mb-6 sticky top-0 z-10 backdrop-blur-xl"><input type="text" id="searchPlayer" placeholder="Buscar..." class="w-full bg-dark border border-gray-700 rounded-lg pl-4 py-3 text-white focus:border-primary focus:outline-none transition" onkeyup="window.renderPlayers()" aria-label="Buscar jugador"></div>
              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="playersGrid"></div>
         </div>
 
@@ -257,15 +325,15 @@
             <div class="glass rounded-2xl p-6 mb-8 border-t-4 border-primary" id="matchFormCard">
                 <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-white text-lg" id="matchFormTitle">Registrar Resultado</h3><button onclick="window.resetMatchForm()" class="text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1 rounded-full">Limpiar</button></div>
                 <div class="flex items-center justify-center gap-4 md:gap-8 mb-8">
-                    <div class="text-center"><div class="text-[10px] md:text-xs text-primary mb-2 font-bold tracking-wider">CONSTRU</div><input type="number" id="gf" class="w-16 h-16 md:w-20 md:h-20 text-3xl md:text-4xl font-bold text-center bg-dark border border-gray-700 rounded-xl text-success focus:outline-none" value="0" min="0"></div>
+                    <div class="text-center"><div class="text-[10px] md:text-xs text-primary mb-2 font-bold tracking-wider">CONSTRU</div><input type="number" id="gf" class="w-16 h-16 md:w-20 md:h-20 text-3xl md:text-4xl font-bold text-center bg-dark border border-gray-700 rounded-xl text-success focus:outline-none" value="0" min="0" aria-label="Goles a favor"></div>
                     <span class="text-xl md:text-2xl font-bold text-gray-600">VS</span>
-                    <div class="text-center"><div class="text-[10px] md:text-xs text-gray-400 mb-2 font-bold tracking-wider">RIVAL</div><input type="number" id="gc" class="w-16 h-16 md:w-20 md:h-20 text-3xl md:text-4xl font-bold text-center bg-dark border border-gray-700 rounded-xl text-danger focus:outline-none" value="0" min="0"></div>
+                    <div class="text-center"><div class="text-[10px] md:text-xs text-gray-400 mb-2 font-bold tracking-wider">RIVAL</div><input type="number" id="gc" class="w-16 h-16 md:w-20 md:h-20 text-3xl md:text-4xl font-bold text-center bg-dark border border-gray-700 rounded-xl text-danger focus:outline-none" value="0" min="0" aria-label="Goles en contra"></div>
                 </div>
-                <div class="mb-6"><label class="block text-xs text-gray-400 mb-1 font-bold uppercase">Costo Arbitraje Total</label><input type="number" id="refPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white font-mono text-primary text-lg" placeholder="$" oninput="window.calcRef()"></div>
+                <div class="mb-6"><label class="block text-xs text-gray-400 mb-1 font-bold uppercase">Costo Arbitraje Total</label><input type="number" id="refPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white font-mono text-primary text-lg" placeholder="$" oninput="window.calcRef()" aria-label="Costo arbitraje"></div>
                 <div class="grid grid-cols-3 gap-2 mb-6 text-center">
-                    <div><label class="text-[10px] text-yellow-500 font-bold">AMARILLAS</label><input id="yc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
-                    <div><label class="text-[10px] text-blue-400 font-bold">AZULES</label><input id="bc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
-                    <div><label class="text-[10px] text-red-500 font-bold">ROJAS</label><input id="rc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0"></div>
+                    <div><label class="text-[10px] text-yellow-500 font-bold">AMARILLAS</label><input id="yc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0" aria-label="Tarjetas amarillas"></div>
+                    <div><label class="text-[10px] text-blue-400 font-bold">AZULES</label><input id="bc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0" aria-label="Tarjetas azules"></div>
+                    <div><label class="text-[10px] text-red-500 font-bold">ROJAS</label><input id="rc" type="number" class="w-full bg-dark border border-gray-700 rounded text-center text-white" value="0" aria-label="Tarjetas rojas"></div>
                 </div>
                 <div class="bg-dark/50 rounded-xl p-4 border border-gray-700/50 mb-6">
                     <div class="flex justify-between items-center mb-4"><span class="text-sm font-bold text-gray-300 flex items-center gap-2">Convocatoria</span><span class="text-xs text-primary bg-primary/10 px-2 py-1 rounded" id="convocadosCount">0 seleccionados</span></div>
@@ -288,7 +356,7 @@
             <h2 class="text-2xl font-bold text-white mb-6">Control Financiero</h2>
             <div class="glass rounded-2xl p-6 mb-6">
                 <h3 class="text-lg font-bold text-white mb-4">Registrar Abono</h3>
-                <div class="flex flex-col md:flex-row gap-4 items-end"><div class="flex-1 w-full"><label class="block text-xs text-gray-400 mb-1">Jugador</label><select id="payPlayerSelect" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none"></select></div><div class="w-full md:w-48"><label class="block text-xs text-gray-400 mb-1">Monto</label><input type="number" id="payAmount" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none" placeholder="$"></div><button onclick="window.addPayment()" class="w-full md:w-auto bg-success hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-medium transition">Registrar</button></div>
+                <div class="flex flex-col md:flex-row gap-4 items-end"><div class="flex-1 w-full"><label class="block text-xs text-gray-400 mb-1">Jugador</label><select id="payPlayerSelect" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none"></select></div><div class="w-full md:w-48"><label class="block text-xs text-gray-400 mb-1">Monto</label><input type="number" id="payAmount" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none" placeholder="$" aria-label="Monto del pago"></div><button onclick="window.addPayment()" class="w-full md:w-auto bg-success hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-medium transition">Registrar</button></div>
             </div>
             <div class="glass rounded-2xl p-6 overflow-x-auto"><table class="w-full text-left text-sm text-gray-300"><thead class="text-xs uppercase text-gray-500 border-b border-gray-700"><tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-right">Costo Insc.</th><th class="pb-3 text-right">Abonado</th><th class="pb-3 text-right">Deuda Insc.</th><th class="pb-3 text-right text-danger font-bold">Deuda Multas</th><th class="pb-3 text-right">Total Deuda</th><th class="pb-3 text-center">Acción</th></tr></thead><tbody id="financesTableBody" class="divide-y divide-gray-800"></tbody></table></div>
         </div>
@@ -304,16 +372,19 @@
     </main>
 
     <!-- MODALES -->
-    <div id="playerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl"><button onclick="window.closeModal('playerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-4" id="playerModalTitle">Nuevo Jugador</h3><input type="hidden" id="editPlayerId"><div class="space-y-4"><div><label class="block text-xs text-gray-400 mb-1">Nombre</label><input type="text" id="playerModalName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><div><label class="block text-xs text-gray-400 mb-1">Dorsal</label><input type="number" id="playerModalNum" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><button onclick="window.savePlayerForm()" class="w-full bg-primary hover:bg-amber-600 text-dark py-2 rounded-lg font-bold mt-2">Guardar</button></div></div></div>
-    <div id="playerStatsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[80] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl h-[80vh] flex flex-col"><div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center"><h3 class="font-bold text-white">Estadísticas Individuales</h3><button onclick="window.closeModal('playerStatsModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-4 flex-1 overflow-y-auto" id="playerStatsInputs"></div><div class="p-4 bg-dark border-t border-gray-700"><button onclick="window.closeModal('playerStatsModal'); window.renderMatchSelector();" class="w-full bg-success hover:bg-emerald-600 text-white py-3 rounded-lg font-bold">Confirmar y Volver</button></div></div></div>
-    <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl h-[500px] flex flex-col"><button onclick="window.closeModal('historyModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-1" id="historyModalTitle">Historial</h3><div class="flex-1 overflow-y-auto pr-2" id="historyList"></div></div></div>
-    <div id="matchDetailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl overflow-hidden"><div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center"><h3 class="font-bold text-white">Detalles del Partido</h3><button onclick="window.closeModal('matchDetailModal')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 max-h-[70vh] overflow-y-auto"><div class="flex justify-center items-center mb-6 text-center"><div><div class="text-4xl font-bold text-white" id="mdScore"></div><div class="text-xs text-gray-500 mt-1" id="mdDate"></div></div></div><div class="grid grid-cols-3 gap-2 text-center mb-6 bg-gray-800/50 p-3 rounded-xl"><div><div class="text-xs text-yellow-500 font-bold">Ama</div><div id="mdYC" class="text-white font-mono">0</div></div><div><div class="text-xs text-blue-400 font-bold">Azul</div><div id="mdBC" class="text-white font-mono">0</div></div><div><div class="text-xs text-red-500 font-bold">Roja</div><div id="mdRC" class="text-white font-mono">0</div></div></div><div class="space-y-2" id="mdPlayerList"></div><div class="mt-6 pt-4 border-t border-gray-700 flex justify-between items-center text-sm"><span class="text-gray-400">Costo Total Arbitraje:</span><span class="text-white font-bold" id="mdRefTotal">$0</span></div></div></div></div>
+    <div id="playerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl"><button onclick="window.closeModal('playerModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Cerrar modal"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-4" id="playerModalTitle">Nuevo Jugador</h3><input type="hidden" id="editPlayerId"><div class="space-y-4"><div><label class="block text-xs text-gray-400 mb-1">Nombre</label><input type="text" id="playerModalName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><div><label class="block text-xs text-gray-400 mb-1">Dorsal</label><input type="number" id="playerModalNum" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"></div><button onclick="window.savePlayerForm()" class="w-full bg-primary hover:bg-amber-600 text-dark py-2 rounded-lg font-bold mt-2">Guardar</button></div></div></div>
+    <div id="playerStatsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[80] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl h-[80vh] flex flex-col"><div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center"><h3 class="font-bold text-white">Estadísticas Individuales</h3><button onclick="window.closeModal('playerStatsModal')" class="text-gray-400 hover:text-white" aria-label="Cerrar modal"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-4 flex-1 overflow-y-auto" id="playerStatsInputs"></div><div class="p-4 bg-dark border-t border-gray-700"><button onclick="window.closeModal('playerStatsModal'); window.renderMatchSelector();" class="w-full bg-success hover:bg-emerald-600 text-white py-3 rounded-lg font-bold">Confirmar y Volver</button></div></div></div>
+    <div id="historyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl h-[500px] flex flex-col"><button onclick="window.closeModal('historyModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white" aria-label="Cerrar modal"><i class="fa-solid fa-xmark text-xl"></i></button><h3 class="text-xl font-bold text-white mb-1" id="historyModalTitle">Historial</h3><div class="flex-1 overflow-y-auto pr-2" id="historyList"></div></div></div>
+    <div id="matchDetailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-lg p-0 relative shadow-2xl overflow-hidden"><div class="bg-dark p-4 border-b border-gray-700 flex justify-between items-center"><h3 class="font-bold text-white">Detalles del Partido</h3><button onclick="window.closeModal('matchDetailModal')" class="text-gray-400 hover:text-white" aria-label="Cerrar modal"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="p-6 max-h-[70vh] overflow-y-auto"><div class="flex justify-center items-center mb-6 text-center"><div><div class="text-4xl font-bold text-white" id="mdScore"></div><div class="text-xs text-gray-500 mt-1" id="mdDate"></div></div></div><div class="grid grid-cols-3 gap-2 text-center mb-6 bg-gray-800/50 p-3 rounded-xl"><div><div class="text-xs text-yellow-500 font-bold">Ama</div><div id="mdYC" class="text-white font-mono">0</div></div><div><div class="text-xs text-blue-400 font-bold">Azul</div><div id="mdBC" class="text-white font-mono">0</div></div><div><div class="text-xs text-red-500 font-bold">Roja</div><div id="mdRC" class="text-white font-mono">0</div></div></div><div class="space-y-2" id="mdPlayerList"></div><div class="mt-6 pt-4 border-t border-gray-700 flex justify-between items-center text-sm"><span class="text-gray-400">Costo Total Arbitraje:</span><span class="text-white font-bold" id="mdRefTotal">$0</span></div></div></div></div>
     <div id="playerPickModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden z-[90] flex items-center justify-center p-4"><div class="bg-surface border border-gray-700 rounded-2xl w-full max-w-xs p-4"><h3 class="text-center text-white font-bold mb-4">Seleccionar Jugador</h3><div id="playerPickList" class="space-y-2 max-h-60 overflow-y-auto"></div><button onclick="window.closeModal('playerPickModal')" class="w-full mt-4 bg-gray-700 text-white py-2 rounded">Cancelar</button></div></div>
     <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-surface border border-gray-700 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 opacity-0 pointer-events-none transition-opacity duration-300 z-[70]"><i class="fa-solid fa-info-circle text-primary"></i><span id="toastMsg">Mensaje</span></div>
+    
+    <!-- Screen reader notifications -->
+    <div aria-live="polite" id="notifications" class="sr-only"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, query, where, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, query, where, getDoc, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -344,6 +415,238 @@
         let currentLineup = {};
         let activePosIndex = null;
         let charts = {};
+        
+        // Mejora: Gestión de listeners
+        const listeners = new Map();
+        let renderTimeout;
+
+        // Mejora: Cache Manager
+        class CacheManager {
+            static set(key, data, ttl = 300000) { // 5 minutos default
+                const item = {
+                    data,
+                    timestamp: Date.now(),
+                    ttl
+                };
+                localStorage.setItem(key, JSON.stringify(item));
+            }
+            
+            static get(key) {
+                const item = localStorage.getItem(key);
+                if (!item) return null;
+                
+                const parsed = JSON.parse(item);
+                if (Date.now() - parsed.timestamp > parsed.ttl) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                return parsed.data;
+            }
+            
+            static clear() {
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('crm_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+            }
+        }
+
+        // Mejora: Error Handler
+        class ErrorHandler {
+            static handle(error, context) {
+                console.error(`Error in ${context}:`, error);
+                
+                let message = 'Error inesperado. Intente nuevamente.';
+                let type = 'error';
+                
+                if (error.code === 'unavailable') {
+                    message = 'Sin conexión. Trabajando en modo offline.';
+                    type = 'warning';
+                } else if (error.code === 'permission-denied') {
+                    message = 'No tienes permisos para esta acción.';
+                    type = 'error';
+                } else if (error.code === 'not-found') {
+                    message = 'Recurso no encontrado.';
+                    type = 'error';
+                }
+                
+                UIManager.showNotification(message, type);
+                
+                // Actualizar notificaciones para screen readers
+                const notifications = document.getElementById('notifications');
+                if (notifications) {
+                    notifications.textContent = message;
+                }
+            }
+        }
+
+        // Mejora: Safe Async Wrapper
+        async function safeAsync(operation, context) {
+            try {
+                return await operation();
+            } catch (error) {
+                ErrorHandler.handle(error, context);
+                return null;
+            }
+        }
+
+        // Mejora: Debounce para renderizado
+        function debouncedRender() {
+            clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => window.renderAll(), 100);
+        }
+
+        // Mejora: Cleanup de listeners
+        function cleanupListeners() {
+            listeners.forEach((unsubscribe, key) => {
+                unsubscribe();
+                listeners.delete(key);
+            });
+        }
+
+        // Mejora: Modularización - Firestore Service
+        const FirestoreService = {
+            async getTournaments() {
+                const cacheKey = 'crm_tournaments';
+                let tournaments = CacheManager.get(cacheKey);
+                
+                if (!tournaments) {
+                    const found = [];
+                    
+                    const qRoot = query(collection(db, "tournaments"));
+                    const snapRoot = await getDocs(qRoot);
+                    snapRoot.forEach(d => found.push({id: d.id, ...d.data(), sourceColl: "tournaments", playerColl: "players"}));
+
+                    try {
+                        const qLegacy = query(collection(db, "torneos"));
+                        const snapLegacy = await getDocs(qLegacy);
+                        snapLegacy.forEach(d => found.push({id: d.id, ...d.data(), sourceColl: "torneos", playerColl: "jugadores"}));
+                    } catch(e) { }
+                    
+                    tournaments = found;
+                    CacheManager.set(cacheKey, tournaments);
+                }
+                
+                return tournaments;
+            },
+
+            getPlayersQuery(tournamentId, collectionName) {
+                return query(
+                    collection(db, collectionName), 
+                    where("tournament", "==", tournamentId),
+                    orderBy("number"),
+                    limit(50)
+                );
+            },
+
+            async saveMatch(matchData, tournamentId, collectionName) {
+                const tournamentRef = doc(collection(db, collectionName), tournamentId);
+                await updateDoc(tournamentRef, { matches: matchData });
+            },
+
+            async updatePlayer(playerId, data, collectionName) {
+                const playerRef = doc(collection(db, collectionName), playerId);
+                await updateDoc(playerRef, data);
+            },
+
+            async createPlayer(data, collectionName) {
+                const playerRef = doc(collection(db, collectionName));
+                await setDoc(playerRef, data);
+                return playerRef.id;
+            },
+
+            async deletePlayer(playerId, collectionName) {
+                const playerRef = doc(collection(db, collectionName), playerId);
+                await deleteDoc(playerRef);
+            }
+        };
+
+        // Mejora: UI Manager
+        const UIManager = {
+            showView(viewName) {
+                document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
+                const target = document.getElementById('view-' + viewName);
+                if(target) target.classList.remove('hidden');
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active', 'text-white'));
+                const activeBtn = document.getElementById('nav-' + viewName);
+                if(activeBtn) activeBtn.classList.add('active', 'text-white');
+                
+                if(viewName === 'tactics') window.initTactics();
+                if(viewName === 'stats') setTimeout(window.renderStatsCharts, 100);
+            },
+
+            showNotification(message, type = 'info') {
+                const el = document.getElementById('toast'); 
+                if(el) {
+                    document.getElementById('toastMsg').textContent = message;
+                    el.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-opacity duration-300 z-[70] ${type === 'error' ? 'bg-red-900/90 border-red-500 text-white' : type === 'warning' ? 'bg-yellow-900/90 border-yellow-500 text-white' : 'bg-surface border-gray-700 text-white'} opacity-100`;
+                    setTimeout(() => el.classList.add('opacity-0'), 3000);
+                }
+            },
+
+            closeModal(id) {
+                document.getElementById(id).classList.add('hidden');
+            },
+
+            showLoadingState(elementId, show = true) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    if (show) {
+                        element.innerHTML = '<div class="skeleton h-4 w-full mb-2"></div><div class="skeleton h-4 w-3/4"></div>';
+                    } else {
+                        element.innerHTML = '';
+                    }
+                }
+            }
+        };
+
+        // Mejora: Stats Calculator
+        const StatsCalculator = {
+            calculateTeamStats(matches) {
+                let teamStats = { pj: 0, pg: 0, pe: 0, pp: 0, pts: 0 };
+                let totalGF = 0, totalGC = 0;
+                
+                matches.forEach(m => {
+                    totalGF += (m.goalsScored || 0);
+                    totalGC += (m.goalsConceded || 0);
+                    
+                    if (m.result) {
+                        teamStats.pj++;
+                        if (m.result === 'Victoria') { 
+                            teamStats.pg++; 
+                            teamStats.pts += 2; // 2 puntos por victoria
+                        } else if (m.result === 'Empate') { 
+                            teamStats.pe++; 
+                            teamStats.pts += 1; 
+                        } else if (m.result === 'Derrota') { 
+                            teamStats.pp++; 
+                        }
+                    }
+                });
+                
+                return { ...teamStats, totalGF, totalGC };
+            },
+
+            calculatePlayerStats(player, matches) {
+                let stats = { pj:0, g:0, y:0, b:0, r:0 };
+                
+                matches.forEach(m => {
+                    if(m.playerDetails && m.playerDetails[player.id]) {
+                        const details = m.playerDetails[player.id];
+                        stats.pj++;
+                        stats.g += (details.goals || 0);
+                        stats.y += (details.yellow || 0);
+                        stats.b += (details.blue || 0);
+                        stats.r += (details.red || 0);
+                    } else if (m.presentPlayers && m.presentPlayers.includes(player.id)) {
+                        stats.pj++;
+                    }
+                });
+                
+                return stats;
+            }
+        };
 
         const safeText = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
         const safeVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
@@ -352,31 +655,17 @@
             currentTournament = tId;
             currentTournamentCollection = tColl;
             currentPlayersCollection = pColl;
+            
+            // Limpiar cache anterior
+            CacheManager.clear();
+            
             loadData();
             loadTournamentsList(); 
         };
 
-        window.showView = (viewName) => {
-            document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
-            const target = document.getElementById('view-' + viewName);
-            if(target) target.classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active', 'text-white'));
-            const activeBtn = document.getElementById('nav-' + viewName);
-            if(activeBtn) activeBtn.classList.add('active', 'text-white');
-            
-            if(viewName === 'tactics') window.initTactics();
-            if(viewName === 'stats') setTimeout(window.renderStatsCharts, 100);
-        };
-
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-        window.showToast = (msg, isError = false) => {
-            const el = document.getElementById('toast'); 
-            if(el) {
-                document.getElementById('toastMsg').textContent = msg;
-                el.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-opacity duration-300 z-[70] ${isError ? 'bg-red-900/90 border-red-500 text-white' : 'bg-surface border-gray-700 text-white'} opacity-100`;
-                setTimeout(() => el.classList.add('opacity-0'), 3000);
-            }
-        };
+        window.showView = UIManager.showView;
+        window.closeModal = UIManager.closeModal;
+        window.showToast = UIManager.showNotification;
 
         // --- DATA LOGIC ---
         async function loadTournamentsList() {
@@ -384,20 +673,11 @@
                 const container = document.getElementById('tournamentButtons');
                 if(container) container.innerHTML = '<div class="text-xs text-gray-500 text-center py-2"><i class="fa-solid fa-spinner fa-spin"></i> Buscando datos...</div>';
 
-                const found = [];
-                const qRoot = query(collection(db, "tournaments"));
-                const snapRoot = await getDocs(qRoot);
-                snapRoot.forEach(d => found.push({id: d.id, ...d.data(), sourceColl: "tournaments", playerColl: "players"}));
-
-                try {
-                    const qLegacy = query(collection(db, "torneos"));
-                    const snapLegacy = await getDocs(qLegacy);
-                    snapLegacy.forEach(d => found.push({id: d.id, ...d.data(), sourceColl: "torneos", playerColl: "jugadores"}));
-                } catch(e) { }
-
+                const found = await safeAsync(() => FirestoreService.getTournaments(), 'loadTournamentsList');
+                
                 if(container) {
                     container.innerHTML = '';
-                    if (found.length === 0) {
+                    if (!found || found.length === 0) {
                         container.innerHTML = '<div class="text-xs text-red-400 text-center p-2">No se encontraron datos.</div>';
                         return;
                     }
@@ -414,22 +694,29 @@
                     });
                 }
 
-                if (!currentTournament && found.length > 0) {
+                if (!currentTournament && found && found.length > 0) {
                     window.selectTournament(found[0].id, found[0].sourceColl, found[0].playerColl);
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) { ErrorHandler.handle(e, 'loadTournamentsList'); }
         }
 
         function loadData() {
             if(!currentTournament) return;
 
-            const q = query(collection(db, currentPlayersCollection), where("tournament", "==", currentTournament));
-            onSnapshot(q, (snapshot) => {
-                players = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => a.number - b.number);
-                window.renderAll();
-            });
+            // Limpiar listeners anteriores
+            cleanupListeners();
 
-            onSnapshot(doc(collection(db, currentTournamentCollection), currentTournament), (docSnap) => {
+            // Cargar jugadores con optimización
+            const q = FirestoreService.getPlayersQuery(currentTournament, currentPlayersCollection);
+            const unsubscribePlayers = onSnapshot(q, (snapshot) => {
+                players = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => a.number - b.number);
+                debouncedRender();
+            }, (error) => ErrorHandler.handle(error, 'loadData-players'));
+            
+            listeners.set('players', unsubscribePlayers);
+
+            // Cargar datos del torneo
+            const unsubscribeTournament = onSnapshot(doc(collection(db, currentTournamentCollection), currentTournament), (docSnap) => {
                 if(docSnap.exists()) {
                     tournamentData = docSnap.data();
                     const name = tournamentData.name || "Torneo";
@@ -443,45 +730,51 @@
                          const fixedMatches = tournamentData.matches.map(m => (!m.id ? {...m, id: crypto.randomUUID()} : m));
                          updateDoc(docSnap.ref, { matches: fixedMatches });
                     }
-                    window.renderAll();
+                    debouncedRender();
                 }
-            });
+            }, (error) => ErrorHandler.handle(error, 'loadData-tournament'));
+            
+            listeners.set('tournament', unsubscribeTournament);
         }
 
         window.createOfficialTournament = async (name) => {
             const newId = "tourn_" + name.replace(/\s+/g, '_').toLowerCase();
-            await setDoc(doc(db, "tournaments", newId), { name: name, totalInscription: 0, matches: [], stats: {} });
-            loadTournamentsList();
-            window.showToast("Torneo creado en Raíz");
+            await safeAsync(async () => {
+                await setDoc(doc(db, "tournaments", newId), { name: name, totalInscription: 0, matches: [], stats: {} });
+                loadTournamentsList();
+                UIManager.showNotification("Torneo creado en Raíz");
+            }, 'createOfficialTournament');
         };
         
         window.deleteCurrentTournament = async () => {
             if(!currentTournament) return;
             if(!confirm("¿ELIMINAR TORNEO ACTUAL? SE BORRARÁ TODO.")) return;
-            try {
+            await safeAsync(async () => {
                 const q = query(collection(db, currentPlayersCollection), where("tournament", "==", currentTournament));
                 const snap = await getDocs(q);
                 const batchPromises = snap.docs.map(d => deleteDoc(d.ref));
                 await Promise.all(batchPromises);
                 await deleteDoc(doc(collection(db, currentTournamentCollection), currentTournament));
-                window.showToast("Torneo eliminado");
+                UIManager.showNotification("Torneo eliminado");
                 currentTournament = null;
                 loadTournamentsList(); 
-            } catch(e) { console.error(e); window.showToast("Error: " + e.message, true); }
+            }, 'deleteCurrentTournament');
         };
         
         window.purgeTrashTournaments = async () => {
             if(!confirm("¿Borrar torneos NO oficiales?")) return;
-            const snap = await getDocs(collection(db, "tournaments"));
-            const batchPromises = [];
-            snap.forEach(d => {
-                if(!OFFICIAL_TOURNAMENTS.includes(d.data().name)) {
-                    batchPromises.push(deleteDoc(d.ref));
-                }
-            });
-            await Promise.all(batchPromises);
-            window.showToast("Limpieza completada");
-            loadTournamentsList();
+            await safeAsync(async () => {
+                const snap = await getDocs(collection(db, "tournaments"));
+                const batchPromises = [];
+                snap.forEach(d => {
+                    if(!OFFICIAL_TOURNAMENTS.includes(d.data().name)) {
+                        batchPromises.push(deleteDoc(d.ref));
+                    }
+                });
+                await Promise.all(batchPromises);
+                UIManager.showNotification("Limpieza completada");
+                loadTournamentsList();
+            }, 'purgeTrashTournaments');
         };
 
         async function recalculateAllDebts() {
@@ -523,13 +816,9 @@
             if(!matches) return;
 
             // Destroy old charts
-            if(charts.results) charts.results.destroy();
-            if(charts.goals) charts.goals.destroy();
-            if(charts.cards) charts.cards.destroy();
-            if(charts.scorers) charts.scorers.destroy();
-            if(charts.attendance) charts.attendance.destroy();
-            if(charts.finance) charts.finance.destroy();
-            if(charts.goalsTrend) charts.goalsTrend.destroy();
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
 
             let wins=0, draws=0, losses=0;
             let gf=[], gc=[], labels=[];
@@ -1014,16 +1303,16 @@
         window.savePlayerForm = async () => {
             const id = document.getElementById('editPlayerId').value; const name = document.getElementById('playerModalName').value; const number = parseInt(document.getElementById('playerModalNum').value);
             if(!name || !number) return window.showToast("Faltan datos", true);
-            if(id) await updateDoc(doc(collection(db, currentPlayersCollection), id), { name, number });
-            else await setDoc(doc(collection(db, currentPlayersCollection)), { name, number, tournament: currentTournament, totalPaid: 0, payments: [], cardDebt: 0 });
+            if(id) await FirestoreService.updatePlayer(id, { name, number }, currentPlayersCollection);
+            else await FirestoreService.createPlayer({ name, number, tournament: currentTournament, totalPaid: 0, payments: [], cardDebt: 0 }, currentPlayersCollection);
             window.closeModal('playerModal'); setTimeout(() => window.autoRecalculateFees(), 500); window.showToast(id ? 'Actualizado' : 'Creado');
         };
-        window.deletePlayer = async (id) => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(collection(db, currentPlayersCollection), id)); window.showToast("Eliminado"); setTimeout(() => window.autoRecalculateFees(), 500); } };
+        window.deletePlayer = async (id) => { if(confirm("¿Eliminar?")) { await FirestoreService.deletePlayer(id, currentPlayersCollection); window.showToast("Eliminado"); setTimeout(() => window.autoRecalculateFees(), 500); } };
         window.addPayment = async () => {
             const id = document.getElementById('payPlayerSelect').value; const amount = parseFloat(document.getElementById('payAmount').value);
             if(!id || !amount) return window.showToast("Datos incompletos", true);
             const p = players.find(x => x.id === id); const newPay = { id: crypto.randomUUID(), date: new Date().toISOString(), amount };
-            await updateDoc(doc(collection(db, currentPlayersCollection), id), { totalPaid: (p.totalPaid||0) + amount, payments: [...(p.payments||[]), newPay] });
+            await FirestoreService.updatePlayer(id, { totalPaid: (p.totalPaid||0) + amount, payments: [...(p.payments||[]), newPay] }, currentPlayersCollection);
             document.getElementById('payAmount').value = ''; window.showToast('Pago registrado');
         };
         window.openPaymentHistory = (playerId) => {
@@ -1035,7 +1324,7 @@
         window.deletePayment = async (playerId, paymentId) => {
             if(!confirm("¿Borrar?")) return;
             const p = players.find(x => x.id === playerId); const newPayments = p.payments.filter(pay => pay.id !== paymentId); const newTotal = newPayments.reduce((sum, pay) => sum + pay.amount, 0);
-            await updateDoc(doc(collection(db, currentPlayersCollection), playerId), { totalPaid: newTotal, payments: newPayments });
+            await FirestoreService.updatePlayer(playerId, { totalPaid: newTotal, payments: newPayments }, currentPlayersCollection);
             p.payments = newPayments; p.totalPaid = newTotal; window.openPaymentHistory(playerId); window.showToast("Pago eliminado");
         };
         window.toggleMatchSelection = (id) => {
@@ -1058,7 +1347,7 @@
             selectedIds.forEach(pid => {
                 const p = players.find(x => x.id === pid); const stats = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 };
                 const row = document.createElement('div'); row.className = "flex items-center justify-between bg-gray-800/50 p-3 rounded-lg mb-2";
-                row.innerHTML = `<div class="w-1/3 font-bold text-gray-300 text-sm">${p.name}</div><div class="flex gap-3"><div class="flex flex-col items-center"><span class="text-[10px] text-success mb-1">Goles</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.goals}" onchange="window.updateStat('${pid}', 'goals', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-yellow-500 mb-1">Ama</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.yellow}" onchange="window.updateStat('${pid}', 'yellow', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-blue-400 mb-1">Azul</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.blue}" onchange="window.updateStat('${pid}', 'blue', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-red-500 mb-1">Roja</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.red}" onchange="window.updateStat('${pid}', 'red', this.value)"></div></div>`;
+                row.innerHTML = `<div class="w-1/3 font-bold text-gray-300 text-sm">${p.name}</div><div class="flex gap-3"><div class="flex flex-col items-center"><span class="text-[10px] text-success mb-1">Goles</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.goals}" onchange="window.updateStat('${pid}', 'goals', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-yellow-500 mb-1">Ama</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.yellow}" onchange="window.updateStat('${pid}', 'yellow', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-blue-400 mb-1">Azul</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.blue}" onchange="window.updateStat('${pid}', 'blue', this.value)"></div><div class="flex flex-col items-center"><span class="text-[10px] text-red-500 mb-1">Roja</span><input type="number" min="0" class="w-10 bg-dark border border-gray-600 rounded text-center text-white" value="${stats.red}" onchange="window.updateStat('${pid}', 'red', this.value)"></div></div></div>`;
                 container.appendChild(row);
             });
         };
@@ -1080,10 +1369,10 @@
                     let currentDebt = p.cardDebt || 0; const stats = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 };
                     if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); }
                     if (matchSelection[pid].paidFines) { currentDebt = 0; if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); } }
-                    batchUpdates.push(updateDoc(doc(collection(db, currentPlayersCollection), pid), { cardDebt: currentDebt }));
+                    batchUpdates.push(FirestoreService.updatePlayer(pid, { cardDebt: currentDebt }, currentPlayersCollection));
                 }
                 await Promise.all(batchUpdates);
-                await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches: newMatches });
+                await FirestoreService.saveMatch(newMatches, currentTournament, currentTournamentCollection);
                 await recalculateAllDebts();
                 window.resetMatchForm(); window.showToast('Partido guardado y deudas recalculadas');
             } catch(e) { console.error(e); window.showToast("Error: " + e.message, true); }
@@ -1106,6 +1395,7 @@
                 let statsHtml = '';
                 if(stats.goals) statsHtml += `<span class="ml-1 text-success">⚽${stats.goals}</span>`;
                 if(stats.yellow) statsHtml += `<span class="ml-1 text-yellow-500">🟨${stats.yellow}</span>`;
+                if(stats.blue) statsHtml += `<span class="ml-1 text-blue-400">🟦${stats.blue}</span>`;
                 if(stats.red) statsHtml += `<span class="ml-1 text-red-500">🟥${stats.red}</span>`;
                 return `<div class="flex justify-between items-center py-1 border-b border-gray-800/50"><div class="text-gray-300">${p.name} ${statsHtml}</div><span class="text-xs px-2 py-0.5 rounded ${payInfo.paidRef ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'}">${payInfo.paidRef ? 'PAGADO' : 'DEBE'}</span></div>`;
             }).join('');
@@ -1133,7 +1423,7 @@
             if (!matchId || matchId === 'undefined') { window.showToast("Error: ID inválido", true); return; }
             if(!confirm("¿Eliminar este partido definitivamente?")) return;
             const newMatches = tournamentData.matches.filter(m => String(m.id) !== String(matchId));
-            await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches: newMatches });
+            await FirestoreService.saveMatch(newMatches, currentTournament, currentTournamentCollection);
             await recalculateAllDebts();
             window.showToast("Partido eliminado correctamente");
         };
