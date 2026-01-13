@@ -1129,15 +1129,6 @@
                 const matchObj = { id: editId || crypto.randomUUID(), date: new Date().toISOString(), goalsScored: gf, goalsConceded: gc, yellowCards: parseInt(document.getElementById('yc').value)||0, blueCards: parseInt(document.getElementById('bc').value)||0, redCards: parseInt(document.getElementById('rc').value)||0, refereeValue: refValue, presentPlayers: selectedIds, refereePayments: matchSelection, playerDetails: playerDetailsMap, result, points };
                 let newMatches = [...(tournamentData.matches || [])];
                 if(editId) { const idx = newMatches.findIndex(m => m.id === editId); if(idx >= 0) newMatches[idx] = matchObj; } else { newMatches.push(matchObj); }
-                const batchUpdates = [];
-                for (const pid of selectedIds) {
-                    const p = players.find(x => x.id === pid); if(!p) continue;
-                    let currentDebt = p.cardDebt || 0; const stats = matchSelection[pid].stats || { goals:0, yellow:0, blue:0, red:0 };
-                    if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); }
-                    if (matchSelection[pid].paidFines) { currentDebt = 0; if (!editId) { if(stats.yellow) currentDebt += (stats.yellow * FINE_VALUES.yellow); if(stats.blue) currentDebt += (stats.blue * FINE_VALUES.blue); if(stats.red) currentDebt += (stats.red * FINE_VALUES.red); } }
-                    batchUpdates.push(updateDoc(doc(collection(db, currentPlayersCollection), pid), { cardDebt: currentDebt }));
-                }
-                await Promise.all(batchUpdates);
                 await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches: newMatches });
                 await recalculateAllDebts();
                 window.resetMatchForm(); window.showToast('Partido guardado y deudas recalculadas');
