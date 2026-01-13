@@ -331,11 +331,21 @@
         let currentLineup = {};
         let activePosIndex = null;
         let charts = {};
+        let unsubPlayers = null;
+        let unsubTournament = null;
 
         const safeText = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
         const safeVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
 
         window.selectTournament = (tId, tColl = "tournaments", pColl = "players") => {
+            if (typeof unsubPlayers === 'function') {
+                unsubPlayers();
+                unsubPlayers = null;
+            }
+            if (typeof unsubTournament === 'function') {
+                unsubTournament();
+                unsubTournament = null;
+            }
             currentTournament = tId;
             currentTournamentCollection = tColl;
             currentPlayersCollection = pColl;
@@ -411,12 +421,12 @@
             if(!currentTournament) return;
 
             const q = query(collection(db, currentPlayersCollection), where("tournament", "==", currentTournament));
-            onSnapshot(q, (snapshot) => {
+            unsubPlayers = onSnapshot(q, (snapshot) => {
                 players = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => a.number - b.number);
                 window.renderAll();
             });
 
-            onSnapshot(doc(collection(db, currentTournamentCollection), currentTournament), (docSnap) => {
+            unsubTournament = onSnapshot(doc(collection(db, currentTournamentCollection), currentTournament), (docSnap) => {
                 if(docSnap.exists()) {
                     tournamentData = docSnap.data();
                     const name = tournamentData.name || "Torneo";
