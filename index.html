@@ -489,8 +489,9 @@
                     fine += (stats.yellow || 0) * FINE_VALUES.yellow;
                     fine += (stats.blue || 0) * FINE_VALUES.blue;
                     fine += (stats.red || 0) * FINE_VALUES.red;
-                    playerDebts[pid] += fine;
-                    if (payments[pid] && payments[pid].paidFines) { playerDebts[pid] = 0; }
+                    if (!(payments[pid] && payments[pid].paidFines)) {
+                        playerDebts[pid] += fine;
+                    }
                 });
             });
 
