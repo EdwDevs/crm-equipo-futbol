@@ -274,7 +274,31 @@
             <h2 class="text-2xl font-bold text-white mb-6">Control Financiero</h2>
             <div class="glass rounded-2xl p-6 mb-6">
                 <h3 class="text-lg font-bold text-white mb-4">Registrar Abono</h3>
-                <div class="flex flex-col md:flex-row gap-4 items-end"><div class="flex-1 w-full"><label class="block text-xs text-gray-400 mb-1">Jugador</label><select id="payPlayerSelect" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none"></select></div><div class="w-full md:w-48"><label class="block text-xs text-gray-400 mb-1">Monto</label><input type="number" id="payAmount" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none" placeholder="$"></div><button onclick="window.addPayment()" class="w-full md:w-auto bg-success hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-medium transition">Registrar</button></div>
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs text-gray-400 mb-1">Jugador</label>
+                        <select id="payPlayerSelect" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none"></select>
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-xs text-gray-400 mb-1">Monto</label>
+                        <input type="number" id="payAmount" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none" placeholder="$">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-xs text-gray-400 mb-1">Tipo de pago</label>
+                        <select id="payTypeSelect" onchange="window.updatePaymentTypeUI()" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none">
+                            <option value="inscripcion">Inscripción</option>
+                            <option value="tarjeta">Tarjeta (multa)</option>
+                            <option value="arbitraje">Arbitraje</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-xs text-gray-400 mb-1">Partido (opcional)</label>
+                        <select id="payMatchSelect" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:border-primary outline-none"></select>
+                    </div>
+                    <div class="md:col-span-1">
+                        <button onclick="window.addPayment()" class="w-full bg-success hover:bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-medium transition">Registrar</button>
+                    </div>
+                </div>
             </div>
             <div class="glass rounded-2xl p-6 overflow-x-auto"><table class="w-full text-left text-sm text-gray-300"><thead class="text-xs uppercase text-gray-500 border-b border-gray-700"><tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-right">Costo Insc.</th><th class="pb-3 text-right">Abonado</th><th class="pb-3 text-right">Deuda Insc.</th><th class="pb-3 text-right text-danger font-bold">Deuda Multas</th><th class="pb-3 text-right">Total Deuda</th><th class="pb-3 text-center">Estado</th><th class="pb-3 text-center">Acción</th></tr></thead><tbody id="financesTableBody" class="divide-y divide-gray-800"></tbody></table></div>
         </div>
@@ -326,6 +350,11 @@
             return fine;
         };
         const formatCOP = (amount) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(amount);
+        const PAYMENT_TYPE_LABELS = {
+            inscripcion: 'Inscripción',
+            tarjeta: 'Tarjeta (multa)',
+            arbitraje: 'Arbitraje'
+        };
         const OFFICIAL_TOURNAMENTS = ["Interempresas anillo vial", "Intercompany HIC"];
         const FORMATIONS = { 5: [{ id: '1-2-1', name: '1-2-1 (Diamante)', pos: [[50, 85], [20, 50], [80, 50], [50, 20]] }, { id: '2-2', name: '2-2 (Cuadrado)', pos: [[30, 75], [70, 75], [30, 25], [70, 25]] }, { id: '3-1', name: '3-1 (Muro)', pos: [[50, 80], [20, 60], [80, 60], [50, 20]] }], 6: [{ id: '2-2-1', name: '2-2-1 (Equilibrio)', pos: [[30, 80], [70, 80], [20, 45], [80, 45], [50, 20]] }, { id: '3-1-1', name: '3-1-1 (Defensiva)', pos: [[50, 80], [20, 70], [80, 70], [50, 45], [50, 20]] }, { id: '2-1-2', name: '2-1-2 (Ofensiva)', pos: [[30, 80], [70, 80], [50, 50], [30, 20], [70, 20]] }, { id: '1-3-1', name: '1-3-1 (Posesión)', pos: [[50, 80], [20, 50], [50, 50], [80, 50], [50, 15]] }] };
 
@@ -488,14 +517,15 @@
             }
 
             players.forEach((p) => {
-                const { id, payments, totalPaid, cardDebt, tournament, ...rest } = p;
+                const { id, payments, totalPaid, cardDebt, finesCredit, tournament, ...rest } = p;
                 const playerRef = doc(collection(db, "players"));
                 batch.set(playerRef, {
                     ...rest,
                     tournament: newTournamentId,
                     payments: [],
                     totalPaid: 0,
-                    cardDebt: 0
+                    cardDebt: 0,
+                    finesCredit: 0
                 });
             });
 
@@ -860,8 +890,46 @@
         window.saveLineup = async () => { try { await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { savedLineup: currentLineup }); window.showToast("Alineación guardada"); } catch(e) { console.error(e); } };
 
         // --- RENDERIZADORES ---
+        const getMatchLabel = (matchId) => {
+            const match = (tournamentData.matches || []).find(m => String(m.id) === String(matchId));
+            if (!match) return 'Sin partido';
+            const dateLabel = new Date(match.date).toLocaleDateString();
+            return `${dateLabel} - ${match.goalsScored ?? 0}-${match.goalsConceded ?? 0}`;
+        };
+
         window.renderAll = () => {
-            window.renderPlayers(); window.renderMatchSelector(); window.renderMatchesList(); window.renderFinances(); window.renderDashboard(); window.renderStatsTable();
+            window.renderPlayers(); window.renderMatchSelector(); window.renderMatchesList(); window.renderPaymentMatchSelect(); window.renderFinances(); window.renderDashboard(); window.renderStatsTable(); window.updatePaymentTypeUI();
+        };
+
+        window.renderPaymentMatchSelect = () => {
+            const matchSelect = document.getElementById('payMatchSelect');
+            if (!matchSelect) return;
+            const matches = tournamentData.matches || [];
+            matchSelect.innerHTML = '<option value="">Sin partido</option>';
+            matches.forEach((m) => {
+                const option = document.createElement('option');
+                const dateLabel = new Date(m.date).toLocaleDateString();
+                option.value = m.id;
+                option.textContent = `${dateLabel} - ${m.goalsScored ?? 0}-${m.goalsConceded ?? 0}`;
+                matchSelect.appendChild(option);
+            });
+        };
+
+        window.updatePaymentTypeUI = () => {
+            const typeSelect = document.getElementById('payTypeSelect');
+            const matchSelect = document.getElementById('payMatchSelect');
+            if (!typeSelect || !matchSelect) return;
+            const type = typeSelect.value;
+            const requiresMatch = type === 'arbitraje';
+            matchSelect.disabled = type === 'inscripcion';
+            matchSelect.classList.toggle('opacity-60', matchSelect.disabled);
+            matchSelect.title = matchSelect.disabled ? 'No aplica para inscripción' : '';
+            if (type === 'inscripcion') {
+                matchSelect.value = '';
+            }
+            if (requiresMatch && !matchSelect.value && matchSelect.options.length > 1) {
+                matchSelect.selectedIndex = 1;
+            }
         };
 
         window.renderPlayers = () => {
@@ -874,7 +942,7 @@
             if(sel) sel.innerHTML = '<option value="">Seleccionar Jugador...</option>';
             players.forEach(p => {
                 if(p.name.toLowerCase().includes(filter) || p.number.toString().includes(filter)) {
-                    const debt = p.cardDebt || 0;
+                    const debt = Math.max(0, (p.cardDebt || 0) - (p.finesCredit || 0));
                     const cardDebtHtml = debt > 0 ? `<div class="text-xs text-danger font-bold mt-1">Multas: ${formatCOP(debt)}</div>` : '';
                     const card = document.createElement('div');
                     card.className = 'glass p-4 rounded-xl border border-gray-800 hover:border-gray-600 transition group relative';
@@ -910,9 +978,12 @@
             if(!grid) return;
             grid.innerHTML = '';
             players.forEach(p => {
-                if(!matchSelection[p.id]) matchSelection[p.id] = { selected: false, paidRef: false, finesPaidAmount: 0, stats: { goals:0, yellow:0, blue:0, red:0 } };
+                if(!matchSelection[p.id]) matchSelection[p.id] = { selected: false, paidRef: false, refPaidAmount: 0, finesPaidAmount: 0, stats: { goals:0, yellow:0, blue:0, red:0 } };
                 const state = matchSelection[p.id];
                 if(!state.stats) state.stats = { goals:0, yellow:0, blue:0, red:0 };
+                if (state.refPaidAmount === undefined) {
+                    state.refPaidAmount = state.paidRef ? null : 0;
+                }
                 if (state.finesPaidAmount === undefined || state.finesPaidAmount === null) {
                     const legacyFine = state.paidFines ? calculateMatchFine(state.stats) : 0;
                     state.finesPaidAmount = legacyFine;
@@ -958,9 +1029,14 @@
             tbody.innerHTML = '';
             const cost = tournamentData.inscriptionPerPlayer || 0;
             players.forEach(p => {
-                const paid = p.totalPaid || 0; const debt = cost - paid; const totalDebt = Math.max(0, debt) + (p.cardDebt || 0); const status = totalDebt <= 0 ? '<span class="text-success text-xs bg-green-900/30 px-2 py-1 rounded">Al día</span>' : '<span class="text-warning text-xs bg-yellow-900/30 px-2 py-1 rounded">Pendiente</span>';
+                const paid = p.totalPaid || 0;
+                const debt = cost - paid;
+                const fineCredit = p.finesCredit || 0;
+                const finesDebt = Math.max(0, (p.cardDebt || 0) - fineCredit);
+                const totalDebt = Math.max(0, debt) + finesDebt;
+                const status = totalDebt <= 0 ? '<span class="text-success text-xs bg-green-900/30 px-2 py-1 rounded">Al día</span>' : '<span class="text-warning text-xs bg-yellow-900/30 px-2 py-1 rounded">Pendiente</span>';
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="py-3 pl-2 font-medium text-white">${p.name}</td><td class="py-3 text-right text-gray-400">${formatCOP(cost)}</td><td class="py-3 text-right text-success">${formatCOP(paid)}</td><td class="py-3 text-right ${debt > 0 ? 'text-danger font-bold' : 'text-gray-500'}">${formatCOP(Math.max(0, debt))}</td><td class="py-3 text-right text-danger font-bold">${p.cardDebt > 0 ? formatCOP(p.cardDebt) : '-'}</td><td class="py-3 text-right font-bold text-white">${formatCOP(totalDebt)}</td><td class="py-3 text-center">${status}</td><td class="py-3 text-center"><button onclick="window.openPaymentHistory('${p.id}')" class="text-xs bg-gray-700 hover:bg-secondary text-white px-3 py-1 rounded transition">Ver</button></td>`;
+                tr.innerHTML = `<td class="py-3 pl-2 font-medium text-white">${p.name}</td><td class="py-3 text-right text-gray-400">${formatCOP(cost)}</td><td class="py-3 text-right text-success">${formatCOP(paid)}</td><td class="py-3 text-right ${debt > 0 ? 'text-danger font-bold' : 'text-gray-500'}">${formatCOP(Math.max(0, debt))}</td><td class="py-3 text-right text-danger font-bold">${finesDebt > 0 ? formatCOP(finesDebt) : '-'}</td><td class="py-3 text-right font-bold text-white">${formatCOP(totalDebt)}</td><td class="py-3 text-center">${status}</td><td class="py-3 text-center"><button onclick="window.openPaymentHistory('${p.id}')" class="text-xs bg-gray-700 hover:bg-secondary text-white px-3 py-1 rounded transition">Ver</button></td>`;
                 tbody.appendChild(tr);
             });
         };
@@ -969,7 +1045,7 @@
             const matches = tournamentData.matches || [];
             const totalPaid = players.reduce((acc, p) => acc + (p.totalPaid || 0), 0);
             const totalDebt = Math.max(0, (players.length * (tournamentData.inscriptionPerPlayer || 0)) - totalPaid);
-            const totalFinesDebt = players.reduce((acc, p) => acc + (p.cardDebt || 0), 0);
+            const totalFinesDebt = players.reduce((acc, p) => acc + Math.max(0, (p.cardDebt || 0) - (p.finesCredit || 0)), 0);
             
             // Match Stats
             let totalGF = 0, totalGC = 0, totalCards = 0;
@@ -1094,21 +1170,89 @@
             const id = document.getElementById('editPlayerId').value; const name = document.getElementById('playerModalName').value; const number = parseInt(document.getElementById('playerModalNum').value);
             if(!name || !number) return window.showToast("Faltan datos", true);
             if(id) await updateDoc(doc(collection(db, currentPlayersCollection), id), { name, number });
-            else await setDoc(doc(collection(db, currentPlayersCollection)), { name, number, tournament: currentTournament, totalPaid: 0, payments: [], cardDebt: 0 });
+            else await setDoc(doc(collection(db, currentPlayersCollection)), { name, number, tournament: currentTournament, totalPaid: 0, payments: [], cardDebt: 0, finesCredit: 0 });
             window.closeModal('playerModal'); setTimeout(() => window.autoRecalculateFees(), 500); window.showToast(id ? 'Actualizado' : 'Creado');
         };
         window.deletePlayer = async (id) => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(collection(db, currentPlayersCollection), id)); window.showToast("Eliminado"); setTimeout(() => window.autoRecalculateFees(), 500); } };
         window.addPayment = async () => {
-            const id = document.getElementById('payPlayerSelect').value; const amount = parseFloat(document.getElementById('payAmount').value);
+            const id = document.getElementById('payPlayerSelect').value;
+            const amount = parseFloat(document.getElementById('payAmount').value);
+            const type = document.getElementById('payTypeSelect')?.value || 'inscripcion';
+            const matchId = document.getElementById('payMatchSelect')?.value || '';
             if(!id || !amount) return window.showToast("Datos incompletos", true);
-            const p = players.find(x => x.id === id); const newPay = { id: crypto.randomUUID(), date: new Date().toISOString(), amount };
-            await updateDoc(doc(collection(db, currentPlayersCollection), id), { totalPaid: (p.totalPaid||0) + amount, payments: [...(p.payments||[]), newPay] });
-            document.getElementById('payAmount').value = ''; window.showToast('Pago registrado');
+            if (type === 'arbitraje' && !matchId) return window.showToast("Selecciona un partido para arbitraje", true);
+            const p = players.find(x => x.id === id);
+            const newPay = { id: crypto.randomUUID(), date: new Date().toISOString(), amount, type, matchId: matchId || null };
+            const updatedPayments = [...(p.payments || []), newPay];
+
+            if (type === 'inscripcion') {
+                await updateDoc(doc(collection(db, currentPlayersCollection), id), { totalPaid: (p.totalPaid || 0) + amount, payments: updatedPayments });
+            } else if (type === 'tarjeta') {
+                if (matchId) {
+                    const matches = [...(tournamentData.matches || [])];
+                    const matchIndex = matches.findIndex(m => String(m.id) === String(matchId));
+                    if (matchIndex < 0) return window.showToast("Partido no encontrado", true);
+                    const match = { ...matches[matchIndex] };
+                    const details = match.playerDetails || {};
+                    const fineTotal = calculateMatchFine(details[id] || {});
+                    if (fineTotal <= 0) return window.showToast("El jugador no tiene multa en este partido", true);
+                    const payments = { ...(match.refereePayments || {}) };
+                    const playerPayment = { ...(payments[id] || {}) };
+                    const currentPaid = Math.max(0, parseFloat(playerPayment.finesPaidAmount) || 0);
+                    const newPaid = Math.min(fineTotal, currentPaid + amount);
+                    playerPayment.finesPaidAmount = newPaid;
+                    if ('paidFines' in playerPayment) delete playerPayment.paidFines;
+                    payments[id] = playerPayment;
+                    match.refereePayments = payments;
+                    matches[matchIndex] = match;
+                    await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches });
+                    await updateDoc(doc(collection(db, currentPlayersCollection), id), { payments: updatedPayments });
+                    tournamentData.matches = matches;
+                    await recalculateAllDebts(matches);
+                } else {
+                    await updateDoc(doc(collection(db, currentPlayersCollection), id), { payments: updatedPayments, finesCredit: (p.finesCredit || 0) + amount });
+                }
+            } else if (type === 'arbitraje') {
+                const matches = [...(tournamentData.matches || [])];
+                const matchIndex = matches.findIndex(m => String(m.id) === String(matchId));
+                if (matchIndex < 0) return window.showToast("Partido no encontrado", true);
+                const match = { ...matches[matchIndex] };
+                const payments = { ...(match.refereePayments || {}) };
+                const playerPayment = { ...(payments[id] || {}) };
+                const totalPlayers = (match.presentPlayers || []).length;
+                const perPlayer = totalPlayers > 0 ? (match.refereeValue || 0) / totalPlayers : 0;
+                const currentPaid = Math.max(0, parseFloat(playerPayment.refPaidAmount) || 0);
+                const newPaid = currentPaid + amount;
+                playerPayment.refPaidAmount = newPaid;
+                playerPayment.paidRef = perPlayer > 0 ? newPaid >= perPlayer : false;
+                payments[id] = playerPayment;
+                match.refereePayments = payments;
+                matches[matchIndex] = match;
+                await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches });
+                await updateDoc(doc(collection(db, currentPlayersCollection), id), { payments: updatedPayments });
+                tournamentData.matches = matches;
+            }
+            document.getElementById('payAmount').value = '';
+            window.showToast('Pago registrado');
         };
         window.openPaymentHistory = (playerId) => {
             const p = players.find(x => x.id === playerId); const list = document.getElementById('historyList'); const finesList = document.getElementById('finesHistoryList'); document.getElementById('historyModalTitle').textContent = p.name;
             if(!p.payments || p.payments.length === 0) list.innerHTML = '<div class="text-center text-gray-500 mt-10">Sin pagos registrados</div>';
-            else list.innerHTML = p.payments.map(pay => `<div class="flex justify-between items-center bg-dark p-3 rounded-lg mb-2 border border-gray-700"><div><div class="font-bold text-success">${formatCOP(pay.amount)}</div><div class="text-xs text-gray-500">${new Date(pay.date).toLocaleDateString()}</div></div><button onclick="window.deletePayment('${playerId}', '${pay.id}')" class="text-gray-500 hover:text-danger px-2"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+            else list.innerHTML = p.payments.map(pay => {
+                const type = pay.type || 'inscripcion';
+                const typeLabel = PAYMENT_TYPE_LABELS[type] || 'Inscripción';
+                const matchLabel = pay.matchId ? getMatchLabel(pay.matchId) : null;
+                return `
+                    <div class="flex justify-between items-center bg-dark p-3 rounded-lg mb-2 border border-gray-700">
+                        <div>
+                            <div class="font-bold text-success">${formatCOP(pay.amount)}</div>
+                            <div class="text-xs text-gray-500">${new Date(pay.date).toLocaleDateString()}</div>
+                            <div class="text-[10px] text-gray-400 uppercase font-bold">${typeLabel}${matchLabel ? ` · ${matchLabel}` : ''}</div>
+                        </div>
+                        <button onclick="window.deletePayment('${playerId}', '${pay.id}')" class="text-gray-500 hover:text-danger px-2"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            }).join('');
             const matches = tournamentData.matches || [];
             const fineRows = matches.map((m) => {
                 const details = m.playerDetails || {};
@@ -1173,16 +1317,85 @@
         };
         window.deletePayment = async (playerId, paymentId) => {
             if(!confirm("¿Borrar?")) return;
-            const p = players.find(x => x.id === playerId); const newPayments = p.payments.filter(pay => pay.id !== paymentId); const newTotal = newPayments.reduce((sum, pay) => sum + pay.amount, 0);
-            await updateDoc(doc(collection(db, currentPlayersCollection), playerId), { totalPaid: newTotal, payments: newPayments });
-            p.payments = newPayments; p.totalPaid = newTotal; window.openPaymentHistory(playerId); window.showToast("Pago eliminado");
+            const p = players.find(x => x.id === playerId);
+            const targetPayment = (p.payments || []).find(pay => pay.id === paymentId);
+            if (!targetPayment) return window.showToast("Pago no encontrado", true);
+            const newPayments = (p.payments || []).filter(pay => pay.id !== paymentId);
+            const newTotal = newPayments
+                .filter(pay => (pay.type || 'inscripcion') === 'inscripcion')
+                .reduce((sum, pay) => sum + pay.amount, 0);
+            const updates = { totalPaid: newTotal, payments: newPayments };
+
+            if (targetPayment.type === 'tarjeta') {
+                if (targetPayment.matchId) {
+                    const matches = [...(tournamentData.matches || [])];
+                    const matchIndex = matches.findIndex(m => String(m.id) === String(targetPayment.matchId));
+                    if (matchIndex >= 0) {
+                        const match = { ...matches[matchIndex] };
+                        const details = match.playerDetails || {};
+                        const fineTotal = calculateMatchFine(details[playerId] || {});
+                        const payments = { ...(match.refereePayments || {}) };
+                        const playerPayment = { ...(payments[playerId] || {}) };
+                        const currentPaid = Math.max(0, parseFloat(playerPayment.finesPaidAmount) || 0);
+                        const newPaid = Math.max(0, Math.min(fineTotal, currentPaid - targetPayment.amount));
+                        playerPayment.finesPaidAmount = newPaid;
+                        payments[playerId] = playerPayment;
+                        match.refereePayments = payments;
+                        matches[matchIndex] = match;
+                        await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches });
+                        tournamentData.matches = matches;
+                        await recalculateAllDebts(matches);
+                    }
+                } else {
+                    updates.finesCredit = Math.max(0, (p.finesCredit || 0) - targetPayment.amount);
+                }
+            }
+
+            if (targetPayment.type === 'arbitraje' && targetPayment.matchId) {
+                const matches = [...(tournamentData.matches || [])];
+                const matchIndex = matches.findIndex(m => String(m.id) === String(targetPayment.matchId));
+                if (matchIndex >= 0) {
+                    const match = { ...matches[matchIndex] };
+                    const payments = { ...(match.refereePayments || {}) };
+                    const playerPayment = { ...(payments[playerId] || {}) };
+                    const totalPlayers = (match.presentPlayers || []).length;
+                    const perPlayer = totalPlayers > 0 ? (match.refereeValue || 0) / totalPlayers : 0;
+                    const currentPaid = Math.max(0, parseFloat(playerPayment.refPaidAmount) || 0);
+                    const newPaid = Math.max(0, currentPaid - targetPayment.amount);
+                    playerPayment.refPaidAmount = newPaid;
+                    playerPayment.paidRef = perPlayer > 0 ? newPaid >= perPlayer : false;
+                    payments[playerId] = playerPayment;
+                    match.refereePayments = payments;
+                    matches[matchIndex] = match;
+                    await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches });
+                    tournamentData.matches = matches;
+                }
+            }
+
+            await updateDoc(doc(collection(db, currentPlayersCollection), playerId), updates);
+            p.payments = newPayments;
+            p.totalPaid = newTotal;
+            if (updates.finesCredit !== undefined) p.finesCredit = updates.finesCredit;
+            window.openPaymentHistory(playerId);
+            window.showToast("Pago eliminado");
         };
         window.toggleMatchSelection = (id) => {
-            if(!matchSelection[id]) matchSelection[id] = { selected: false, paidRef: false, finesPaidAmount: 0, stats: {goals:0, yellow:0, blue:0, red:0} };
-            matchSelection[id].selected = !matchSelection[id].selected; if(!matchSelection[id].selected) { matchSelection[id].paidRef = false; matchSelection[id].finesPaidAmount = 0; }
+            if(!matchSelection[id]) matchSelection[id] = { selected: false, paidRef: false, refPaidAmount: 0, finesPaidAmount: 0, stats: {goals:0, yellow:0, blue:0, red:0} };
+            matchSelection[id].selected = !matchSelection[id].selected;
+            if(!matchSelection[id].selected) {
+                matchSelection[id].paidRef = false;
+                matchSelection[id].refPaidAmount = 0;
+                matchSelection[id].finesPaidAmount = 0;
+            }
             window.renderMatchSelector();
         };
-        window.toggleMatchPayRef = (id) => { if(matchSelection[id]) { matchSelection[id].paidRef = !matchSelection[id].paidRef; window.renderMatchSelector(); } };
+        window.toggleMatchPayRef = (id) => {
+            if(matchSelection[id]) {
+                matchSelection[id].paidRef = !matchSelection[id].paidRef;
+                matchSelection[id].refPaidAmount = matchSelection[id].paidRef ? null : 0;
+                window.renderMatchSelector();
+            }
+        };
         window.updateMatchFinePayment = (id, value) => {
             if(matchSelection[id]) {
                 matchSelection[id].finesPaidAmount = Math.max(0, parseFloat(value) || 0);
@@ -1205,12 +1418,15 @@
             const count = selectedIds.length; 
             // División: Total / Jugadores Seleccionados
             const perPlayer = count > 0 ? total / count : 0; 
-            const paidRefCount = selectedIds.filter(k => matchSelection[k].paidRef).length; 
-            const collectedRef = paidRefCount * perPlayer;
+            let collectedRef = 0;
             let collectedFines = 0;
             selectedIds.forEach(pid => {
                 const state = matchSelection[pid];
                 if (!state) return;
+                const refPaidAmount = (state.refPaidAmount !== null && state.refPaidAmount !== undefined)
+                    ? Math.max(0, parseFloat(state.refPaidAmount) || 0)
+                    : (state.paidRef ? perPlayer : 0);
+                collectedRef += Math.min(refPaidAmount, perPlayer);
                 const fineAmount = calculateMatchFine(state.stats || {});
                 const paidAmount = Math.max(0, parseFloat(state.finesPaidAmount) || 0);
                 collectedFines += Math.min(fineAmount, paidAmount);
@@ -1361,6 +1577,9 @@
                 if(!matchSelection[k].stats) matchSelection[k].stats = {goals:0, yellow:0, blue:0, red:0};
                 if (savedStats[k]) {
                     matchSelection[k].stats = { ...savedStats[k] };
+                }
+                if (matchSelection[k].refPaidAmount === undefined) {
+                    matchSelection[k].refPaidAmount = matchSelection[k].paidRef ? null : 0;
                 }
                 if (matchSelection[k].finesPaidAmount === undefined || matchSelection[k].finesPaidAmount === null) {
                     const legacyFine = matchSelection[k].paidFines ? calculateMatchFine(matchSelection[k].stats) : 0;
