@@ -1396,7 +1396,18 @@
 
         window.saveConfName = async () => { await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { name: document.getElementById('confName').value }); window.showToast('Actualizado'); };
         window.saveConfiguration = async () => { const name = document.getElementById('confName').value; const total = parseFloat(document.getElementById('confPrice').value); if (!name) return window.showToast("Nombre vacío", true); await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { name: name }); await window.autoRecalculateFees(total); window.showToast('Guardado'); };
-        window.autoRecalculateFees = async (explicitTotal = null) => { try { const total = explicitTotal !== null ? parseFloat(explicitTotal) : (tournamentData.totalInscription || 0); if (players.length > 0 && total > 0) { const newPerPlayer = total / players.length; await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { totalInscription: total, inscriptionPerPlayer: newPerPlayer }); window.showToast(`Cuota: ${formatCOP(newPerPlayer)}`); } } catch(e) { console.error(e); } };
+        window.autoRecalculateFees = async (explicitTotal = null) => {
+            try {
+                const hasExplicit = explicitTotal !== null && explicitTotal !== undefined;
+                const parsedExplicit = hasExplicit ? parseFloat(explicitTotal) : null;
+                if (hasExplicit && !Number.isFinite(parsedExplicit)) return;
+                const total = hasExplicit ? parsedExplicit : (tournamentData.totalInscription ?? 0);
+                if (!Number.isFinite(total)) return;
+                const perPlayer = players.length > 0 ? (total / players.length) : 0;
+                await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { totalInscription: total, inscriptionPerPlayer: perPlayer });
+                window.showToast(`Cuota: ${formatCOP(perPlayer)}`);
+            } catch(e) { console.error(e); }
+        };
         window.confirmResetTournament = async () => {
             if (!currentTournament) return;
             if (!confirm("¿Crear un nuevo torneo y conservar el historial actual?")) return;
