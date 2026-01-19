@@ -283,7 +283,7 @@
             <h2 class="text-2xl font-bold text-white mb-6">Configuración</h2>
             <div class="glass rounded-2xl p-6 space-y-6">
                 <div><label class="block text-sm text-gray-400 mb-1">Nombre del Torneo</label><input type="text" id="confName" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white mb-4"><label class="block text-sm text-gray-400 mb-1">Costo Inscripción Total</label><input type="number" id="confPrice" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white"><p class="text-xs text-gray-500 mt-2 mb-4">Se dividirá entre los jugadores.</p><button onclick="window.saveConfiguration()" class="w-full bg-primary hover:bg-amber-600 text-dark font-bold py-3 rounded-lg transition">Guardar y Recalcular Cuotas</button></div>
-                <div class="pt-6 border-t border-gray-700 mt-6"><h4 class="text-danger font-bold mb-2">Zona de Peligro</h4><div class="flex flex-col gap-2"><button onclick="window.confirmResetTournament()" class="text-xs bg-red-900/30 text-red-400 border border-red-900 hover:bg-red-900/50 px-4 py-3 rounded transition w-full text-left flex items-center gap-2"><i class="fa-solid fa-eraser"></i> Reiniciar Datos</button><button onclick="window.purgeTrashTournaments()" class="text-xs bg-red-600 text-white border border-red-500 hover:bg-red-700 px-4 py-3 rounded transition w-full text-left flex items-center gap-2 font-bold"><i class="fa-solid fa-broom"></i> 🧹 Eliminar Torneos Basura</button><button onclick="window.deleteCurrentTournament()" class="text-xs bg-red-600 text-white border border-red-500 hover:bg-red-700 px-4 py-3 rounded transition w-full text-left flex items-center gap-2 font-bold"><i class="fa-solid fa-trash"></i> Eliminar ESTE Torneo</button></div></div>
+                <div class="pt-6 border-t border-gray-700 mt-6"><h4 class="text-danger font-bold mb-2">Zona de Peligro</h4><div class="flex flex-col gap-2"><button onclick="window.confirmResetTournament()" class="text-xs bg-red-900/30 text-red-400 border border-red-900 hover:bg-red-900/50 px-4 py-3 rounded transition w-full text-left flex items-center gap-2"><i class="fa-solid fa-flag-checkered"></i> Nuevo torneo (mantener historial)</button><button onclick="window.purgeTrashTournaments()" class="text-xs bg-red-600 text-white border border-red-500 hover:bg-red-700 px-4 py-3 rounded transition w-full text-left flex items-center gap-2 font-bold"><i class="fa-solid fa-broom"></i> 🧹 Eliminar Torneos Basura</button><button onclick="window.deleteCurrentTournament()" class="text-xs bg-red-600 text-white border border-red-500 hover:bg-red-700 px-4 py-3 rounded transition w-full text-left flex items-center gap-2 font-bold"><i class="fa-solid fa-trash"></i> Eliminar ESTE Torneo</button></div></div>
             </div>
         </div>
     </main>
@@ -356,6 +356,11 @@
             currentTournament = tId;
             currentTournamentCollection = tColl;
             currentPlayersCollection = pColl;
+            players = [];
+            tournamentData = {};
+            matchSelection = {};
+            currentLineup = {};
+            activePosIndex = null;
             loadData();
             loadTournamentsList(); 
         };
@@ -453,10 +458,50 @@
         }
 
         window.createOfficialTournament = async (name) => {
-            const newId = "tourn_" + name.replace(/\s+/g, '_').toLowerCase();
-            await setDoc(doc(db, "tournaments", newId), { name: name, totalInscription: 0, matches: [], stats: {} });
-            loadTournamentsList();
-            window.showToast("Torneo creado en Raíz");
+            if (!name) {
+                const baseName = tournamentData?.name || "Nuevo Torneo";
+                name = prompt("Nombre del nuevo torneo", `${baseName} ${new Date().getFullYear()}`);
+            }
+            if (!name) return;
+
+            const newTournamentRef = doc(collection(db, "tournaments"));
+            const newTournamentId = newTournamentRef.id;
+            const batch = writeBatch(db);
+            const nowISO = new Date().toISOString();
+
+            batch.set(newTournamentRef, {
+                name,
+                totalInscription: 0,
+                inscriptionPerPlayer: 0,
+                matches: [],
+                stats: {},
+                status: "active",
+                createdAt: nowISO
+            });
+
+            if (currentTournament) {
+                batch.update(doc(collection(db, currentTournamentCollection), currentTournament), {
+                    archived: true,
+                    status: "closed",
+                    closedAt: nowISO
+                });
+            }
+
+            players.forEach((p) => {
+                const { id, payments, totalPaid, cardDebt, tournament, ...rest } = p;
+                const playerRef = doc(collection(db, "players"));
+                batch.set(playerRef, {
+                    ...rest,
+                    tournament: newTournamentId,
+                    payments: [],
+                    totalPaid: 0,
+                    cardDebt: 0
+                });
+            });
+
+            await batch.commit();
+            window.selectTournament(newTournamentId, "tournaments", "players");
+            window.showToast("Nuevo torneo creado");
         };
         
         window.deleteCurrentTournament = async () => {
@@ -1352,7 +1397,11 @@
         window.saveConfName = async () => { await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { name: document.getElementById('confName').value }); window.showToast('Actualizado'); };
         window.saveConfiguration = async () => { const name = document.getElementById('confName').value; const total = parseFloat(document.getElementById('confPrice').value); if (!name) return window.showToast("Nombre vacío", true); await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { name: name }); await window.autoRecalculateFees(total); window.showToast('Guardado'); };
         window.autoRecalculateFees = async (explicitTotal = null) => { try { const total = explicitTotal !== null ? parseFloat(explicitTotal) : (tournamentData.totalInscription || 0); if (players.length > 0 && total > 0) { const newPerPlayer = total / players.length; await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { totalInscription: total, inscriptionPerPlayer: newPerPlayer }); window.showToast(`Cuota: ${formatCOP(newPerPlayer)}`); } } catch(e) { console.error(e); } };
-        window.confirmResetTournament = async () => { if(!confirm("¿Seguro?")) return; await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches: [], stats: {}, totalInscription: 0 }); for(let p of players) { await updateDoc(doc(collection(db, currentPlayersCollection), p.id), { payments: [], totalPaid: 0, cardDebt: 0 }); } window.showToast("Reiniciado"); };
+        window.confirmResetTournament = async () => {
+            if (!currentTournament) return;
+            if (!confirm("¿Crear un nuevo torneo y conservar el historial actual?")) return;
+            await window.createOfficialTournament();
+        };
 
         // START
         async function init() {
