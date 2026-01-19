@@ -565,7 +565,11 @@
 
         const calculatePlayerDebts = (matches) => {
             const playerDebts = {};
-            players.forEach(p => playerDebts[p.id] = 0);
+            const playerCredits = {};
+            players.forEach(p => {
+                playerDebts[p.id] = 0;
+                playerCredits[p.id] = Math.max(0, p.finesCredit || 0);
+            });
             const sortedMatches = [...matches].sort((a,b) => new Date(a.date) - new Date(b.date));
 
             sortedMatches.forEach(m => {
@@ -583,6 +587,10 @@
                     }
                     playerDebts[pid] += Math.max(0, fine - finesPaidAmount);
                 });
+            });
+
+            Object.keys(playerDebts).forEach(pid => {
+                playerDebts[pid] = Math.max(0, playerDebts[pid] - (playerCredits[pid] || 0));
             });
 
             return playerDebts;
@@ -942,7 +950,7 @@
             if(sel) sel.innerHTML = '<option value="">Seleccionar Jugador...</option>';
             players.forEach(p => {
                 if(p.name.toLowerCase().includes(filter) || p.number.toString().includes(filter)) {
-                    const debt = Math.max(0, (p.cardDebt || 0) - (p.finesCredit || 0));
+                    const debt = Math.max(0, p.cardDebt || 0);
                     const cardDebtHtml = debt > 0 ? `<div class="text-xs text-danger font-bold mt-1">Multas: ${formatCOP(debt)}</div>` : '';
                     const card = document.createElement('div');
                     card.className = 'glass p-4 rounded-xl border border-gray-800 hover:border-gray-600 transition group relative';
@@ -1014,6 +1022,25 @@
                             </div>
                         `;
                     }
+                    const historicalDebt = Math.max(0, p.cardDebt || 0);
+                    const historicalPaid = Math.max(0, p.finesCredit || 0);
+                    const showHistoricalBlock = historicalDebt > 0 || historicalPaid > 0;
+                    if (showHistoricalBlock) {
+                        const historicalStatus = historicalDebt > 0 ? 'PEND' : 'PAGADO';
+                        content += `
+                            <div class="mt-2 rounded border ${historicalDebt > 0 ? 'border-danger' : 'border-success'} p-2 bg-gray-900/50">
+                                <div class="flex items-center justify-between text-[10px] font-bold">
+                                    <span class="text-danger">Deuda histórica: ${formatCOP(historicalDebt)}</span>
+                                    <span class="${historicalDebt > 0 ? 'text-danger' : 'text-success'}">${historicalStatus}</span>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <input type="number" min="0" class="w-full bg-dark border border-gray-700 rounded text-center text-white text-[10px]" placeholder="Monto pago" ${historicalDebt > 0 ? '' : 'disabled'} id="historicDebt-${p.id}">
+                                    <button onclick="window.registerHistoricalCardPayment('${p.id}')" class="text-[10px] px-2 py-1 rounded bg-warning text-dark font-bold" ${historicalDebt > 0 ? '' : 'disabled'}>Abonar</button>
+                                    <button onclick="window.registerHistoricalCardPayment('${p.id}', true)" class="text-[10px] px-2 py-1 rounded bg-success text-white font-bold" ${historicalDebt > 0 ? '' : 'disabled'}>Total</button>
+                                </div>
+                            </div>
+                        `;
+                    }
                     const s = state.stats;
                     if(s && (s.goals > 0 || s.yellow > 0 || s.blue > 0 || s.red > 0)) content += `<div class="mt-2 pt-1 border-t border-gray-700 flex gap-1 text-[10px] justify-center">${s.goals > 0 ? `<span class="text-success">⚽${s.goals}</span>` : ''}${s.yellow > 0 ? `<span class="text-yellow-500">🟨${s.yellow}</span>` : ''}${s.blue > 0 ? `<span class="text-blue-400">🟦${s.blue}</span>` : ''}${s.red > 0 ? `<span class="text-red-500">🟥${s.red}</span>` : ''}</div>`;
                 }
@@ -1031,8 +1058,7 @@
             players.forEach(p => {
                 const paid = p.totalPaid || 0;
                 const debt = cost - paid;
-                const fineCredit = p.finesCredit || 0;
-                const finesDebt = Math.max(0, (p.cardDebt || 0) - fineCredit);
+                const finesDebt = Math.max(0, p.cardDebt || 0);
                 const totalDebt = Math.max(0, debt) + finesDebt;
                 const status = totalDebt <= 0 ? '<span class="text-success text-xs bg-green-900/30 px-2 py-1 rounded">Al día</span>' : '<span class="text-warning text-xs bg-yellow-900/30 px-2 py-1 rounded">Pendiente</span>';
                 const tr = document.createElement('tr');
@@ -1045,7 +1071,7 @@
             const matches = tournamentData.matches || [];
             const totalPaid = players.reduce((acc, p) => acc + (p.totalPaid || 0), 0);
             const totalDebt = Math.max(0, (players.length * (tournamentData.inscriptionPerPlayer || 0)) - totalPaid);
-            const totalFinesDebt = players.reduce((acc, p) => acc + Math.max(0, (p.cardDebt || 0) - (p.finesCredit || 0)), 0);
+            const totalFinesDebt = players.reduce((acc, p) => acc + Math.max(0, p.cardDebt || 0), 0);
             
             // Match Stats
             let totalGF = 0, totalGC = 0, totalCards = 0;
@@ -1191,11 +1217,11 @@
                 if (matchId) {
                     const matches = [...(tournamentData.matches || [])];
                     const matchIndex = matches.findIndex(m => String(m.id) === String(matchId));
-                    if (matchIndex < 0) return window.showToast("Partido no encontrado", true);
-                    const match = { ...matches[matchIndex] };
-                    const details = match.playerDetails || {};
-                    const fineTotal = calculateMatchFine(details[id] || {});
-                    if (fineTotal <= 0) return window.showToast("El jugador no tiene multa en este partido", true);
+                if (matchIndex < 0) return window.showToast("Partido no encontrado", true);
+                const match = { ...matches[matchIndex] };
+                const details = match.playerDetails || {};
+                const fineTotal = calculateMatchFine(details[id] || {});
+                if (fineTotal <= 0) return window.showToast("El jugador no tiene multa en este partido", true);
                     const payments = { ...(match.refereePayments || {}) };
                     const playerPayment = { ...(payments[id] || {}) };
                     const currentPaid = Math.max(0, parseFloat(playerPayment.finesPaidAmount) || 0);
@@ -1210,7 +1236,11 @@
                     tournamentData.matches = matches;
                     await recalculateAllDebts(matches);
                 } else {
-                    await updateDoc(doc(collection(db, currentPlayersCollection), id), { payments: updatedPayments, finesCredit: (p.finesCredit || 0) + amount });
+                    const newFinesCredit = (p.finesCredit || 0) + amount;
+                    await updateDoc(doc(collection(db, currentPlayersCollection), id), { payments: updatedPayments, finesCredit: newFinesCredit });
+                    p.payments = updatedPayments;
+                    p.finesCredit = newFinesCredit;
+                    await recalculateAllDebts(tournamentData.matches || []);
                 }
             } else if (type === 'arbitraje') {
                 const matches = [...(tournamentData.matches || [])];
@@ -1376,6 +1406,12 @@
             p.payments = newPayments;
             p.totalPaid = newTotal;
             if (updates.finesCredit !== undefined) p.finesCredit = updates.finesCredit;
+            if (targetPayment.type === 'tarjeta' && !targetPayment.matchId) {
+                await recalculateAllDebts(tournamentData.matches || []);
+                p.cardDebt = Math.max(0, (p.cardDebt || 0) + targetPayment.amount);
+                window.renderFinances();
+                window.renderDashboard();
+            }
             window.openPaymentHistory(playerId);
             window.showToast("Pago eliminado");
         };
@@ -1408,6 +1444,31 @@
                 matchSelection[id].finesPaidAmount = fineAmount;
                 window.renderMatchSelector();
             }
+        };
+
+        window.registerHistoricalCardPayment = async (playerId, payFull = false) => {
+            try {
+                const p = players.find(x => x.id === playerId);
+                if (!p) return window.showToast("Jugador no encontrado", true);
+                const outstanding = Math.max(0, p.cardDebt || 0);
+                if (outstanding <= 0) return window.showToast("No hay deuda histórica pendiente", true);
+                const inputId = `historicDebt-${playerId}`;
+                const rawAmount = Math.max(0, parseFloat(document.getElementById(inputId)?.value) || 0);
+                if (!payFull && rawAmount <= 0) return window.showToast("Ingresa un monto válido", true);
+                const amount = payFull ? outstanding : Math.min(outstanding, rawAmount);
+                const newPay = { id: crypto.randomUUID(), date: new Date().toISOString(), amount, type: 'tarjeta', matchId: null };
+                const updatedPayments = [...(p.payments || []), newPay];
+                const newFinesCredit = (p.finesCredit || 0) + amount;
+                await updateDoc(doc(collection(db, currentPlayersCollection), playerId), { payments: updatedPayments, finesCredit: newFinesCredit });
+                p.payments = updatedPayments;
+                p.finesCredit = newFinesCredit;
+                p.cardDebt = Math.max(0, (p.cardDebt || 0) - amount);
+                await recalculateAllDebts(tournamentData.matches || []);
+                window.renderMatchSelector();
+                window.renderFinances();
+                window.renderDashboard();
+                window.showToast("Pago de deuda histórica registrado");
+            } catch(e) { console.error(e); window.showToast("Error: " + e.message, true); }
         };
         
         // --- LOGICA ARBITRAJE Y MODAL CORREGIDA ---
