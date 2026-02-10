@@ -300,7 +300,20 @@
                     </div>
                 </div>
             </div>
-            <div class="glass rounded-2xl p-6 overflow-x-auto"><table class="w-full text-left text-sm text-gray-300"><thead class="text-xs uppercase text-gray-500 border-b border-gray-700"><tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-right">Costo Insc.</th><th class="pb-3 text-right">Abonado</th><th class="pb-3 text-right">Deuda Insc.</th><th class="pb-3 text-right text-danger font-bold">Deuda Multas</th><th class="pb-3 text-right">Total Deuda</th><th class="pb-3 text-center">Estado</th><th class="pb-3 text-center">Acción</th></tr></thead><tbody id="financesTableBody" class="divide-y divide-gray-800"></tbody></table></div>
+            <div class="glass rounded-2xl p-6 overflow-x-auto">
+                <div class="flex items-end justify-between gap-3 mb-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Filtrar por estado</label>
+                        <select id="financeStatusFilter" onchange="window.renderFinances()" class="bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none">
+                            <option value="todos">Todos</option>
+                            <option value="al-dia">Al día</option>
+                            <option value="pendiente">Pendiente</option>
+                        </select>
+                    </div>
+                    <span id="financesCount" class="text-xs text-gray-400">0 jugadores</span>
+                </div>
+                <table class="w-full text-left text-sm text-gray-300"><thead class="text-xs uppercase text-gray-500 border-b border-gray-700"><tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-right">Costo Insc.</th><th class="pb-3 text-right">Abonado</th><th class="pb-3 text-right">Deuda Insc.</th><th class="pb-3 text-right text-danger font-bold">Deuda Multas</th><th class="pb-3 text-right">Total Deuda</th><th class="pb-3 text-center">Estado</th><th class="pb-3 text-center">Acción</th></tr></thead><tbody id="financesTableBody" class="divide-y divide-gray-800"></tbody></table>
+            </div>
         </div>
 
         <div id="view-settings" class="p-6 max-w-2xl mx-auto hidden fade-in-up">
@@ -1054,17 +1067,25 @@
             const tbody = document.getElementById('financesTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
+            const statusFilter = document.getElementById('financeStatusFilter')?.value || 'todos';
+            let renderedCount = 0;
             const cost = tournamentData.inscriptionPerPlayer || 0;
             players.forEach(p => {
                 const paid = p.totalPaid || 0;
                 const debt = cost - paid;
                 const finesDebt = Math.max(0, p.cardDebt || 0);
                 const totalDebt = Math.max(0, debt) + finesDebt;
+                const isUpToDate = totalDebt <= 0;
+                if(statusFilter === 'al-dia' && !isUpToDate) return;
+                if(statusFilter === 'pendiente' && isUpToDate) return;
                 const status = totalDebt <= 0 ? '<span class="text-success text-xs bg-green-900/30 px-2 py-1 rounded">Al día</span>' : '<span class="text-warning text-xs bg-yellow-900/30 px-2 py-1 rounded">Pendiente</span>';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td class="py-3 pl-2 font-medium text-white">${p.name}</td><td class="py-3 text-right text-gray-400">${formatCOP(cost)}</td><td class="py-3 text-right text-success">${formatCOP(paid)}</td><td class="py-3 text-right ${debt > 0 ? 'text-danger font-bold' : 'text-gray-500'}">${formatCOP(Math.max(0, debt))}</td><td class="py-3 text-right text-danger font-bold">${finesDebt > 0 ? formatCOP(finesDebt) : '-'}</td><td class="py-3 text-right font-bold text-white">${formatCOP(totalDebt)}</td><td class="py-3 text-center">${status}</td><td class="py-3 text-center"><button onclick="window.openPaymentHistory('${p.id}')" class="text-xs bg-gray-700 hover:bg-secondary text-white px-3 py-1 rounded transition">Ver</button></td>`;
                 tbody.appendChild(tr);
+                renderedCount++;
             });
+            const financesCount = document.getElementById('financesCount');
+            if(financesCount) financesCount.textContent = `${renderedCount} jugadores`;
         };
 
         window.renderDashboard = () => {
