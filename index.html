@@ -332,6 +332,21 @@
         .premium-btn:hover {
             transform: translateY(-1px);
         }
+
+        .presentation-mode {
+            background: radial-gradient(circle at top, rgba(245,158,11,.18), rgba(6,11,22,.96));
+        }
+
+        @media print {
+            aside, #toast, .no-print { display: none !important; }
+            body { height: auto !important; overflow: visible !important; background: #ffffff !important; color: #111827 !important; }
+            main { width: 100% !important; height: auto !important; overflow: visible !important; background: #ffffff !important; }
+            main > div { display: block !important; max-width: none !important; color: #111827 !important; }
+            main > div.hidden { display: none !important; }
+            .glass, .glass-strong { background: #ffffff !important; color: #111827 !important; border: 1px solid #d1d5db !important; box-shadow: none !important; }
+            .text-white, .text-slate-300, .text-slate-400 { color: #111827 !important; }
+        }
+
     </style>
 </head>
 <body class="h-screen flex overflow-hidden text-sm">
@@ -378,6 +393,9 @@
             </button>
             <button id="nav-matches" onclick="window.showView('matches')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-slate-400 rounded-2xl">
                 <i class="fa-solid fa-futbol w-5 text-center"></i> Partidos
+            </button>
+            <button id="nav-team-ops" onclick="window.showView('team-ops')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-slate-400 rounded-2xl">
+                <i class="fa-solid fa-calendar-check w-5 text-center"></i> Gestión Equipo
             </button>
             <button id="nav-stats" onclick="window.showView('stats')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-slate-400 rounded-2xl">
                 <i class="fa-solid fa-chart-simple w-5 text-center"></i> Estadísticas
@@ -820,6 +838,115 @@
                 </div>
             </div>
         </div>
+
+        <!-- TEAM OPS -->
+        <div id="view-team-ops" class="p-6 max-w-7xl mx-auto hidden fade-in-up">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 no-print">
+                <div>
+                    <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Operación del equipo</div>
+                    <h2 class="text-2xl font-extrabold text-white mt-1">Convocatorias, calendario y reportes</h2>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="window.printTeamReport()" class="premium-btn bg-white/5 hover:bg-white/10 text-white px-4 py-3 border border-white/8"><i class="fa-solid fa-print mr-2"></i>Vista imprimible / PDF</button>
+                    <button onclick="window.togglePresentationMode()" class="premium-btn bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white px-4 py-3"><i class="fa-solid fa-display mr-2"></i>Presentación</button>
+                </div>
+            </div>
+
+            <div id="presentationPanel" class="hidden presentation-mode rounded-[32px] p-6 mb-6 border border-purple-400/20">
+                <div class="text-[10px] uppercase tracking-[.28em] text-purple-200 font-bold">Modo presentación</div>
+                <h3 class="text-3xl font-extrabold text-white mt-2" id="presentationTitle">Resumen del equipo</h3>
+                <div id="presentationStats" class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6"></div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-[1fr_.9fr] gap-6 mb-6">
+                <section class="glass-strong rounded-[30px] p-6">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-5 no-print">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Próximos partidos</div>
+                            <h3 class="text-xl font-extrabold text-white">Calendario y alertas de deuda</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                            <input id="nextMatchDate" type="datetime-local" class="premium-input px-3 py-3 text-xs sm:col-span-1">
+                            <input id="nextMatchOpponent" class="premium-input px-3 py-3 text-xs sm:col-span-1" placeholder="Rival">
+                            <input id="nextMatchVenue" class="premium-input px-3 py-3 text-xs sm:col-span-1" placeholder="Sede">
+                            <button onclick="window.addNextMatch()" class="premium-btn bg-primary text-ink px-3 py-3 text-xs font-extrabold">Agregar</button>
+                        </div>
+                    </div>
+                    <div id="nextMatchesList" class="space-y-3"></div>
+                    <div class="mt-5 pt-5 border-t border-white/8">
+                        <h4 class="text-xs font-bold uppercase tracking-[.16em] text-danger mb-3">Recordatorios visuales de deuda antes del partido</h4>
+                        <div id="debtReminderList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                    </div>
+                </section>
+
+                <section class="glass-strong rounded-[30px] p-6">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-5 no-print">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Entrenamientos</div>
+                            <h3 class="text-xl font-extrabold text-white">Control de asistencia</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input id="trainingDate" type="date" class="premium-input px-3 py-3 text-xs">
+                            <input id="trainingLabel" class="premium-input px-3 py-3 text-xs" placeholder="Sesión">
+                            <button onclick="window.addTrainingSession()" class="premium-btn bg-success text-white px-3 py-3 text-xs font-extrabold">Crear</button>
+                        </div>
+                    </div>
+                    <select id="trainingSessionSelect" onchange="window.renderTeamOps()" class="premium-select w-full px-4 py-3 mb-4 no-print"></select>
+                    <div id="trainingAttendanceGrid" class="space-y-2 max-h-[420px] overflow-y-auto pr-1"></div>
+                </section>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+                <section class="glass-strong rounded-[30px] p-6">
+                    <div class="mb-5">
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Convocatoria</div>
+                        <h3 class="text-xl font-extrabold text-white mt-1">Estado por jugador</h3>
+                        <p class="text-xs text-slate-500 mt-2">Convocado, confirmado, ausente o duda con restricciones por sanción/deuda.</p>
+                    </div>
+                    <div id="convocationStatusGrid" class="space-y-2 max-h-[520px] overflow-y-auto pr-1"></div>
+                </section>
+
+                <section class="glass-strong rounded-[30px] p-6">
+                    <div class="mb-5">
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Disponibilidad</div>
+                        <h3 class="text-xl font-extrabold text-white mt-1">Lesionados y sancionados</h3>
+                    </div>
+                    <div id="healthPanel" class="space-y-3 mb-6"></div>
+                    <div class="border-t border-white/8 pt-5">
+                        <h4 class="text-xs font-bold uppercase tracking-[.16em] text-purple-300 mb-3">Ranking MVP mensual</h4>
+                        <div id="monthlyMvpRanking" class="space-y-3"></div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <section class="glass-strong rounded-[30px] p-6">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-5 no-print">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Historial individual</div>
+                            <h3 class="text-xl font-extrabold text-white">Evolución por jugador</h3>
+                        </div>
+                        <select id="historyPlayerSelect" onchange="window.renderTeamOps()" class="premium-select px-4 py-3 text-sm"></select>
+                    </div>
+                    <div id="playerEvolutionPanel" class="space-y-3"></div>
+                </section>
+
+                <section class="glass-strong rounded-[30px] p-6">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-5 no-print">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Comparador</div>
+                            <h3 class="text-xl font-extrabold text-white">Comparador de jugadores</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <select id="comparePlayerA" onchange="window.renderTeamOps()" class="premium-select px-4 py-3 text-sm"></select>
+                            <select id="comparePlayerB" onchange="window.renderTeamOps()" class="premium-select px-4 py-3 text-sm"></select>
+                        </div>
+                    </div>
+                    <div id="playerComparePanel" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </section>
+            </div>
+        </div>
+
                 <!-- STATS -->
         <div id="view-stats" class="p-6 max-w-7xl mx-auto hidden fade-in-up">
             <div class="mb-6">

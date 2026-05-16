@@ -16,7 +16,7 @@ import {
     where,
     writeBatch
 } from './firebase.js';
-import { calculateMatchFine, createFinanceHelpers, PAYMENT_TYPE_LABELS } from './finance.js';
+import { calculateMatchFine, createFinanceHelpers, getPaymentAmount, PAYMENT_TYPE_LABELS } from './finance.js';
 import { getResultBadgeClass, getResultClass, getResultShort, OFFICIAL_TOURNAMENTS } from './matches.js';
 import { AVAILABILITY_STATES, PLAYER_ROLES } from './players.js';
 import { calculateAdvancedMetricsForPlayers, formatSignedDecimal } from './stats.js';
@@ -85,6 +85,7 @@ window.showView = (viewName) => {
 
     if (viewName === 'tactics') window.initTactics();
     if (viewName === 'stats') setTimeout(window.renderStatsCharts, 120);
+    if (viewName === 'team-ops') window.renderTeamOps();
 };
 
 // --- TORNEOS ---
@@ -979,6 +980,332 @@ const calculateFinancialSummary = () => {
     };
 };
 
+
+// --- GESTIÓN DE EQUIPO ---
+const getTeamOpsDocRef = () => doc(collection(db, currentTournamentCollection), currentTournament);
+const getConvocationStates = () => tournamentData.convocationStates || {};
+const getHealthStates = () => tournamentData.playerHealth || {};
+const getTrainingSessions = () => Array.isArray(tournamentData.trainingSessions) ? tournamentData.trainingSessions : [];
+const getNextMatches = () => Array.isArray(tournamentData.nextMatches) ? tournamentData.nextMatches : [];
+
+const getPlayerCardDebt = (player) => Math.max(0, (calculatePlayerDebts(tournamentData.matches || [])[player.id] ?? player.cardDebt) || 0);
+const getPlayerInscriptionDebt = (player) => Math.max(0, (tournamentData.inscriptionPerPlayer || 0) - getPlayerTotalPaidFromHistory(player));
+
+const getPlayerRestriction = (player) => {
+    const health = getHealthStates()[player.id] || {};
+    const cardDebt = getPlayerCardDebt(player);
+    const inscriptionDebt = getPlayerInscriptionDebt(player);
+    const restrictions = [];
+
+    // IMPORTANTE: restricciones por sanciones/deudas se calculan antes de confirmar convocatoria para evitar habilitar jugadores no disponibles.
+    if (health.status === 'sancionado') restrictions.push('Sancionado');
+    if (health.status === 'lesionado') restrictions.push('Lesionado');
+    if (cardDebt > 0) restrictions.push(`Multas ${formatCOP(cardDebt)}`);
+    if (inscriptionDebt > 0) restrictions.push(`Inscripción ${formatCOP(inscriptionDebt)}`);
+
+    return {
+        blocked: health.status === 'sancionado' || cardDebt > 0,
+        warning: health.status === 'lesionado' || inscriptionDebt > 0,
+        text: restrictions.join(' · ')
+    };
+};
+
+const normalizeConvocationState = (player) => {
+    const stored = getConvocationStates()[player.id] || 'duda';
+    const restriction = getPlayerRestriction(player);
+    // IMPORTANTE: el estado de convocatoria nunca oculta la restricción; una sanción/deuda dura fuerza revisión aunque estuviera confirmado.
+    if (restriction.blocked && stored === 'confirmado') return 'duda';
+    return ['convocado', 'confirmado', 'ausente', 'duda'].includes(stored) ? stored : 'duda';
+};
+
+const playerMonthlyStats = (playerId, sourceMatches = tournamentData.matches || []) => {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    return sourceMatches
+        .filter(match => {
+            const d = new Date(match.date || 0);
+            return d.getMonth() === month && d.getFullYear() === year;
+        })
+        .reduce((acc, match) => {
+            const stats = match.playerDetails?.[playerId] || {};
+            if ((match.presentPlayers || []).map(String).includes(String(playerId))) acc.matches += 1;
+            acc.goals += stats.goals || 0;
+            acc.cards += (stats.yellow || 0) + (stats.blue || 0) + (stats.red || 0);
+            if (String(match.mvpPlayerId || '') === String(playerId)) acc.mvps += 1;
+            return acc;
+        }, { matches: 0, goals: 0, cards: 0, mvps: 0 });
+};
+
+const calculateMonthlyMvpRanking = () => {
+    // IMPORTANTE: ranking MVP mensual pondera MVPs oficiales, goles, asistencia y disciplina para no depender de una sola métrica.
+    return players.map(player => {
+        const stats = playerMonthlyStats(player.id);
+        return {
+            player,
+            ...stats,
+            score: (stats.mvps * 8) + (stats.goals * 3) + stats.matches - (stats.cards * 1.5)
+        };
+    }).filter(row => row.matches > 0 || row.goals > 0 || row.mvps > 0)
+        .sort((a, b) => b.score - a.score || b.goals - a.goals)
+        .slice(0, 8);
+};
+
+const buildPlayerEvolution = (playerId) => {
+    let goals = 0, cards = 0, attendance = 0;
+    return [...(tournamentData.matches || [])]
+        .sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0))
+        .map((match, index) => {
+            const stats = match.playerDetails?.[playerId] || {};
+            const present = (match.presentPlayers || []).map(String).includes(String(playerId));
+            goals += stats.goals || 0;
+            cards += (stats.yellow || 0) + (stats.blue || 0) + (stats.red || 0);
+            attendance += present ? 1 : 0;
+            return { index: index + 1, goals, cards, attendance, match };
+        });
+};
+
+const getPlayerComparisonStats = (player) => {
+    const advanced = calculateAdvancedMetrics(tournamentData.matches || []);
+    const row = advanced.playerList.find(p => String(p.id) === String(player.id)) || {};
+    return {
+        PJ: row.matches || 0,
+        Goles: row.goals || 0,
+        'G/P': Number(row.goalPerMatch || 0).toFixed(2),
+        Tarjetas: row.cards || 0,
+        MVP: Number(row.mvpScore || 0).toFixed(1),
+        Deuda: formatCOP(getPlayerCardDebt(player) + getPlayerInscriptionDebt(player))
+    };
+};
+
+const updatePlayerSelect = (id, placeholder = 'Seleccionar jugador') => {
+    const select = document.getElementById(id);
+    if (!select) return '';
+    const current = select.value;
+    select.innerHTML = `<option value="">${escapeHTML(placeholder)}</option>`;
+    players.forEach(player => {
+        const option = document.createElement('option');
+        option.value = player.id;
+        option.textContent = `${player.number || '-'} · ${player.name}`;
+        select.appendChild(option);
+    });
+    if (players.some(player => String(player.id) === String(current))) select.value = current;
+    return select.value;
+};
+
+window.addNextMatch = async () => {
+    const date = document.getElementById('nextMatchDate')?.value;
+    const opponent = document.getElementById('nextMatchOpponent')?.value.trim();
+    const venue = document.getElementById('nextMatchVenue')?.value.trim();
+    if (!date || !opponent) return window.showToast('Fecha y rival son obligatorios', true);
+
+    const nextMatches = [...getNextMatches(), { id: crypto.randomUUID(), date, opponent, venue, createdAt: new Date().toISOString() }]
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+    await updateDoc(getTeamOpsDocRef(), { nextMatches });
+    safeVal('nextMatchDate', '');
+    safeVal('nextMatchOpponent', '');
+    safeVal('nextMatchVenue', '');
+    window.showToast('Partido agregado al calendario');
+};
+
+window.deleteNextMatch = async (matchId) => {
+    await updateDoc(getTeamOpsDocRef(), { nextMatches: getNextMatches().filter(match => match.id !== matchId) });
+    window.showToast('Partido eliminado del calendario');
+};
+
+window.addTrainingSession = async () => {
+    const date = document.getElementById('trainingDate')?.value;
+    const label = document.getElementById('trainingLabel')?.value.trim() || 'Entrenamiento';
+    if (!date) return window.showToast('Fecha de entrenamiento obligatoria', true);
+    const trainingSessions = [{ id: crypto.randomUUID(), date, label, attendance: {} }, ...getTrainingSessions()];
+    await updateDoc(getTeamOpsDocRef(), { trainingSessions });
+    safeVal('trainingDate', '');
+    safeVal('trainingLabel', '');
+    window.showToast('Entrenamiento creado');
+};
+
+window.updateTrainingAttendance = async (sessionId, playerId, status) => {
+    const trainingSessions = getTrainingSessions().map(session => session.id === sessionId
+        ? { ...session, attendance: { ...(session.attendance || {}), [playerId]: status } }
+        : session);
+    await updateDoc(getTeamOpsDocRef(), { trainingSessions });
+};
+
+window.updateConvocationState = async (playerId, status) => {
+    const player = players.find(p => String(p.id) === String(playerId));
+    const restriction = player ? getPlayerRestriction(player) : { blocked: false };
+    // IMPORTANTE: al confirmar se validan deudas y sanciones en tiempo real; si está bloqueado, queda en duda.
+    const safeStatus = restriction.blocked && status === 'confirmado' ? 'duda' : status;
+    await updateDoc(getTeamOpsDocRef(), { convocationStates: { ...getConvocationStates(), [playerId]: safeStatus } });
+    if (safeStatus !== status) window.showToast('No se puede confirmar por sanción o deuda de multas', true);
+};
+
+window.updateHealthState = async (playerId, field, value) => {
+    const playerHealth = { ...getHealthStates() };
+    playerHealth[playerId] = { ...(playerHealth[playerId] || {}), [field]: value };
+    await updateDoc(getTeamOpsDocRef(), { playerHealth });
+};
+
+window.printTeamReport = () => window.print();
+
+window.togglePresentationMode = () => {
+    const panel = document.getElementById('presentationPanel');
+    if (!panel) return;
+    panel.classList.toggle('hidden');
+    window.renderTeamOps();
+};
+
+window.renderTeamOps = () => {
+    const nextMatchesList = document.getElementById('nextMatchesList');
+    if (!nextMatchesList) return;
+
+    const sortedNextMatches = getNextMatches().slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+    nextMatchesList.innerHTML = sortedNextMatches.length ? sortedNextMatches.map(match => `
+        <div class="glass rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+                <div class="text-white font-extrabold truncate">vs ${escapeHTML(match.opponent)}</div>
+                <div class="text-xs text-slate-500 mt-1">${escapeHTML(new Date(match.date).toLocaleString())}${match.venue ? ` · ${escapeHTML(match.venue)}` : ''}</div>
+            </div>
+            <button onclick="window.deleteNextMatch('${match.id}')" class="no-print text-slate-500 hover:text-danger"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    `).join('') : '<div class="text-center text-slate-500 py-6">Sin próximos partidos programados</div>';
+
+    const debtPlayers = players
+        .map(player => ({ player, totalDebt: getPlayerCardDebt(player) + getPlayerInscriptionDebt(player), cardDebt: getPlayerCardDebt(player), inscriptionDebt: getPlayerInscriptionDebt(player) }))
+        .filter(row => row.totalDebt > 0)
+        .sort((a, b) => b.totalDebt - a.totalDebt);
+    const debtReminderList = document.getElementById('debtReminderList');
+    if (debtReminderList) {
+        debtReminderList.innerHTML = debtPlayers.length ? debtPlayers.map(row => `
+            <div class="rounded-2xl border border-danger/30 bg-danger/10 p-4">
+                <div class="font-extrabold text-white">${escapeHTML(row.player.name)}</div>
+                <div class="text-xs text-danger mt-1">Debe ${formatCOP(row.totalDebt)}</div>
+                <div class="text-[10px] text-slate-400 mt-2">Inscripción ${formatCOP(row.inscriptionDebt)} · Multas ${formatCOP(row.cardDebt)}</div>
+            </div>
+        `).join('') : '<div class="text-slate-500 text-sm md:col-span-2">Sin deudas pendientes antes del próximo partido.</div>';
+    }
+
+    const trainingSelect = document.getElementById('trainingSessionSelect');
+    const sessions = getTrainingSessions().slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    if (trainingSelect) {
+        const current = trainingSelect.value;
+        trainingSelect.innerHTML = sessions.map(session => `<option value="${session.id}">${escapeHTML(session.date)} · ${escapeHTML(session.label)}</option>`).join('');
+        if (sessions.some(session => session.id === current)) trainingSelect.value = current;
+    }
+    const selectedSession = sessions.find(session => session.id === trainingSelect?.value) || sessions[0];
+    const trainingGrid = document.getElementById('trainingAttendanceGrid');
+    if (trainingGrid) {
+        trainingGrid.innerHTML = selectedSession ? players.map(player => {
+            const status = selectedSession.attendance?.[player.id] || 'pendiente';
+            return `
+                <div class="glass rounded-2xl p-3 flex items-center justify-between gap-3">
+                    <div class="font-bold text-slate-200 truncate">${escapeHTML(player.name)}</div>
+                    <select onchange="window.updateTrainingAttendance('${selectedSession.id}', '${player.id}', this.value)" class="premium-select px-3 py-2 text-xs no-print">
+                        ${['pendiente','asistio','tarde','falto'].map(value => `<option value="${value}" ${status === value ? 'selected' : ''}>${value}</option>`).join('')}
+                    </select>
+                    <span class="hidden print:inline text-xs">${escapeHTML(status)}</span>
+                </div>`;
+        }).join('') : '<div class="text-center text-slate-500 py-6">Crea un entrenamiento para controlar asistencia.</div>';
+    }
+
+    const convocationGrid = document.getElementById('convocationStatusGrid');
+    if (convocationGrid) {
+        convocationGrid.innerHTML = players.map(player => {
+            const state = normalizeConvocationState(player);
+            const restriction = getPlayerRestriction(player);
+            const stateClass = { convocado: 'text-sky-300', confirmado: 'text-success', ausente: 'text-danger', duda: 'text-warning' }[state];
+            return `
+                <div class="glass rounded-2xl p-4 border ${restriction.blocked ? 'border-danger/30' : 'border-white/8'}">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="font-extrabold text-white truncate">${escapeHTML(player.number)} · ${escapeHTML(player.name)}</div>
+                            <div class="text-[11px] ${restriction.blocked ? 'text-danger' : 'text-slate-500'} mt-1">${restriction.text ? escapeHTML(restriction.text) : 'Sin restricciones'}</div>
+                        </div>
+                        <select onchange="window.updateConvocationState('${player.id}', this.value)" class="premium-select px-3 py-2 text-xs no-print ${stateClass}">
+                            ${['convocado','confirmado','ausente','duda'].map(value => `<option value="${value}" ${state === value ? 'selected' : ''}>${value}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>`;
+        }).join('') || '<div class="text-center text-slate-500 py-6">Sin jugadores para convocar.</div>';
+    }
+
+    const healthPanel = document.getElementById('healthPanel');
+    if (healthPanel) {
+        healthPanel.innerHTML = players.map(player => {
+            const health = getHealthStates()[player.id] || { status: 'ok' };
+            return `
+                <div class="glass rounded-2xl p-4 grid grid-cols-1 md:grid-cols-[1fr_150px_1fr] gap-3 items-center">
+                    <div class="font-extrabold text-white truncate">${escapeHTML(player.name)}</div>
+                    <select onchange="window.updateHealthState('${player.id}', 'status', this.value)" class="premium-select px-3 py-2 text-xs no-print">
+                        ${['ok','lesionado','sancionado'].map(value => `<option value="${value}" ${health.status === value ? 'selected' : ''}>${value}</option>`).join('')}
+                    </select>
+                    <input onchange="window.updateHealthState('${player.id}', 'note', this.value)" value="${escapeHTML(health.note || '')}" class="premium-input px-3 py-2 text-xs no-print" placeholder="Nota / regreso estimado">
+                    <div class="hidden print:block text-xs text-slate-500 md:col-span-2">${escapeHTML(health.status || 'ok')} · ${escapeHTML(health.note || '')}</div>
+                </div>`;
+        }).join('');
+    }
+
+    const mvpRanking = calculateMonthlyMvpRanking();
+    const monthlyMvpRanking = document.getElementById('monthlyMvpRanking');
+    if (monthlyMvpRanking) {
+        monthlyMvpRanking.innerHTML = mvpRanking.length ? mvpRanking.map((row, index) => `
+            <div class="flex items-center justify-between gap-3 rounded-2xl bg-white/[.03] border border-white/8 p-3">
+                <div class="flex items-center gap-3 min-w-0"><span class="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-200 flex items-center justify-center font-extrabold">${index + 1}</span><span class="font-bold text-white truncate">${escapeHTML(row.player.name)}</span></div>
+                <div class="text-right"><div class="font-extrabold text-purple-300">${row.score.toFixed(1)}</div><div class="text-[10px] text-slate-500">${row.mvps} MVP · ${row.goals} G · ${row.matches} PJ</div></div>
+            </div>
+        `).join('') : '<div class="text-center text-slate-500 py-6">Sin datos MVP del mes actual.</div>';
+    }
+
+    const historyId = updatePlayerSelect('historyPlayerSelect', 'Historial de jugador') || players[0]?.id || '';
+    const evolutionPanel = document.getElementById('playerEvolutionPanel');
+    if (evolutionPanel) {
+        const selectedId = document.getElementById('historyPlayerSelect')?.value || historyId;
+        if (!document.getElementById('historyPlayerSelect')?.value && selectedId) document.getElementById('historyPlayerSelect').value = selectedId;
+        const selectedPlayer = players.find(player => String(player.id) === String(selectedId));
+        const evolution = selectedId ? buildPlayerEvolution(selectedId).slice(-6) : [];
+        const paid = selectedPlayer ? getPlayerTotalPaidFromHistory(selectedPlayer) : 0;
+        evolutionPanel.innerHTML = selectedPlayer ? `
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="glass rounded-2xl p-4"><div class="text-xs text-slate-500">Pagos</div><div class="text-lg font-extrabold text-success">${formatCOP(paid)}</div></div>
+                <div class="glass rounded-2xl p-4"><div class="text-xs text-slate-500">Deuda</div><div class="text-lg font-extrabold text-danger">${formatCOP(getPlayerCardDebt(selectedPlayer) + getPlayerInscriptionDebt(selectedPlayer))}</div></div>
+                <div class="glass rounded-2xl p-4"><div class="text-xs text-slate-500">Goles acum.</div><div class="text-lg font-extrabold text-white">${evolution.at(-1)?.goals || 0}</div></div>
+                <div class="glass rounded-2xl p-4"><div class="text-xs text-slate-500">Asistencias PJ</div><div class="text-lg font-extrabold text-sky-300">${evolution.at(-1)?.attendance || 0}</div></div>
+            </div>
+            <div class="space-y-2 mt-4">${evolution.map(row => `<div class="rounded-2xl bg-white/[.03] border border-white/8 p-3 text-xs text-slate-300">P${row.index}: ${escapeHTML(getMatchLabel(row.match.id))} · G ${row.goals} · T ${row.cards} · Asist. ${row.attendance}</div>`).join('') || '<div class="text-slate-500 text-sm">Sin evolución registrada.</div>'}</div>
+        ` : '<div class="text-center text-slate-500 py-6">Selecciona un jugador.</div>';
+    }
+
+    updatePlayerSelect('comparePlayerA', 'Jugador A');
+    updatePlayerSelect('comparePlayerB', 'Jugador B');
+    const comparePanel = document.getElementById('playerComparePanel');
+    if (comparePanel) {
+        const ids = [document.getElementById('comparePlayerA')?.value || players[0]?.id, document.getElementById('comparePlayerB')?.value || players[1]?.id].filter(Boolean);
+        ['comparePlayerA', 'comparePlayerB'].forEach((id, index) => {
+            const select = document.getElementById(id);
+            if (select && !select.value && ids[index]) select.value = ids[index];
+        });
+        comparePanel.innerHTML = ids.map(pid => {
+            const player = players.find(p => String(p.id) === String(pid));
+            if (!player) return '';
+            const stats = getPlayerComparisonStats(player);
+            return `<div class="glass rounded-[24px] p-5"><div class="font-extrabold text-white mb-4">${escapeHTML(player.name)}</div>${Object.entries(stats).map(([label, value]) => `<div class="flex justify-between border-b border-white/6 py-2 text-sm"><span class="text-slate-500">${escapeHTML(label)}</span><span class="font-bold text-slate-200">${escapeHTML(value)}</span></div>`).join('')}</div>`;
+        }).join('') || '<div class="text-center text-slate-500 py-6 md:col-span-2">Selecciona dos jugadores para comparar.</div>';
+    }
+
+    const presentationPanel = document.getElementById('presentationPanel');
+    const presentationStats = document.getElementById('presentationStats');
+    if (presentationPanel && presentationStats && !presentationPanel.classList.contains('hidden')) {
+        const advanced = calculateAdvancedMetrics(tournamentData.matches || []);
+        const leader = calculateMonthlyMvpRanking()[0];
+        presentationStats.innerHTML = [
+            ['PJ', advanced.teamStats.pj, 'Partidos'],
+            ['%V', `${advanced.winPercentage.toFixed(0)}%`, 'Victorias'],
+            ['DG', formatSignedDecimal(advanced.avgGoalDiff, 1), 'DG/P'],
+            ['MVP mes', leader?.player?.name || '-', leader ? `${leader.score.toFixed(1)} pts` : 'Sin datos']
+        ].map(([label, value, help]) => `<div class="glass rounded-[24px] p-5 text-center"><div class="text-xs text-slate-400 uppercase font-bold tracking-[.16em]">${escapeHTML(label)}</div><div class="text-3xl font-extrabold text-white mt-2">${escapeHTML(value)}</div><div class="text-xs text-slate-500 mt-2">${escapeHTML(help)}</div></div>`).join('');
+    }
+};
+
 window.renderAll = () => {
     window.renderPlayers();
     window.renderMatchSelector();
@@ -986,6 +1313,7 @@ window.renderAll = () => {
     window.renderPaymentMatchSelect();
     window.updateLineupSelectors();
     window.renderFinances();
+    window.renderTeamOps();
     window.renderDashboard();
     window.renderStatsTable();
     window.updatePaymentTypeUI();
