@@ -1691,6 +1691,17 @@ window.renderFinances = () => {
         renderedCount++;
     });
 
+    // IMPORTANTE: estado vacío para evitar que Finanzas parezca rota cuando no hay jugadores o el filtro no devuelve filas.
+    if (renderedCount === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td colspan="8" class="py-8 text-center text-slate-400 text-sm">
+                ${players.length === 0 ? 'No hay jugadores cargados para este torneo' : 'No hay jugadores que coincidan con este filtro'}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    }
+
     const financesCount = document.getElementById('financesCount');
     if (financesCount) financesCount.textContent = `${renderedCount} jugadores`;
 };
