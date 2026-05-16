@@ -1274,20 +1274,19 @@
             if (el) el.value = val;
         };
 
-        const formatCOP = (amount) => new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        }).format(amount || 0);
-
-
-        // IMPORTANTE: evita inyectar texto libre de partidos dentro del HTML renderizado.
+        // IMPORTANTE: todo dato externo o escrito por usuarios debe sanearse antes de usar innerHTML.
         const escapeHTML = (value = '') => String(value)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+
+        const formatCOP = (amount) => new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0
+        }).format(amount || 0);
 
         // IMPORTANTE: centraliza nombres de jugadores para reutilizar datos nuevos como MVP y alineación.
         const getPlayerName = (playerId) => players.find(p => String(p.id) === String(playerId))?.name || 'Sin jugador';
@@ -1313,7 +1312,7 @@
             if (!container) return;
 
             if (!rows.length) {
-                container.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">${emptyText}</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">${escapeHTML(emptyText)}</div>`;
                 return;
             }
 
@@ -1323,9 +1322,9 @@
                     <div class="flex items-center justify-between gap-3 mb-2">
                         <div class="flex items-center gap-2 min-w-0">
                             <span class="w-7 h-7 rounded-xl ${row.badgeClass || 'bg-white/5 text-slate-300'} flex items-center justify-center text-xs font-extrabold">${index + 1}</span>
-                            <span class="text-sm font-bold text-white truncate">${row.label}</span>
+                            <span class="text-sm font-bold text-white truncate">${escapeHTML(row.label)}</span>
                         </div>
-                        <span class="text-sm font-extrabold ${row.valueClass || 'text-primary'}">${row.display}</span>
+                        <span class="text-sm font-extrabold ${row.valueClass || 'text-primary'}">${escapeHTML(row.display)}</span>
                     </div>
                     <div class="h-2 rounded-full bg-white/5 overflow-hidden"><div class="h-full ${row.barClass || 'bg-primary'}" style="width: ${(row.value / maxValue) * 100}%"></div></div>
                 </div>
@@ -1562,21 +1561,32 @@
                     found.forEach(t => {
                         const btn = document.createElement('button');
                         const isActive = t.id === currentTournament;
-                        const sourceLabel = t.sourceColl === "torneos"
-                            ? '<span class="badge-source bg-yellow-500 text-black">Legacy</span>'
-                            : '';
-
                         btn.className = `w-full text-left px-3 py-3 rounded-2xl text-xs font-bold transition mb-1 flex justify-between items-center border ${
                             isActive
                                 ? 'bg-gradient-to-r from-amber-500 to-amber-400 text-ink border-amber-300 shadow-brand'
                                 : 'bg-white/5 text-slate-300 border-white/8 hover:bg-white/10'
                         }`;
 
-                        btn.innerHTML = `
-                            <div class="truncate">${t.name || t.id}</div>
-                            <div>${sourceLabel} ${isActive ? '<i class="fa-solid fa-check ml-1"></i>' : ''}</div>
-                        `;
+                        // IMPORTANTE: el nombre del torneo viene de Firestore; usar textContent evita ejecutar HTML externo.
+                        const nameBox = document.createElement('div');
+                        nameBox.className = 'truncate';
+                        nameBox.textContent = t.name || t.id;
 
+                        const statusBox = document.createElement('div');
+                        if (t.sourceColl === "torneos") {
+                            const legacyBadge = document.createElement('span');
+                            legacyBadge.className = 'badge-source bg-yellow-500 text-black';
+                            legacyBadge.textContent = 'Legacy';
+                            statusBox.appendChild(legacyBadge);
+                        }
+
+                        if (isActive) {
+                            const checkIcon = document.createElement('i');
+                            checkIcon.className = 'fa-solid fa-check ml-1';
+                            statusBox.appendChild(checkIcon);
+                        }
+
+                        btn.append(nameBox, statusBox);
                         btn.onclick = () => window.selectTournament(t.id, t.sourceColl, t.playerColl);
                         container.appendChild(btn);
                     });
@@ -2034,7 +2044,7 @@
                 if (!select) return;
                 const currentValue = select.value;
                 const firstLabel = select.id === 'matchLineupSelect' ? 'Sin alineación rápida' : 'Alineaciones guardadas';
-                select.innerHTML = `<option value="">${firstLabel}</option>`;
+                select.innerHTML = `<option value="">${escapeHTML(firstLabel)}</option>`;
                 saved.forEach((lineup) => {
                     const option = document.createElement('option');
                     option.value = lineup.id;
@@ -2223,7 +2233,7 @@
                     const btn = document.createElement('button');
                     btn.className = 'w-full text-left p-3 hover:bg-white/5 rounded-2xl text-white text-sm border border-white/5';
                     const meta = getPlayerMeta(p.id, activePosIndex === 'gk' ? 'arquero' : 'suplente');
-                    btn.innerHTML = `<b>${escapeHTML(p.number)}</b> ${escapeHTML(p.name)}<span class="block text-[10px] text-slate-400 mt-1">${PLAYER_ROLES[meta.role]} · ${AVAILABILITY_STATES[meta.availability]}</span>`;
+                    btn.innerHTML = `<b>${escapeHTML(p.number)}</b> ${escapeHTML(p.name)}<span class="block text-[10px] text-slate-400 mt-1">${escapeHTML(PLAYER_ROLES[meta.role])} · ${escapeHTML(AVAILABILITY_STATES[meta.availability])}</span>`;
                     btn.onclick = () => window.selectPlayerForPos(p.id);
                     list.appendChild(btn);
                 }
@@ -2421,10 +2431,10 @@
                         <div class="relative z-10 flex justify-between items-start gap-3">
                             <div class="flex items-center gap-4 min-w-0">
                                 <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center font-extrabold text-slate-200 shrink-0">
-                                    ${p.number}
+                                    ${escapeHTML(p.number)}
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="font-extrabold text-white leading-tight truncate">${p.name}</div>
+                                    <div class="font-extrabold text-white leading-tight truncate">${escapeHTML(p.name)}</div>
                                     <div class="text-xs text-slate-500 mt-1">Abonado: ${formatCOP(p.totalPaid || 0)}</div>
                                     ${cardDebtHtml}
                                 </div>
@@ -2489,7 +2499,7 @@
                             <span class="text-slate-500 mx-1">-</span>
                             <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span>
                         </div>
-                        <div class="text-xs font-bold uppercase text-slate-400 mt-1">${m.result}</div>
+                        <div class="text-xs font-bold uppercase text-slate-400 mt-1">${escapeHTML(m.result)}</div>
                         <div class="text-[11px] text-slate-500 mt-2 truncate">${contextParts.join(' · ') || 'Sin jornada/sede/fase'}</div>
                         ${mvpLabel ? `<div class="text-[11px] text-purple-300 mt-1">${mvpLabel}</div>` : ''}
                     </div>
@@ -2515,7 +2525,7 @@
                     miniItem.innerHTML = `
                         <div class="cursor-pointer min-w-0" onclick="window.viewMatchDetails('${m.id}')">
                             <div class="text-xs text-slate-500">${new Date(m.date).toLocaleDateString()}</div>
-                            <div class="text-[11px] font-bold text-slate-300 truncate">${opponentLabel}</div>
+                            <div class="text-[11px] font-bold text-slate-300 truncate">${escapeHTML(m.opponent ? `vs ${m.opponent}` : 'Rival sin registrar')}</div>
                             <div class="text-lg font-extrabold text-white">
                                 <span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span>
                                 <span class="text-slate-500 mx-1">-</span>
@@ -2523,7 +2533,7 @@
                             </div>
                         </div>
                         <div class="text-[10px] uppercase font-bold ${m.result === 'Victoria' ? 'text-success' : (m.result === 'Derrota' ? 'text-danger' : 'text-primary')}">
-                            ${m.result}
+                            ${escapeHTML(m.result)}
                         </div>
                     `;
                     recentList.appendChild(miniItem);
@@ -2601,7 +2611,7 @@
 
                 let content = `
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-bold text-slate-200">${p.number}. ${p.name}</span>
+                        <span class="text-sm font-bold text-slate-200">${escapeHTML(p.number)}. ${escapeHTML(p.name)}</span>
                         ${state.selected
                             ? '<i class="fa-solid fa-circle-check text-success"></i>'
                             : '<i class="fa-regular fa-circle text-slate-600"></i>'
@@ -2705,7 +2715,7 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-4 pl-2 font-medium text-white">${p.name}</td>
+                    <td class="py-4 pl-2 font-medium text-white">${escapeHTML(p.name)}</td>
                     <td class="py-4 text-right text-slate-400">${formatCOP(cost)}</td>
                     <td class="py-4 text-right text-success">${formatCOP(paid)}</td>
                     <td class="py-4 text-right ${debt > 0 ? 'text-danger font-bold' : 'text-slate-500'}">${formatCOP(Math.max(0, debt))}</td>
@@ -2801,7 +2811,7 @@
                 // IMPORTANTE: se agregan %V, PPG y DG/P como KPIs derivados del historial de partidos.
                 statsTable.innerHTML = `
                     <tr class="hover:bg-white/[.03] transition">
-                        <td class="stat-cell text-left pl-4 font-extrabold text-white">${tName}</td>
+                        <td class="stat-cell text-left pl-4 font-extrabold text-white">${escapeHTML(tName)}</td>
                         <td class="stat-cell font-mono">${teamStats.pj}</td>
                         <td class="stat-cell text-success font-bold">${teamStats.pg}</td>
                         <td class="stat-cell text-yellow-500 font-bold">${teamStats.pe}</td>
@@ -2828,7 +2838,7 @@
                 // IMPORTANTE: el ranking de dashboard se oculta con estado vacío si todavía no existen goles.
                 table.innerHTML = sortedScorers.length ? sortedScorers.map(p => `
                     <tr>
-                        <td class="py-3 text-sm border-b border-white/6">${p.name}</td>
+                        <td class="py-3 text-sm border-b border-white/6">${escapeHTML(p.name)}</td>
                         <td class="text-right font-extrabold text-success border-b border-white/6">${p.goals} Goles</td>
                     </tr>
                 `).join('') : '<tr><td colspan="2" class="text-center py-6 text-xs text-slate-500">Sin goles registrados</td></tr>';
@@ -2841,15 +2851,15 @@
                     <div class="flex items-center justify-between gap-3 py-3 border-b border-white/6">
                         <div class="min-w-0">
                             <div class="text-xs text-slate-500">${new Date(m.date).toLocaleDateString()}</div>
-                            <div class="text-[11px] font-bold text-slate-300 truncate">${opponentLabel}</div>
+                            <div class="text-[11px] font-bold text-slate-300 truncate">${escapeHTML(m.opponent ? `vs ${m.opponent}` : 'Rival sin registrar')}</div>
                             <div class="text-lg font-extrabold text-white">
                                 <span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span>
                                 <span class="text-slate-500 mx-1">-</span>
                                 <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span>
                             </div>
                         </div>
-                        <div class="w-9 h-9 rounded-full border flex items-center justify-center text-xs font-extrabold ${getResultBadgeClass(m.result)}" title="${m.result}">
-                            ${getResultShort(m.result)}
+                        <div class="w-9 h-9 rounded-full border flex items-center justify-center text-xs font-extrabold ${getResultBadgeClass(m.result)}" title="${escapeHTML(m.result)}">
+                            ${escapeHTML(getResultShort(m.result))}
                         </div>
                     </div>
                 `).join('') : '<div class="text-center py-6 text-xs text-slate-500">Sin partidos recientes</div>';
@@ -2874,7 +2884,7 @@
             sorted.forEach(s => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-3 pl-2 font-medium text-white">${s.name}</td>
+                    <td class="py-3 pl-2 font-medium text-white">${escapeHTML(s.name)}</td>
                     <td class="text-center text-slate-400">${s.matches}</td>
                     <td class="text-center font-bold text-success">${s.goals}</td>
                     <td class="text-center text-slate-400 text-[10px]">${s.goalPerMatch.toFixed(2)}</td>
@@ -3069,8 +3079,9 @@
             } else {
                 list.innerHTML = p.payments.map(pay => {
                     const type = pay.type || 'inscripcion';
-                    const typeLabel = PAYMENT_TYPE_LABELS[type] || 'Inscripción';
-                    const matchLabel = pay.matchId ? getMatchLabel(pay.matchId) : null;
+                    const typeLabel = escapeHTML(PAYMENT_TYPE_LABELS[type] || 'Inscripción');
+                    // IMPORTANTE: getMatchLabel combina datos editables del partido; se sanea antes de innerHTML.
+                    const matchLabel = pay.matchId ? escapeHTML(getMatchLabel(pay.matchId)) : null;
 
                     return `
                         <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl mb-2 border border-white/8">
@@ -3408,7 +3419,7 @@
                     const row = document.createElement('div');
                     row.className = "flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 bg-white/5 p-4 rounded-2xl mb-3 border border-white/8";
                     row.innerHTML = `
-                        <div class="w-full lg:w-1/3 font-bold text-slate-300 text-sm">${p.name}</div>
+                        <div class="w-full lg:w-1/3 font-bold text-slate-300 text-sm">${escapeHTML(p.name)}</div>
                         <div class="flex gap-3 flex-wrap">
                             <div class="flex flex-col items-center">
                                 <span class="text-[10px] text-success mb-1">Goles</span>
@@ -3616,7 +3627,7 @@
                         const slotLabel = slot === 'gk' ? 'Arquero' : `Pos ${Number(slot) + 1}`;
                         const roleLabel = meta.role ? ` · ${PLAYER_ROLES[meta.role] || meta.role}` : '';
                         const availabilityLabel = meta.availability ? ` · ${AVAILABILITY_STATES[meta.availability] || meta.availability}` : '';
-                        return `<div class="text-xs text-slate-300 bg-white/5 rounded-xl px-3 py-2">${slotLabel}: <span class="text-white font-bold">${escapeHTML(getPlayerName(pid))}</span><span class="text-slate-500">${roleLabel}${availabilityLabel}</span></div>`;
+                        return `<div class="text-xs text-slate-300 bg-white/5 rounded-xl px-3 py-2">${slotLabel}: <span class="text-white font-bold">${escapeHTML(getPlayerName(pid))}</span><span class="text-slate-500">${escapeHTML(roleLabel)}${escapeHTML(availabilityLabel)}</span></div>`;
                     }).join('')}
                 </div>
             ` : '';
