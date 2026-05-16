@@ -654,6 +654,40 @@
                         </div>
                     </div>
 
+                    <!-- IMPORTANTE: estos datos identifican el partido más allá del marcador para historial, etiquetas y estadísticas. -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Rival</label>
+                            <input id="matchOpponent" class="premium-input w-full px-4 py-3" placeholder="Nombre del rival">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Jornada o fecha del torneo</label>
+                            <input id="matchRound" class="premium-input w-full px-4 py-3" placeholder="Ej: Jornada 3 / 2026-05-16">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Sede / cancha</label>
+                            <input id="matchVenue" class="premium-input w-full px-4 py-3" placeholder="Cancha o sede">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Fase o grupo</label>
+                            <input id="matchPhase" class="premium-input w-full px-4 py-3" placeholder="Ej: Grupo A / Semifinal">
+                        </div>
+                    </div>
+
+                    <!-- IMPORTANTE: el MVP y las observaciones alimentan el detalle del partido y métricas individuales cuando existan. -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">MVP del partido</label>
+                            <select id="matchMvp" class="premium-input w-full px-4 py-3">
+                                <option value="">Sin MVP</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Observaciones del partido</label>
+                            <textarea id="matchNotes" class="premium-input w-full px-4 py-3 min-h-[46px]" placeholder="Notas tácticas, incidencias o contexto"></textarea>
+                        </div>
+                    </div>
+
                     <div class="mb-6">
                         <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Costo Arbitraje Total</label>
                         <input
@@ -812,7 +846,7 @@
                     </div>
                     <table class="w-full text-left text-sm text-slate-300">
                         <thead class="text-xs uppercase text-slate-500 border-b border-white/8">
-                            <tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-center">PJ</th><th class="pb-3 text-center text-success">G</th><th class="pb-3 text-center text-slate-400 text-[10px]">G/P</th><th class="pb-3 text-center text-primary text-[10px]">Part. Gol</th><th class="pb-3 text-center text-yellow-500">A</th><th class="pb-3 text-center text-blue-400">Az</th><th class="pb-3 text-center text-red-500">R</th><th class="pb-3 text-center text-yellow-500 text-[10px]">T/P</th><th class="pb-3 text-center text-purple-300 text-[10px]">MVP</th><th class="pb-3 text-right text-danger">Deuda Multas</th></tr>
+                            <tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-center">PJ</th><th class="pb-3 text-center text-success">G</th><th class="pb-3 text-center text-slate-400 text-[10px]">G/P</th><th class="pb-3 text-center text-primary text-[10px]">Part. Gol</th><th class="pb-3 text-center text-yellow-500">A</th><th class="pb-3 text-center text-blue-400">Az</th><th class="pb-3 text-center text-red-500">R</th><th class="pb-3 text-center text-yellow-500 text-[10px]">T/P</th><th class="pb-3 text-center text-purple-300 text-[10px]">MVP</th><th class="pb-3 text-center text-amber-300 text-[10px]">MVPs</th><th class="pb-3 text-center text-sky-300 text-[10px]">Min</th><th class="pb-3 text-right text-danger">Deuda Multas</th></tr>
                         </thead>
                         <tbody id="statsTableBody" class="divide-y divide-white/6"></tbody>
                     </table>
@@ -1064,6 +1098,11 @@
                     </div>
                 </div>
 
+                <!-- IMPORTANTE: muestra contexto extendido guardado del partido para que el detalle sea auditable. -->
+                <div id="mdMeta" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6"></div>
+                <div id="mdNotes" class="hidden glass rounded-2xl p-4 mb-6 text-sm text-slate-300"></div>
+                <div id="mdLineup" class="hidden glass rounded-2xl p-4 mb-6"></div>
+
                 <div class="grid grid-cols-3 gap-3 text-center mb-6">
                     <div class="glass rounded-2xl p-4">
                         <div class="text-xs text-yellow-500 font-bold uppercase tracking-[.16em]">Ama</div>
@@ -1176,6 +1215,18 @@
             minimumFractionDigits: 0
         }).format(amount || 0);
 
+
+        // IMPORTANTE: evita inyectar texto libre de partidos dentro del HTML renderizado.
+        const escapeHTML = (value = '') => String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        // IMPORTANTE: centraliza nombres de jugadores para reutilizar datos nuevos como MVP y alineación.
+        const getPlayerName = (playerId) => players.find(p => String(p.id) === String(playerId))?.name || 'Sin jugador';
+
         const setHidden = (id, shouldHide) => {
             const el = document.getElementById(id);
             if (el) el.classList.toggle('hidden', shouldHide);
@@ -1278,6 +1329,9 @@
                     goalParticipation: 0,
                     cardsPerMatch: 0,
                     mvpScore: 0,
+                    mvpAwards: 0,
+                    minutes: 0,
+                    lineupStarts: 0,
                     debt: p.cardDebt || 0
                 };
             });
@@ -1299,6 +1353,12 @@
                 const presentPlayers = m.presentPlayers || [];
                 const presentIds = new Set(presentPlayers.length > 0 ? presentPlayers : Object.keys(details));
 
+                // IMPORTANTE: MVP y alineación guardada enriquecen estadísticas sin romper partidos antiguos.
+                if (m.mvpPlayerId && playerStats[m.mvpPlayerId]) playerStats[m.mvpPlayerId].mvpAwards++;
+                Object.values(m.lineupUsed || {}).forEach(pid => {
+                    if (pid && playerStats[pid]) playerStats[pid].lineupStarts++;
+                });
+
                 presentIds.forEach(pid => {
                     if (!playerStats[pid]) return;
                     const playerDetails = details[pid] || {};
@@ -1313,6 +1373,7 @@
                     playerStats[pid].blue += blue;
                     playerStats[pid].red += red;
                     playerStats[pid].cards += yellow + blue + red;
+                    playerStats[pid].minutes += Math.max(0, parseInt(playerDetails.minutes) || 0);
                 });
             });
 
@@ -1320,7 +1381,8 @@
                 const goalPerMatch = s.matches > 0 ? s.goals / s.matches : 0;
                 const goalParticipation = totalGF > 0 ? (s.goals / totalGF) * 100 : 0;
                 const cardsPerMatch = s.matches > 0 ? s.cards / s.matches : 0;
-                const mvpScore = (s.goals * formula.goals) + (s.matches * formula.matches) + (s.cards * formula.cards);
+                // IMPORTANTE: los MVPs registrados suman a la fórmula histórica solo cuando el partido trae ese dato nuevo.
+                const mvpScore = (s.goals * formula.goals) + (s.matches * formula.matches) + (s.cards * formula.cards) + (s.mvpAwards * 2);
 
                 // IMPORTANTE: estos ratios se guardan numéricos para tablas, tarjetas y gráficas sin recalcular.
                 return { ...s, goalPerMatch, goalParticipation, cardsPerMatch, mvpScore };
@@ -2000,8 +2062,12 @@
             const match = (tournamentData.matches || []).find(m => String(m.id) === String(matchId));
             if (!match) return 'Sin partido';
 
+            // IMPORTANTE: la etiqueta usa rival, jornada/fase y marcador cuando los datos nuevos estén disponibles.
             const dateLabel = new Date(match.date).toLocaleDateString();
-            return `${dateLabel} - ${match.goalsScored ?? 0}-${match.goalsConceded ?? 0}`;
+            const opponent = match.opponent ? ` vs ${match.opponent}` : '';
+            const round = match.round ? ` · ${match.round}` : '';
+            const phase = match.phase ? ` · ${match.phase}` : '';
+            return `${dateLabel}${opponent}${round}${phase} - ${match.goalsScored ?? 0}-${match.goalsConceded ?? 0}`;
         };
 
         window.renderAll = () => {
@@ -2025,9 +2091,8 @@
 
             matches.forEach((m) => {
                 const option = document.createElement('option');
-                const dateLabel = new Date(m.date).toLocaleDateString();
                 option.value = m.id;
-                option.textContent = `${dateLabel} - ${m.goalsScored ?? 0}-${m.goalsConceded ?? 0}`;
+                option.textContent = getMatchLabel(m.id);
                 matchSelect.appendChild(option);
             });
         };
@@ -2132,15 +2197,23 @@
                 else if (m.result === 'Derrota') item.classList.add('border-l-danger');
                 else item.classList.add('border-l-primary');
 
+                // IMPORTANTE: los metadatos nuevos hacen que el historial identifique rival, jornada, sede, fase y MVP.
+                const opponentLabel = m.opponent ? `vs ${escapeHTML(m.opponent)}` : 'Rival sin registrar';
+                const contextParts = [m.round, m.phase, m.venue].filter(Boolean).map(escapeHTML);
+                const mvpLabel = m.mvpPlayerId ? `MVP: ${escapeHTML(getPlayerName(m.mvpPlayerId))}` : '';
+
                 item.innerHTML = `
                     <div class="cursor-pointer flex-1 min-w-0" onclick="window.viewMatchDetails('${m.id}')">
                         <div class="text-xs text-slate-500 mb-1">${new Date(m.date).toLocaleDateString()}</div>
+                        <div class="text-sm font-bold text-slate-200 mb-1 truncate">${opponentLabel}</div>
                         <div class="text-2xl font-extrabold text-white">
                             <span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span>
                             <span class="text-slate-500 mx-1">-</span>
                             <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span>
                         </div>
                         <div class="text-xs font-bold uppercase text-slate-400 mt-1">${m.result}</div>
+                        <div class="text-[11px] text-slate-500 mt-2 truncate">${contextParts.join(' · ') || 'Sin jornada/sede/fase'}</div>
+                        ${mvpLabel ? `<div class="text-[11px] text-purple-300 mt-1">${mvpLabel}</div>` : ''}
                     </div>
 
                     <div class="flex gap-2 items-center shrink-0">
@@ -2164,6 +2237,7 @@
                     miniItem.innerHTML = `
                         <div class="cursor-pointer min-w-0" onclick="window.viewMatchDetails('${m.id}')">
                             <div class="text-xs text-slate-500">${new Date(m.date).toLocaleDateString()}</div>
+                            <div class="text-[11px] font-bold text-slate-300 truncate">${opponentLabel}</div>
                             <div class="text-lg font-extrabold text-white">
                                 <span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span>
                                 <span class="text-slate-500 mx-1">-</span>
@@ -2177,6 +2251,27 @@
                     recentList.appendChild(miniItem);
                 }
             });
+        };
+
+        // IMPORTANTE: el selector MVP solo ofrece jugadores convocados para evitar datos inconsistentes.
+        window.renderMatchMvpSelect = () => {
+            const select = document.getElementById('matchMvp');
+            if (!select) return;
+
+            const currentValue = select.value;
+            const selectedIds = Object.keys(matchSelection).filter(id => matchSelection[id] && matchSelection[id].selected);
+            select.innerHTML = '<option value="">Sin MVP</option>';
+
+            selectedIds.forEach(pid => {
+                const player = players.find(p => String(p.id) === String(pid));
+                if (!player) return;
+                const option = document.createElement('option');
+                option.value = pid;
+                option.textContent = player.name;
+                select.appendChild(option);
+            });
+
+            if (selectedIds.includes(currentValue)) select.value = currentValue;
         };
 
         window.renderMatchSelector = () => {
@@ -2302,6 +2397,7 @@
                 grid.appendChild(div);
             });
 
+            window.renderMatchMvpSelect();
             window.calcRef();
         };
 
@@ -2467,6 +2563,7 @@
                     <div class="flex items-center justify-between gap-3 py-3 border-b border-white/6">
                         <div class="min-w-0">
                             <div class="text-xs text-slate-500">${new Date(m.date).toLocaleDateString()}</div>
+                            <div class="text-[11px] font-bold text-slate-300 truncate">${opponentLabel}</div>
                             <div class="text-lg font-extrabold text-white">
                                 <span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span>
                                 <span class="text-slate-500 mx-1">-</span>
@@ -2492,7 +2589,7 @@
             // IMPORTANTE: la tabla individual hereda goles/P, participación goleadora, tarjetas/P y MVP del cálculo central.
             const sorted = advanced.playerList.sort((a, b) => b.mvpScore - a.mvpScore || b.goals - a.goals);
             if (!sorted.length) {
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-xs text-slate-500">Sin jugadores registrados para calcular estadísticas individuales.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-8 text-xs text-slate-500">Sin jugadores registrados para calcular estadísticas individuales.</td></tr>';
                 return;
             }
 
@@ -2509,6 +2606,9 @@
                     <td class="text-center text-red-500">${s.red}</td>
                     <td class="text-center text-yellow-500 text-[10px]">${s.cardsPerMatch.toFixed(2)}</td>
                     <td class="text-center text-purple-300 font-bold">${s.mvpScore.toFixed(1)}</td>
+                    <!-- IMPORTANTE: MVPs y minutos aparecen aquí solo si fueron guardados en partidos nuevos. -->
+                    <td class="text-center text-amber-300 font-bold">${s.mvpAwards || '-'}</td>
+                    <td class="text-center text-sky-300">${s.minutes || '-'}</td>
                     <td class="text-right text-danger font-mono pr-2">${s.debt > 0 ? formatCOP(s.debt) : '-'}</td>
                 `;
                 tbody.appendChild(tr);
@@ -3048,6 +3148,11 @@
                                 <span class="text-[10px] text-red-500 mb-1">Roja</span>
                                 <input type="number" min="0" class="w-12 bg-white/5 border border-white/8 rounded-xl text-center text-white py-2" value="${stats.red || 0}" onchange="window.updateStat('${pid}', 'red', this.value)">
                             </div>
+                            <!-- IMPORTANTE: los minutos son opcionales y solo impactan reportes cuando se capturan. -->
+                            <div class="flex flex-col items-center">
+                                <span class="text-[10px] text-sky-300 mb-1">Min</span>
+                                <input type="number" min="0" class="w-14 bg-white/5 border border-white/8 rounded-xl text-center text-white py-2" value="${stats.minutes || ''}" onchange="window.updateStat('${pid}', 'minutes', this.value)">
+                            </div>
                         </div>
                     `;
                     container.appendChild(row);
@@ -3093,7 +3198,16 @@
                 const refValue = parseFloat(document.getElementById('refPrice').value) || 0;
                 const selectedIds = Object.keys(matchSelection).filter(k => matchSelection[k].selected);
 
+                // IMPORTANTE: datos contextuales nuevos del partido; son opcionales para conservar compatibilidad histórica.
+                const opponent = document.getElementById('matchOpponent')?.value.trim() || '';
+                const round = document.getElementById('matchRound')?.value.trim() || '';
+                const venue = document.getElementById('matchVenue')?.value.trim() || '';
+                const phase = document.getElementById('matchPhase')?.value.trim() || '';
+                const notes = document.getElementById('matchNotes')?.value.trim() || '';
+                const mvpPlayerId = document.getElementById('matchMvp')?.value || '';
+
                 if (selectedIds.length === 0) return window.showToast('Selecciona al menos 1 jugador', true);
+                if (mvpPlayerId && !selectedIds.includes(mvpPlayerId)) return window.showToast('El MVP debe estar en la convocatoria', true);
 
                 let result = 'Derrota';
                 let points = 0;
@@ -3110,18 +3224,31 @@
                     playerDetailsMap[pid] = matchSelection[pid].stats || { goals: 0, yellow: 0, blue: 0, red: 0 };
                 });
 
+                // IMPORTANTE: guarda una copia de la alineación actual para que futuros cambios tácticos no alteren este partido.
+                const lineupUsed = structuredClone(currentLineup || {});
+                const previousMatch = (tournamentData.matches || []).find(m => m.id === editId);
+
                 const matchObj = {
                     id: editId || crypto.randomUUID(),
-                    date: new Date().toISOString(),
+                    date: previousMatch?.date || new Date().toISOString(),
                     goalsScored: gf,
                     goalsConceded: gc,
                     yellowCards: parseInt(document.getElementById('yc').value) || 0,
                     blueCards: parseInt(document.getElementById('bc').value) || 0,
                     redCards: parseInt(document.getElementById('rc').value) || 0,
                     refereeValue: refValue,
+                    // IMPORTANTE: bloque extendido para identificar rival, jornada, sede, fase, notas y MVP.
+                    opponent,
+                    round,
+                    venue,
+                    phase,
+                    notes,
+                    mvpPlayerId,
+                    // IMPORTANTE: bloque deportivo; conserva convocatoria, pagos, detalle individual y alineación usada.
                     presentPlayers: selectedIds,
                     refereePayments: matchSelection,
                     playerDetails: playerDetailsMap,
+                    lineupUsed,
                     result,
                     points
                 };
@@ -3171,6 +3298,37 @@
             document.getElementById('mdRC').textContent = m.redCards || 0;
             document.getElementById('mdRefTotal').textContent = formatCOP(m.refereeValue || 0);
 
+            // IMPORTANTE: bloque de contexto extendido visible en el detalle del partido.
+            const metaItems = [
+                ['Rival', m.opponent],
+                ['Jornada / fecha torneo', m.round],
+                ['Sede / cancha', m.venue],
+                ['Fase / grupo', m.phase],
+                ['MVP', m.mvpPlayerId ? getPlayerName(m.mvpPlayerId) : '']
+            ].filter(([, value]) => value);
+            const meta = document.getElementById('mdMeta');
+            meta.innerHTML = metaItems.length ? metaItems.map(([label, value]) => `
+                <div class="glass rounded-2xl p-3">
+                    <div class="text-[10px] text-slate-500 uppercase tracking-[.16em] font-bold">${escapeHTML(label)}</div>
+                    <div class="text-sm text-white font-bold mt-1">${escapeHTML(value)}</div>
+                </div>
+            `).join('') : '<div class="text-center text-slate-500 text-xs md:col-span-2">Sin datos extendidos registrados</div>';
+
+            const notesBox = document.getElementById('mdNotes');
+            notesBox.classList.toggle('hidden', !m.notes);
+            notesBox.innerHTML = m.notes ? `<div class="text-[10px] text-slate-500 uppercase tracking-[.16em] font-bold mb-2">Observaciones</div>${escapeHTML(m.notes)}` : '';
+
+            // IMPORTANTE: la alineación usada queda congelada por partido aunque currentLineup cambie después.
+            const lineupEntries = Object.entries(m.lineupUsed || {}).filter(([, pid]) => pid);
+            const lineupBox = document.getElementById('mdLineup');
+            lineupBox.classList.toggle('hidden', lineupEntries.length === 0);
+            lineupBox.innerHTML = lineupEntries.length ? `
+                <div class="text-[10px] text-slate-500 uppercase tracking-[.16em] font-bold mb-3">Alineación usada</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    ${lineupEntries.map(([slot, pid]) => `<div class="text-xs text-slate-300 bg-white/5 rounded-xl px-3 py-2">Pos ${Number(slot) + 1}: <span class="text-white font-bold">${escapeHTML(getPlayerName(pid))}</span></div>`).join('')}
+                </div>
+            ` : '';
+
             const list = document.getElementById('mdPlayerList');
             const details = m.playerDetails || {};
             const payments = m.refereePayments || {};
@@ -3185,10 +3343,12 @@
                 if (stats.yellow) statsHtml += `<span class="ml-2 text-yellow-500">🟨${stats.yellow}</span>`;
                 if (stats.blue) statsHtml += `<span class="ml-2 text-blue-400">🟦${stats.blue}</span>`;
                 if (stats.red) statsHtml += `<span class="ml-2 text-red-500">🟥${stats.red}</span>`;
+                if (stats.minutes) statsHtml += `<span class="ml-2 text-sky-300">⏱${stats.minutes}'</span>`;
+                if (String(m.mvpPlayerId || '') === String(pid)) statsHtml += `<span class="ml-2 text-purple-300">⭐ MVP</span>`;
 
                 return `
                     <div class="flex justify-between items-center py-3 px-4 border border-white/6 rounded-2xl bg-white/[.03]">
-                        <div class="text-slate-300">${p.name} ${statsHtml}</div>
+                        <div class="text-slate-300">${escapeHTML(p.name)} ${statsHtml}</div>
                         <span class="text-xs px-3 py-1 rounded-full ${payInfo.paidRef ? 'bg-success/20 text-success border border-success/20' : 'bg-danger/20 text-danger border border-danger/20'}">
                             ${payInfo.paidRef ? 'PAGADO' : 'DEBE'}
                         </span>
@@ -3209,6 +3369,13 @@
             document.getElementById('bc').value = match.blueCards || 0;
             document.getElementById('rc').value = match.redCards || 0;
             document.getElementById('refPrice').value = match.refereeValue || 0;
+            // IMPORTANTE: al editar se restauran los datos extendidos del partido si existen.
+            safeVal('matchOpponent', match.opponent || '');
+            safeVal('matchRound', match.round || '');
+            safeVal('matchVenue', match.venue || '');
+            safeVal('matchPhase', match.phase || '');
+            safeVal('matchNotes', match.notes || '');
+            safeVal('matchMvp', match.mvpPlayerId || '');
 
             document.getElementById('editingMatchId').value = match.id;
             document.getElementById('saveMatchBtnText').textContent = "Actualizar Partido";
@@ -3234,6 +3401,7 @@
             });
 
             window.renderMatchSelector();
+            safeVal('matchMvp', match.mvpPlayerId || '');
             document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
             window.showToast("Modo edición activado");
         };
@@ -3264,6 +3432,13 @@
             document.getElementById('bc').value = 0;
             document.getElementById('rc').value = 0;
             document.getElementById('refPrice').value = '';
+            // IMPORTANTE: también se limpian los campos extendidos para no arrastrar datos entre partidos.
+            safeVal('matchOpponent', '');
+            safeVal('matchRound', '');
+            safeVal('matchVenue', '');
+            safeVal('matchPhase', '');
+            safeVal('matchNotes', '');
+            safeVal('matchMvp', '');
             document.getElementById('editingMatchId').value = '';
             document.getElementById('saveMatchBtnText').textContent = "Guardar Partido";
             document.getElementById('matchFormTitle').textContent = "Registrar Resultado";
