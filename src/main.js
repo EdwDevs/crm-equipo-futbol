@@ -1671,11 +1671,14 @@ window.renderFinances = () => {
     safeText('financeFinesCollected', formatCOP(summary.finesCollected));
     safeText('financeRefPending', formatCOP(summary.refereePending));
 
+    // IMPORTANTE: las deudas se precalculan una sola vez para evitar renders lentos al recorrer todos los jugadores.
+    const debtsFromMatches = calculatePlayerDebts(tournamentData.matches || []);
+
     players.forEach(p => {
         // IMPORTANTE: el abonado de inscripción se recalcula desde historial para no depender de totalPaid si quedó desactualizado.
         const paid = getPlayerTotalPaidFromHistory(p);
         const debt = cost - paid;
-        const finesDebt = calculatePlayerDebts(tournamentData.matches || [])[p.id] ?? Math.max(0, p.cardDebt || 0);
+        const finesDebt = debtsFromMatches[p.id] ?? Math.max(0, p.cardDebt || 0);
         const totalDebt = Math.max(0, debt) + finesDebt;
         const isUpToDate = totalDebt <= 0;
 
