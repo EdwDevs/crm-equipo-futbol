@@ -249,10 +249,29 @@
             z-index: 10;
         }
 
-        .player-node:hover {
+        .player-node:hover,
+        .player-node.drag-over {
             transform: translate(-50%, -50%) scale(1.08);
             background: #F59E0B;
             color: #09101D;
+        }
+
+        .player-node.dragging,
+        .bench-player-tag.dragging {
+            opacity: .55;
+        }
+
+        .soccer-pitch.drag-over {
+            box-shadow: inset 0 0 0 3px rgba(245,158,11,.55), 0 20px 30px rgba(0,0,0,.25);
+        }
+
+        .bench-player-tag {
+            cursor: grab;
+        }
+
+        .bench-player-tag:active,
+        .player-node:active {
+            cursor: grabbing;
         }
 
         .player-node-label {
@@ -268,6 +287,24 @@
             color: white;
             pointer-events: none;
             border: 1px solid rgba(255,255,255,.08);
+        }
+
+        .player-node-meta {
+            position: absolute;
+            transform: translateX(-50%);
+            width: 132px;
+            z-index: 15;
+        }
+
+        .player-node-meta select {
+            width: 100%;
+            font-size: 9px;
+            padding: 3px 6px;
+            border-radius: 10px;
+            background: rgba(8,16,29,.88);
+            border: 1px solid rgba(255,255,255,.12);
+            color: #E5EDF8;
+            outline: none;
         }
 
         .premium-input,
@@ -548,6 +585,10 @@
 
                 <div class="flex gap-3 flex-wrap">
                     <select id="formationSelect" onchange="window.renderFormation()" class="premium-select px-4 py-3 text-sm"></select>
+                    <select id="savedLineupSelect" onchange="window.loadSavedLineup(this.value)" class="premium-select px-4 py-3 text-sm min-w-[190px]">
+                        <option value="">Alineaciones guardadas</option>
+                    </select>
+                    <input id="lineupName" class="premium-input px-4 py-3 text-sm min-w-[180px]" placeholder="Nombre alineación">
                     <button onclick="window.saveLineup()" class="premium-btn bg-gradient-to-r from-amber-500 to-amber-400 text-ink px-4 py-3 shadow-brand">
                         <i class="fa-solid fa-floppy-disk mr-2"></i> Guardar
                     </button>
@@ -686,6 +727,15 @@
                             <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Observaciones del partido</label>
                             <textarea id="matchNotes" class="premium-input w-full px-4 py-3 min-h-[46px]" placeholder="Notas tácticas, incidencias o contexto"></textarea>
                         </div>
+                    </div>
+
+                    <!-- IMPORTANTE: esta selección sincroniza una alineación guardada con la convocatoria del partido. -->
+                    <div class="mb-6">
+                        <label class="block text-[11px] text-slate-400 mb-2 font-bold uppercase tracking-[.16em]">Alineación rápida para el partido</label>
+                        <select id="matchLineupSelect" onchange="window.applyLineupToMatch(this.value)" class="premium-select w-full px-4 py-3">
+                            <option value="">Sin alineación rápida</option>
+                        </select>
+                        <div id="matchLineupHint" class="text-[11px] text-slate-500 mt-2">Selecciona una alineación guardada para preseleccionar convocados y congelarla al guardar.</div>
                     </div>
 
                     <div class="mb-6">
@@ -1172,6 +1222,19 @@
         };
 
         const OFFICIAL_TOURNAMENTS = ["Interempresas anillo vial", "Intercompany HIC"];
+        const PLAYER_ROLES = {
+            arquero: 'Arquero',
+            cierre: 'Cierre',
+            ala: 'Ala',
+            pivote: 'Pivote',
+            suplente: 'Suplente'
+        };
+        const AVAILABILITY_STATES = {
+            disponible: 'Disponible',
+            lesionado: 'Lesionado',
+            ausente: 'Ausente',
+            duda: 'Duda'
+        };
 
         const FORMATIONS = {
             5: [
@@ -1194,6 +1257,8 @@
         let tournamentData = {};
         let matchSelection = {};
         let currentLineup = {};
+        let currentLineupMeta = {};
+        let selectedLineupId = '';
         let activePosIndex = null;
         let charts = {};
         let unsubPlayers = null;
@@ -1542,6 +1607,8 @@
             tournamentData = {};
             matchSelection = {};
             currentLineup = {};
+            currentLineupMeta = {};
+            selectedLineupId = '';
             activePosIndex = null;
 
             loadData();
@@ -1922,15 +1989,71 @@
         };
 
         // --- TÁCTICA ---
+        const getTacticsType = () => ((tournamentData.name || "").includes("HIC") ? 5 : 6);
+        const getSavedLineups = () => Array.isArray(tournamentData.savedLineups) ? tournamentData.savedLineups : [];
+        const normalizeLineupMeta = (meta = {}) => ({ ...meta });
+        const getPlayerMeta = (playerId, fallbackRole = 'suplente') => {
+            if (!playerId) return { role: fallbackRole, availability: 'disponible' };
+            if (!currentLineupMeta[playerId]) {
+                currentLineupMeta[playerId] = { role: fallbackRole, availability: 'disponible' };
+            }
+            currentLineupMeta[playerId].role ||= fallbackRole;
+            currentLineupMeta[playerId].availability ||= 'disponible';
+            return currentLineupMeta[playerId];
+        };
+        const getDefaultRoleForSlot = (index, top) => {
+            if (index === 'gk') return 'arquero';
+            if (top >= 70) return 'cierre';
+            if (top <= 30) return 'pivote';
+            return 'ala';
+        };
+        const roleOptions = (selected) => Object.entries(PLAYER_ROLES).map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`).join('');
+        const availabilityOptions = (selected) => Object.entries(AVAILABILITY_STATES).map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`).join('');
+        const buildLineupSnapshot = (name = '') => {
+            const formSelect = document.getElementById('formationSelect');
+            const type = getTacticsType();
+            const formationIndex = Number(formSelect?.value || 0);
+            return {
+                id: selectedLineupId || crypto.randomUUID(),
+                name: name || `Alineación ${getSavedLineups().length + 1}`,
+                formationType: type,
+                formationIndex,
+                formationName: FORMATIONS[type][formationIndex]?.name || '',
+                slots: structuredClone(currentLineup || {}),
+                meta: structuredClone(currentLineupMeta || {}),
+                updatedAt: new Date().toISOString()
+            };
+        };
+
+        window.updateLineupSelectors = () => {
+            const saved = getSavedLineups();
+            const tacticsSelect = document.getElementById('savedLineupSelect');
+            const matchSelect = document.getElementById('matchLineupSelect');
+
+            [tacticsSelect, matchSelect].forEach((select) => {
+                if (!select) return;
+                const currentValue = select.value;
+                const firstLabel = select.id === 'matchLineupSelect' ? 'Sin alineación rápida' : 'Alineaciones guardadas';
+                select.innerHTML = `<option value="">${firstLabel}</option>`;
+                saved.forEach((lineup) => {
+                    const option = document.createElement('option');
+                    option.value = lineup.id;
+                    option.textContent = `${lineup.name}${lineup.formationName ? ` · ${lineup.formationName}` : ''}`;
+                    select.appendChild(option);
+                });
+                select.value = saved.some(l => l.id === currentValue) ? currentValue : (select.id === 'savedLineupSelect' ? selectedLineupId : '');
+            });
+        };
+
         window.initTactics = () => {
-            const tName = tournamentData.name || "";
-            const is5v5 = tName.includes("HIC");
-            const type = is5v5 ? 5 : 6;
+            const type = getTacticsType();
+            const is5v5 = type === 5;
 
             safeText('tacticsInfo', is5v5 ? "Modo: Futbol 5 (HIC)" : "Modo: Futbol 6 (Anillo Vial)");
 
             const select = document.getElementById('formationSelect');
             if (select) {
+                const previous = select.value || 0;
                 select.innerHTML = '';
                 FORMATIONS[type].forEach((f, i) => {
                     const opt = document.createElement('option');
@@ -1938,60 +2061,153 @@
                     opt.textContent = f.name;
                     select.appendChild(opt);
                 });
+                select.value = FORMATIONS[type][previous] ? previous : 0;
             }
 
-            currentLineup = tournamentData.savedLineup || {};
+            const saved = getSavedLineups();
+            const preferred = saved.find(l => l.id === selectedLineupId) || saved[0];
+            currentLineup = structuredClone(preferred?.slots || tournamentData.savedLineup || {});
+            currentLineupMeta = normalizeLineupMeta(structuredClone(preferred?.meta || tournamentData.savedLineupMeta || {}));
+            selectedLineupId = preferred?.id || '';
+            if (preferred?.formationType === type && select) select.value = preferred.formationIndex || 0;
+            safeVal('lineupName', preferred?.name || '');
+
+            window.updateLineupSelectors();
             window.renderFormation();
         };
 
         window.renderFormation = () => {
-            const tName = tournamentData.name || "";
-            const is5v5 = tName.includes("HIC");
-            const type = is5v5 ? 5 : 6;
+            const type = getTacticsType();
             const formSelect = document.getElementById('formationSelect');
             if (!formSelect) return;
 
-            const formIndex = formSelect.value || 0;
-            const formation = FORMATIONS[type][formIndex];
+            const formIndex = Number(formSelect.value || 0);
+            const formation = FORMATIONS[type][formIndex] || FORMATIONS[type][0];
             const container = document.getElementById('pitchContainer');
             if (!container) return;
 
-            const nodes = container.querySelectorAll('.player-node, .player-node-label');
+            const nodes = container.querySelectorAll('.player-node, .player-node-label, .player-node-meta');
             nodes.forEach(n => n.remove());
 
-            window.createNode(container, 50, 90, 'gk');
-            formation.pos.forEach((pos, i) => window.createNode(container, pos[0], pos[1], i));
+            // IMPORTANTE: el campo completo acepta drops y los redirige al slot táctico más cercano.
+            container.ondragover = (e) => {
+                e.preventDefault();
+                container.classList.add('drag-over');
+            };
+            container.ondragleave = () => container.classList.remove('drag-over');
+            container.ondrop = (e) => {
+                e.preventDefault();
+                container.classList.remove('drag-over');
+                const payload = window.getDragPayload(e);
+                if (!payload?.playerId) return;
+                const rect = container.getBoundingClientRect();
+                const left = ((e.clientX - rect.left) / rect.width) * 100;
+                const top = ((e.clientY - rect.top) / rect.height) * 100;
+                const slots = [{ index: 'gk', left: 50, top: 90 }, ...formation.pos.map((pos, i) => ({ index: i, left: pos[0], top: pos[1] }))];
+                const nearest = slots.reduce((best, slot) => {
+                    const distance = Math.hypot(slot.left - left, slot.top - top);
+                    return !best || distance < best.distance ? { ...slot, distance } : best;
+                }, null);
+                if (nearest) window.assignPlayerToSlot(payload.playerId, nearest.index, payload.fromSlot);
+            };
+
+            window.createNode(container, 50, 90, 'gk', 'arquero');
+            formation.pos.forEach((pos, i) => window.createNode(container, pos[0], pos[1], i, getDefaultRoleForSlot(i, pos[1])));
             window.renderBench();
         };
 
-        window.createNode = (container, left, top, index) => {
+        window.getDragPayload = (event) => {
+            try {
+                return JSON.parse(event.dataTransfer.getData('application/json') || '{}');
+            } catch (e) {
+                return {};
+            }
+        };
+
+        window.assignPlayerToSlot = (playerId, targetSlot, fromSlot = null) => {
+            // IMPORTANTE: drag/drop conserva unicidad; si el destino está ocupado se intercambian jugadores.
+            const previousTargetPlayer = currentLineup[targetSlot];
+            Object.keys(currentLineup).forEach(slot => {
+                if (String(currentLineup[slot]) === String(playerId)) delete currentLineup[slot];
+            });
+            currentLineup[targetSlot] = playerId;
+            if (fromSlot !== null && fromSlot !== undefined && fromSlot !== '' && previousTargetPlayer) {
+                currentLineup[fromSlot] = previousTargetPlayer;
+            }
+            selectedLineupId = '';
+            window.renderFormation();
+        };
+
+        window.createNode = (container, left, top, index, defaultRole = 'ala') => {
             const playerId = currentLineup[index];
-            const player = players.find(p => p.id === playerId);
+            const player = players.find(p => String(p.id) === String(playerId));
 
             const node = document.createElement('div');
             node.className = 'player-node';
             node.style.left = left + '%';
             node.style.top = top + '%';
             node.textContent = player ? player.number : (index === 'gk' ? 'GK' : '+');
+            node.dataset.slot = index;
+            node.draggable = Boolean(player);
 
             if (player) {
-                node.style.background = '#F59E0B';
+                const meta = getPlayerMeta(player.id, defaultRole);
+                node.style.background = meta.availability === 'disponible' ? '#F59E0B' : (meta.availability === 'duda' ? '#38BDF8' : '#EF4444');
                 node.style.color = '#09101D';
                 node.style.border = '2px solid #fff';
+                node.title = `${PLAYER_ROLES[meta.role]} · ${AVAILABILITY_STATES[meta.availability]}`;
             }
 
             node.onclick = () => window.openPlayerPick(index);
+            node.ondragstart = (e) => {
+                // IMPORTANTE: payload mínimo para mover jugadores sin depender del texto visible del nodo.
+                if (!player) return e.preventDefault();
+                node.classList.add('dragging');
+                e.dataTransfer.setData('application/json', JSON.stringify({ playerId: player.id, fromSlot: index }));
+            };
+            node.ondragend = () => node.classList.remove('dragging');
+            node.ondragover = (e) => {
+                e.preventDefault();
+                node.classList.add('drag-over');
+            };
+            node.ondragleave = () => node.classList.remove('drag-over');
+            node.ondrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                node.classList.remove('drag-over');
+                const payload = window.getDragPayload(e);
+                if (payload?.playerId) window.assignPlayerToSlot(payload.playerId, index, payload.fromSlot);
+            };
 
             if (player) {
+                const meta = getPlayerMeta(player.id, defaultRole);
                 const label = document.createElement('div');
                 label.className = 'player-node-label';
                 label.textContent = player.name.split(' ')[0];
                 label.style.left = left + '%';
                 label.style.top = (top + 6) + '%';
                 container.appendChild(label);
+
+                const controls = document.createElement('div');
+                controls.className = 'player-node-meta space-y-1';
+                controls.style.left = left + '%';
+                controls.style.top = `${Math.min(top + 10, 92)}%`;
+                controls.innerHTML = `
+                    <select onchange="window.updateLineupPlayerMeta('${player.id}', 'role', this.value)">${roleOptions(meta.role)}</select>
+                    <select onchange="window.updateLineupPlayerMeta('${player.id}', 'availability', this.value)">${availabilityOptions(meta.availability)}</select>
+                `;
+                controls.onclick = (e) => e.stopPropagation();
+                container.appendChild(controls);
             }
 
             container.appendChild(node);
+        };
+
+        window.updateLineupPlayerMeta = (playerId, key, value) => {
+            currentLineupMeta[playerId] ||= { role: 'suplente', availability: 'disponible' };
+            currentLineupMeta[playerId][key] = value;
+            selectedLineupId = '';
+            window.renderFormation();
         };
 
         window.openPlayerPick = (posIndex) => {
@@ -2006,7 +2222,8 @@
                 if (!usedIds.includes(p.id) || currentLineup[activePosIndex] === p.id) {
                     const btn = document.createElement('button');
                     btn.className = 'w-full text-left p-3 hover:bg-white/5 rounded-2xl text-white text-sm border border-white/5';
-                    btn.innerHTML = `<b>${p.number}</b> ${p.name}`;
+                    const meta = getPlayerMeta(p.id, activePosIndex === 'gk' ? 'arquero' : 'suplente');
+                    btn.innerHTML = `<b>${escapeHTML(p.number)}</b> ${escapeHTML(p.name)}<span class="block text-[10px] text-slate-400 mt-1">${PLAYER_ROLES[meta.role]} · ${AVAILABILITY_STATES[meta.availability]}</span>`;
                     btn.onclick = () => window.selectPlayerForPos(p.id);
                     list.appendChild(btn);
                 }
@@ -2019,6 +2236,7 @@
             if (pid) currentLineup[activePosIndex] = pid;
             else delete currentLineup[activePosIndex];
 
+            selectedLineupId = '';
             window.closeModal('playerPickModal');
             window.renderFormation();
         };
@@ -2038,23 +2256,82 @@
             }
 
             bench.forEach(p => {
+                const meta = getPlayerMeta(p.id, 'suplente');
                 const tag = document.createElement('div');
-                tag.className = 'text-xs bg-white/5 px-3 py-2 rounded-full text-slate-300 border border-white/8';
-                tag.textContent = `${p.number}. ${p.name}`;
+                tag.className = 'bench-player-tag text-xs bg-white/5 px-3 py-2 rounded-2xl text-slate-300 border border-white/8 min-w-[210px]';
+                tag.draggable = true;
+                tag.innerHTML = `
+                    <div class="font-bold text-white">${escapeHTML(p.number)}. ${escapeHTML(p.name)}</div>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <select class="premium-select px-2 py-1 text-[10px]" onchange="window.updateLineupPlayerMeta('${p.id}', 'role', this.value)">${roleOptions(meta.role)}</select>
+                        <select class="premium-select px-2 py-1 text-[10px]" onchange="window.updateLineupPlayerMeta('${p.id}', 'availability', this.value)">${availabilityOptions(meta.availability)}</select>
+                    </div>
+                `;
+                tag.ondragstart = (e) => {
+                    // IMPORTANTE: los suplentes también se arrastran al campo para armar la convocatoria visualmente.
+                    tag.classList.add('dragging');
+                    e.dataTransfer.setData('application/json', JSON.stringify({ playerId: p.id, fromSlot: null }));
+                };
+                tag.ondragend = () => tag.classList.remove('dragging');
                 benchDiv.appendChild(tag);
             });
         };
 
+        window.loadSavedLineup = (lineupId) => {
+            const lineup = getSavedLineups().find(l => l.id === lineupId);
+            if (!lineup) return;
+            selectedLineupId = lineup.id;
+            currentLineup = structuredClone(lineup.slots || {});
+            currentLineupMeta = normalizeLineupMeta(structuredClone(lineup.meta || {}));
+            const formSelect = document.getElementById('formationSelect');
+            if (formSelect && lineup.formationType === getTacticsType()) formSelect.value = lineup.formationIndex || 0;
+            safeVal('lineupName', lineup.name || '');
+            window.updateLineupSelectors();
+            window.renderFormation();
+        };
+
         window.saveLineup = async () => {
             try {
+                // IMPORTANTE: persistencia multi-alineación; guarda snapshot, roles y disponibilidad sin perder el formato legado.
+                const name = document.getElementById('lineupName')?.value.trim() || '';
+                const snapshot = buildLineupSnapshot(name);
+                snapshot.createdAt = getSavedLineups().find(l => l.id === snapshot.id)?.createdAt || snapshot.updatedAt;
+                const savedLineups = getSavedLineups().filter(l => l.id !== snapshot.id);
+                savedLineups.push(snapshot);
                 await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), {
-                    savedLineup: currentLineup
+                    savedLineup: snapshot.slots,
+                    savedLineupMeta: snapshot.meta,
+                    savedLineups
                 });
+                tournamentData.savedLineup = snapshot.slots;
+                tournamentData.savedLineupMeta = snapshot.meta;
+                tournamentData.savedLineups = savedLineups;
+                selectedLineupId = snapshot.id;
+                safeVal('lineupName', snapshot.name);
+                window.updateLineupSelectors();
                 window.showToast("Alineación guardada");
             } catch (e) {
                 console.error(e);
                 window.showToast("Error al guardar alineación", true);
             }
+        };
+
+        window.applyLineupToMatch = (lineupId) => {
+            const lineup = getSavedLineups().find(l => l.id === lineupId);
+            if (!lineup) return;
+            // IMPORTANTE: sincronización con partidos; solo convoca jugadores disponibles o en duda para evitar lesionados/ausentes por accidente.
+            const selectedIds = Object.values(lineup.slots || {}).filter(Boolean);
+            Object.values(matchSelection).forEach(state => { state.selected = false; });
+            selectedIds.forEach(pid => {
+                const meta = lineup.meta?.[pid] || { availability: 'disponible' };
+                if (['lesionado', 'ausente'].includes(meta.availability)) return;
+                if (!matchSelection[pid]) {
+                    matchSelection[pid] = { selected: false, paidRef: false, refPaidAmount: 0, finesPaidAmount: 0, stats: { goals: 0, yellow: 0, blue: 0, red: 0 } };
+                }
+                matchSelection[pid].selected = true;
+            });
+            safeText('matchLineupHint', `${lineup.name}: ${selectedIds.length} jugadores revisados según disponibilidad.`);
+            window.renderMatchSelector();
         };
 
         // --- RENDER GLOBAL ---
@@ -2075,6 +2352,7 @@
             window.renderMatchSelector();
             window.renderMatchesList();
             window.renderPaymentMatchSelect();
+            window.updateLineupSelectors();
             window.renderFinances();
             window.renderDashboard();
             window.renderStatsTable();
@@ -3224,8 +3502,12 @@
                     playerDetailsMap[pid] = matchSelection[pid].stats || { goals: 0, yellow: 0, blue: 0, red: 0 };
                 });
 
-                // IMPORTANTE: guarda una copia de la alineación actual para que futuros cambios tácticos no alteren este partido.
-                const lineupUsed = structuredClone(currentLineup || {});
+                // IMPORTANTE: guarda una copia de la alineación seleccionada para que futuros cambios tácticos no alteren este partido.
+                const selectedMatchLineupId = document.getElementById('matchLineupSelect')?.value || selectedLineupId || '';
+                const selectedMatchLineup = getSavedLineups().find(l => l.id === selectedMatchLineupId);
+                const lineupUsed = structuredClone(selectedMatchLineup?.slots || currentLineup || {});
+                const lineupMetaUsed = structuredClone(selectedMatchLineup?.meta || currentLineupMeta || {});
+                const lineupUsedName = selectedMatchLineup?.name || document.getElementById('lineupName')?.value.trim() || '';
                 const previousMatch = (tournamentData.matches || []).find(m => m.id === editId);
 
                 const matchObj = {
@@ -3249,6 +3531,9 @@
                     refereePayments: matchSelection,
                     playerDetails: playerDetailsMap,
                     lineupUsed,
+                    lineupMetaUsed,
+                    lineupUsedId: selectedMatchLineupId,
+                    lineupUsedName,
                     result,
                     points
                 };
@@ -3322,10 +3607,17 @@
             const lineupEntries = Object.entries(m.lineupUsed || {}).filter(([, pid]) => pid);
             const lineupBox = document.getElementById('mdLineup');
             lineupBox.classList.toggle('hidden', lineupEntries.length === 0);
+            const lineupMeta = m.lineupMetaUsed || {};
             lineupBox.innerHTML = lineupEntries.length ? `
-                <div class="text-[10px] text-slate-500 uppercase tracking-[.16em] font-bold mb-3">Alineación usada</div>
+                <div class="text-[10px] text-slate-500 uppercase tracking-[.16em] font-bold mb-3">Alineación usada${m.lineupUsedName ? ` · ${escapeHTML(m.lineupUsedName)}` : ''}</div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    ${lineupEntries.map(([slot, pid]) => `<div class="text-xs text-slate-300 bg-white/5 rounded-xl px-3 py-2">Pos ${Number(slot) + 1}: <span class="text-white font-bold">${escapeHTML(getPlayerName(pid))}</span></div>`).join('')}
+                    ${lineupEntries.map(([slot, pid]) => {
+                        const meta = lineupMeta[pid] || {};
+                        const slotLabel = slot === 'gk' ? 'Arquero' : `Pos ${Number(slot) + 1}`;
+                        const roleLabel = meta.role ? ` · ${PLAYER_ROLES[meta.role] || meta.role}` : '';
+                        const availabilityLabel = meta.availability ? ` · ${AVAILABILITY_STATES[meta.availability] || meta.availability}` : '';
+                        return `<div class="text-xs text-slate-300 bg-white/5 rounded-xl px-3 py-2">${slotLabel}: <span class="text-white font-bold">${escapeHTML(getPlayerName(pid))}</span><span class="text-slate-500">${roleLabel}${availabilityLabel}</span></div>`;
+                    }).join('')}
                 </div>
             ` : '';
 
@@ -3376,6 +3668,8 @@
             safeVal('matchPhase', match.phase || '');
             safeVal('matchNotes', match.notes || '');
             safeVal('matchMvp', match.mvpPlayerId || '');
+            safeVal('matchLineupSelect', match.lineupUsedId || '');
+            safeText('matchLineupHint', match.lineupUsedName ? `Editando con alineación: ${match.lineupUsedName}` : 'Selecciona una alineación guardada para preseleccionar convocados y congelarla al guardar.');
 
             document.getElementById('editingMatchId').value = match.id;
             document.getElementById('saveMatchBtnText').textContent = "Actualizar Partido";
@@ -3439,6 +3733,8 @@
             safeVal('matchPhase', '');
             safeVal('matchNotes', '');
             safeVal('matchMvp', '');
+            safeVal('matchLineupSelect', '');
+            safeText('matchLineupHint', 'Selecciona una alineación guardada para preseleccionar convocados y congelarla al guardar.');
             document.getElementById('editingMatchId').value = '';
             document.getElementById('saveMatchBtnText').textContent = "Guardar Partido";
             document.getElementById('matchFormTitle').textContent = "Registrar Resultado";
