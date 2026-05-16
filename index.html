@@ -471,6 +471,52 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="glass metric-card p-5 rounded-[24px] border border-success/10">
+                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">% Victorias</div>
+                    <div class="text-3xl font-extrabold text-success" id="dashWinPct">0%</div>
+                    <div class="text-[11px] text-slate-500 mt-2">Partidos ganados / jugados</div>
+                </div>
+
+                <div class="glass metric-card p-5 rounded-[24px] border border-primary/10">
+                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Puntos/Partido</div>
+                    <div class="text-3xl font-extrabold text-primary" id="dashPPG">0.00</div>
+                    <div class="text-[11px] text-slate-500 mt-2">Sistema 2-1-0</div>
+                </div>
+
+                <div class="glass metric-card p-5 rounded-[24px] border border-amber-500/10">
+                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">DG Promedio</div>
+                    <div class="text-3xl font-extrabold text-white" id="dashAvgGoalDiff">0.0</div>
+                    <div class="text-[11px] text-slate-500 mt-2">Diferencia de gol / partido</div>
+                </div>
+
+                <div class="glass metric-card p-5 rounded-[24px] border border-purple-500/10">
+                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">MVP Simple</div>
+                    <div class="text-lg font-extrabold text-white truncate" id="dashMvpName">-</div>
+                    <div class="text-[11px] text-purple-300 mt-2">
+                        <span id="dashMvpScore">0.0</span> pts · <span id="dashMvpFormula">G*3 + PJ - T</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="glass rounded-[24px] p-5 border border-white/8">
+                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Líder Goles/P</div>
+                    <div class="text-lg font-extrabold text-white truncate" id="dashGoalsPerMatchLeader">-</div>
+                    <div class="text-2xl font-extrabold text-success mt-2"><span id="dashGoalsPerMatchValue">0.00</span></div>
+                </div>
+                <div class="glass rounded-[24px] p-5 border border-white/8">
+                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Mayor Participación Goleadora</div>
+                    <div class="text-lg font-extrabold text-white truncate" id="dashGoalShareLeader">-</div>
+                    <div class="text-2xl font-extrabold text-primary mt-2"><span id="dashGoalShareValue">0%</span></div>
+                </div>
+                <div class="glass rounded-[24px] p-5 border border-white/8">
+                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Más Tarjetas/P</div>
+                    <div class="text-lg font-extrabold text-white truncate" id="dashCardsPerMatchLeader">-</div>
+                    <div class="text-2xl font-extrabold text-yellow-500 mt-2"><span id="dashCardsPerMatchValue">0.00</span></div>
+                </div>
+            </div>
+
             <div class="glass-strong p-6 rounded-[28px] mb-8 border border-white/8 relative overflow-hidden group">
                 <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition duration-500">
                     <i class="fa-solid fa-ranking-star text-9xl text-white rotate-12"></i>
@@ -492,12 +538,15 @@
                                 <th class="stat-header" title="Goles a Favor">GF</th>
                                 <th class="stat-header" title="Goles en Contra">GC</th>
                                 <th class="stat-header" title="Diferencia de Gol">DG</th>
+                                <th class="stat-header" title="Porcentaje de Victorias">%V</th>
+                                <th class="stat-header" title="Puntos por Partido">PPG</th>
+                                <th class="stat-header" title="Diferencia de Gol Promedio">DG/P</th>
                                 <th class="stat-header text-primary text-base">PTS</th>
                             </tr>
                         </thead>
                         <tbody id="teamStatsTableBody" class="text-slate-300">
                             <tr>
-                                <td colspan="9" class="text-center py-4 text-xs text-slate-500">Cargando datos...</td>
+                                <td colspan="12" class="text-center py-4 text-xs text-slate-500">Cargando datos...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -784,6 +833,22 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="glass rounded-[28px] p-5 border border-white/8">
+                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Goles por Partido</h4>
+                    <div class="h-64 w-full">
+                        <canvas id="goalsPerMatchChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass rounded-[28px] p-5 border border-white/8">
+                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Ranking MVP Simple</h4>
+                    <div class="h-64 w-full">
+                        <canvas id="mvpChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <div class="glass-strong rounded-[30px] p-6 overflow-x-auto">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                     <div>
@@ -801,10 +866,13 @@
                             <th class="pb-3 pl-2">Jugador</th>
                             <th class="pb-3 text-center">PJ</th>
                             <th class="pb-3 text-center text-success">G</th>
-                            <th class="pb-3 text-center text-slate-400 text-[10px]">Prom G</th>
+                            <th class="pb-3 text-center text-slate-400 text-[10px]">G/P</th>
+                            <th class="pb-3 text-center text-primary text-[10px]">Part. Gol</th>
                             <th class="pb-3 text-center text-yellow-500">A</th>
                             <th class="pb-3 text-center text-blue-400">Az</th>
                             <th class="pb-3 text-center text-red-500">R</th>
+                            <th class="pb-3 text-center text-yellow-500 text-[10px]">T/P</th>
+                            <th class="pb-3 text-center text-purple-300 text-[10px]">MVP</th>
                             <th class="pb-3 text-right text-danger">Deuda Multas</th>
                         </tr>
                     </thead>
@@ -1173,6 +1241,132 @@
             return fine;
         };
 
+        // IMPORTANTE: fórmula centralizada para que el ranking MVP sea configurable sin tocar cada render.
+        const DEFAULT_MVP_FORMULA = { goals: 3, matches: 1, cards: -1 };
+
+        const getMvpFormula = () => ({
+            ...DEFAULT_MVP_FORMULA,
+            ...(window.mvpFormula || window.MVP_FORMULA || {})
+        });
+
+        const formatSignedDecimal = (value, digits = 1) => {
+            const fixed = Number(value || 0).toFixed(digits);
+            return Number(value || 0) > 0 ? `+${fixed}` : fixed;
+        };
+
+        const getMatchesChronological = (matches = []) => [...matches].sort((a, b) => {
+            const dateA = new Date(a.date || 0).getTime();
+            const dateB = new Date(b.date || 0).getTime();
+            return dateA - dateB;
+        });
+
+        const getResultClass = (result) => result === 'Victoria'
+            ? 'text-success'
+            : (result === 'Derrota' ? 'text-danger' : 'text-primary');
+
+        const getResultBadgeClass = (result) => result === 'Victoria'
+            ? 'bg-success/10 text-success border-success/20'
+            : (result === 'Derrota'
+                ? 'bg-danger/10 text-danger border-danger/20'
+                : 'bg-primary/10 text-primary border-primary/20');
+
+        const getResultShort = (result) => result === 'Victoria' ? 'V' : (result === 'Empate' ? 'E' : 'D');
+
+        const calculateAdvancedMetrics = (matches = []) => {
+            const formula = getMvpFormula();
+            const chronologicalMatches = getMatchesChronological(matches);
+            const playerStats = {};
+            let totalGF = 0;
+            let totalGC = 0;
+            let totalCards = 0;
+            const teamStats = { pj: 0, pg: 0, pe: 0, pp: 0, pts: 0 };
+
+            players.forEach(p => {
+                playerStats[p.id] = {
+                    id: p.id,
+                    name: p.name,
+                    matches: 0,
+                    goals: 0,
+                    yellow: 0,
+                    blue: 0,
+                    red: 0,
+                    cards: 0,
+                    goalPerMatch: 0,
+                    goalParticipation: 0,
+                    cardsPerMatch: 0,
+                    mvpScore: 0,
+                    debt: p.cardDebt || 0
+                };
+            });
+
+            chronologicalMatches.forEach(m => {
+                totalGF += (m.goalsScored || 0);
+                totalGC += (m.goalsConceded || 0);
+                totalCards += (m.yellowCards || 0) + (m.blueCards || 0) + (m.redCards || 0);
+
+                // IMPORTANTE: solo los partidos con resultado definido cuentan para porcentajes, PPG y rachas.
+                if (m.result) {
+                    teamStats.pj++;
+                    if (m.result === 'Victoria') { teamStats.pg++; teamStats.pts += 2; }
+                    else if (m.result === 'Empate') { teamStats.pe++; teamStats.pts += 1; }
+                    else if (m.result === 'Derrota') { teamStats.pp++; }
+                }
+
+                const details = m.playerDetails || {};
+                const presentPlayers = m.presentPlayers || [];
+                const presentIds = new Set(presentPlayers.length > 0 ? presentPlayers : Object.keys(details));
+
+                presentIds.forEach(pid => {
+                    if (!playerStats[pid]) return;
+                    const playerDetails = details[pid] || {};
+                    const yellow = playerDetails.yellow || 0;
+                    const blue = playerDetails.blue || 0;
+                    const red = playerDetails.red || 0;
+
+                    // IMPORTANTE: presentPlayers define asistencia; playerDetails agrega goles y tarjetas del jugador.
+                    playerStats[pid].matches++;
+                    playerStats[pid].goals += (playerDetails.goals || 0);
+                    playerStats[pid].yellow += yellow;
+                    playerStats[pid].blue += blue;
+                    playerStats[pid].red += red;
+                    playerStats[pid].cards += yellow + blue + red;
+                });
+            });
+
+            const playerList = Object.values(playerStats).map(s => {
+                const goalPerMatch = s.matches > 0 ? s.goals / s.matches : 0;
+                const goalParticipation = totalGF > 0 ? (s.goals / totalGF) * 100 : 0;
+                const cardsPerMatch = s.matches > 0 ? s.cards / s.matches : 0;
+                const mvpScore = (s.goals * formula.goals) + (s.matches * formula.matches) + (s.cards * formula.cards);
+
+                // IMPORTANTE: estos ratios se guardan numéricos para tablas, tarjetas y gráficas sin recalcular.
+                return { ...s, goalPerMatch, goalParticipation, cardsPerMatch, mvpScore };
+            });
+
+            const playedMatches = teamStats.pj || 0;
+            const diff = totalGF - totalGC;
+            const recentMatches = chronologicalMatches.filter(m => m.result).slice(-5);
+
+            return {
+                formula,
+                matches: chronologicalMatches,
+                recentMatches,
+                playerStats,
+                playerList,
+                totalGF,
+                totalGC,
+                totalCards,
+                diff,
+                teamStats,
+                winPercentage: playedMatches > 0 ? (teamStats.pg / playedMatches) * 100 : 0,
+                pointsPerMatch: playedMatches > 0 ? teamStats.pts / playedMatches : 0,
+                avgGoalDiff: playedMatches > 0 ? diff / playedMatches : 0,
+                avgGF: playedMatches > 0 ? totalGF / playedMatches : 0,
+                avgGC: playedMatches > 0 ? totalGC / playedMatches : 0,
+                avgCards: playedMatches > 0 ? totalCards / playedMatches : 0
+            };
+        };
+
         const destroyChart = (key) => {
             if (charts[key]) {
                 charts[key].destroy();
@@ -1501,26 +1695,21 @@
             if (!matches) return;
 
             [
-                'results', 'cards', 'scorers', 'attendance', 'finance',
+                'results', 'cards', 'scorers', 'attendance', 'finance', 'goalsPerMatch', 'mvp',
                 'goalsTrend', 'dashboardResults', 'dashboardGoalsTrend'
             ].forEach(destroyChart);
 
-            let wins = 0, draws = 0, losses = 0;
-            let gf = [], gc = [], labels = [];
-            let yellow = 0, blue = 0, red = 0;
-
-            matches.forEach((m, idx) => {
-                if (m.result === 'Victoria') wins++;
-                else if (m.result === 'Empate') draws++;
-                else losses++;
-
-                labels.push(`P${idx + 1}`);
-                gf.push(m.goalsScored || 0);
-                gc.push(m.goalsConceded || 0);
-                yellow += m.yellowCards || 0;
-                blue += m.blueCards || 0;
-                red += m.redCards || 0;
-            });
+            // IMPORTANTE: reutilizamos el cálculo avanzado para que las gráficas coincidan con dashboard y tabla.
+            const advanced = calculateAdvancedMetrics(matches);
+            const wins = advanced.teamStats.pg;
+            const draws = advanced.teamStats.pe;
+            const losses = advanced.teamStats.pp;
+            const gf = advanced.matches.map(m => m.goalsScored || 0);
+            const gc = advanced.matches.map(m => m.goalsConceded || 0);
+            const labels = advanced.matches.map((_, idx) => `P${idx + 1}`);
+            const yellow = advanced.playerList.reduce((acc, p) => acc + p.yellow, 0);
+            const blue = advanced.playerList.reduce((acc, p) => acc + p.blue, 0);
+            const red = advanced.playerList.reduce((acc, p) => acc + p.red, 0);
 
             const statsResultsCanvas = document.getElementById('resultsChart');
             if (statsResultsCanvas) {
@@ -1601,30 +1790,12 @@
                 });
             }
 
-            const playerStats = [];
+            const playerStats = advanced.playerList;
             let totalPaid = 0;
             let totalDebt = 0;
             const cost = tournamentData.totalInscription || 0;
 
             players.forEach(p => {
-                let goals = 0;
-                let matchesPlayed = 0;
-
-                matches.forEach(m => {
-                    if (m.presentPlayers && m.presentPlayers.includes(p.id)) {
-                        matchesPlayed++;
-                        if (m.playerDetails && m.playerDetails[p.id]) {
-                            goals += (m.playerDetails[p.id].goals || 0);
-                        }
-                    }
-                });
-
-                playerStats.push({
-                    name: p.name,
-                    goals: goals,
-                    matches: matchesPlayed
-                });
-
                 totalPaid += (p.totalPaid || 0);
                 const indCost = players.length > 0 ? cost / players.length : 0;
                 const debt = Math.max(0, indCost - (p.totalPaid || 0));
@@ -1679,6 +1850,72 @@
                         maintainAspectRatio: false,
                         scales: {
                             x: { ticks: { color: '#94a3b8', font: { size: 10 } } },
+                            y: { ticks: { color: '#94a3b8' } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            const ctxGoalsPerMatch = document.getElementById('goalsPerMatchChart');
+            if (ctxGoalsPerMatch) {
+                const sortedGoalsPerMatch = [...playerStats]
+                    .filter(p => p.matches > 0)
+                    .sort((a, b) => b.goalPerMatch - a.goalPerMatch)
+                    .slice(0, 10);
+
+                // IMPORTANTE: esta gráfica muestra eficiencia goleadora, no solo volumen total de goles.
+                charts.goalsPerMatch = new Chart(ctxGoalsPerMatch, {
+                    type: 'bar',
+                    indexAxis: 'y',
+                    data: {
+                        labels: sortedGoalsPerMatch.map(p => p.name),
+                        datasets: [{
+                            label: 'Goles/P',
+                            data: sortedGoalsPerMatch.map(p => Number(p.goalPerMatch.toFixed(2))),
+                            backgroundColor: '#10B981',
+                            barThickness: 14,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' } },
+                            y: { ticks: { color: '#94a3b8' } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            const ctxMvp = document.getElementById('mvpChart');
+            if (ctxMvp) {
+                const sortedMvp = [...playerStats]
+                    .filter(p => p.matches > 0 || p.goals > 0)
+                    .sort((a, b) => b.mvpScore - a.mvpScore)
+                    .slice(0, 10);
+
+                // IMPORTANTE: MVP usa fórmula configurable: goles*peso + PJ*peso + tarjetas*peso.
+                charts.mvp = new Chart(ctxMvp, {
+                    type: 'bar',
+                    indexAxis: 'y',
+                    data: {
+                        labels: sortedMvp.map(p => p.name),
+                        datasets: [{
+                            label: 'MVP',
+                            data: sortedMvp.map(p => Number(p.mvpScore.toFixed(1))),
+                            backgroundColor: '#A855F7',
+                            barThickness: 14,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' } },
                             y: { ticks: { color: '#94a3b8' } }
                         },
                         plugins: { legend: { display: false } }
@@ -2268,58 +2505,32 @@
 
         window.renderDashboard = () => {
             const matches = tournamentData.matches || [];
+            const advanced = calculateAdvancedMetrics(matches);
             const totalPaid = players.reduce((acc, p) => acc + (p.totalPaid || 0), 0);
             const totalDebt = Math.max(0, (players.length * (tournamentData.inscriptionPerPlayer || 0)) - totalPaid);
             const totalFinesDebt = players.reduce((acc, p) => acc + Math.max(0, p.cardDebt || 0), 0);
 
-            let totalGF = 0, totalGC = 0, totalCards = 0;
-            let teamStats = { pj: 0, pg: 0, pe: 0, pp: 0, pts: 0 };
+            const { teamStats, playerList, totalGF, totalGC, diff } = advanced;
+            const avgGF = advanced.avgGF.toFixed(1);
+            const avgGC = advanced.avgGC.toFixed(1);
+            const avgCards = advanced.avgCards.toFixed(1);
 
-            matches.forEach(m => {
-                totalGF += (m.goalsScored || 0);
-                totalGC += (m.goalsConceded || 0);
-                totalCards += (m.yellowCards || 0) + (m.blueCards || 0) + (m.redCards || 0);
-
-                if (m.result) {
-                    teamStats.pj++;
-                    if (m.result === 'Victoria') { teamStats.pg++; teamStats.pts += 2; }
-                    else if (m.result === 'Empate') { teamStats.pe++; teamStats.pts += 1; }
-                    else if (m.result === 'Derrota') { teamStats.pp++; }
-                }
-            });
-
-            const avgGF = matches.length > 0 ? (totalGF / matches.length).toFixed(1) : "0.0";
-            const avgGC = matches.length > 0 ? (totalGC / matches.length).toFixed(1) : "0.0";
-            const avgCards = matches.length > 0 ? (totalCards / matches.length).toFixed(1) : "0.0";
-
-            const playerStats = {};
-            players.forEach(p => playerStats[p.id] = { name: p.name, cards: 0, matches: 0, goals: 0 });
-
-            matches.forEach(m => {
-                const details = m.playerDetails || {};
-                const present = m.presentPlayers || [];
-
-                present.forEach(pid => {
-                    if (playerStats[pid]) {
-                        playerStats[pid].matches++;
-                        if (details[pid]) {
-                            playerStats[pid].goals += (details[pid].goals || 0);
-                            playerStats[pid].cards += (details[pid].yellow || 0) + (details[pid].blue || 0) + (details[pid].red || 0);
-                        }
-                    }
-                });
-            });
-
-            let badBoy = { name: "-", avg: "0.0", total: 0 };
-            Object.values(playerStats).forEach(s => {
-                if (s.cards > badBoy.total) {
-                    badBoy = {
-                        name: s.name,
-                        total: s.cards,
-                        avg: s.matches > 0 ? (s.cards / s.matches).toFixed(1) : "0.0"
-                    };
-                }
-            });
+            // IMPORTANTE: las tarjetas por jugador se calculan desde playerDetails para detectar al jugador con mayor promedio.
+            const badBoy = [...playerList]
+                .sort((a, b) => b.cards - a.cards || b.cardsPerMatch - a.cardsPerMatch)[0] || { name: '-', cardsPerMatch: 0 };
+            const goalsPerMatchLeader = [...playerList]
+                .filter(p => p.matches > 0)
+                .sort((a, b) => b.goalPerMatch - a.goalPerMatch)[0] || { name: '-', goalPerMatch: 0 };
+            const goalShareLeader = [...playerList]
+                .filter(p => p.goals > 0)
+                .sort((a, b) => b.goalParticipation - a.goalParticipation)[0] || { name: '-', goalParticipation: 0 };
+            const cardsPerMatchLeader = [...playerList]
+                .filter(p => p.matches > 0)
+                .sort((a, b) => b.cardsPerMatch - a.cardsPerMatch)[0] || { name: '-', cardsPerMatch: 0 };
+            const mvpLeader = [...playerList]
+                .filter(p => p.matches > 0 || p.goals > 0)
+                .sort((a, b) => b.mvpScore - a.mvpScore)[0] || { name: '-', mvpScore: 0 };
+            const formula = advanced.formula;
 
             safeText('dashCollected', formatCOP(totalPaid));
             safeText('dashDebt', formatCOP(totalDebt + totalFinesDebt));
@@ -2327,14 +2538,26 @@
             safeText('dashAvgGC', avgGC);
             safeText('dashAvgCards', avgCards);
             safeText('dashBadBoyName', badBoy.name);
-            safeText('dashBadBoyAvg', badBoy.avg);
+            safeText('dashBadBoyAvg', badBoy.cardsPerMatch.toFixed(1));
+            safeText('dashWinPct', `${advanced.winPercentage.toFixed(0)}%`);
+            safeText('dashPPG', advanced.pointsPerMatch.toFixed(2));
+            safeText('dashAvgGoalDiff', formatSignedDecimal(advanced.avgGoalDiff, 1));
+            safeText('dashMvpName', mvpLeader.name);
+            safeText('dashMvpScore', mvpLeader.mvpScore.toFixed(1));
+            safeText('dashMvpFormula', `G*${formula.goals} + PJ*${formula.matches} + T*${formula.cards}`);
+            safeText('dashGoalsPerMatchLeader', goalsPerMatchLeader.name);
+            safeText('dashGoalsPerMatchValue', goalsPerMatchLeader.goalPerMatch.toFixed(2));
+            safeText('dashGoalShareLeader', goalShareLeader.name);
+            safeText('dashGoalShareValue', `${goalShareLeader.goalParticipation.toFixed(0)}%`);
+            safeText('dashCardsPerMatchLeader', cardsPerMatchLeader.name);
+            safeText('dashCardsPerMatchValue', cardsPerMatchLeader.cardsPerMatch.toFixed(2));
 
             const statsTable = document.getElementById('teamStatsTableBody');
             if (statsTable) {
-                const diff = totalGF - totalGC;
                 const diffClass = diff > 0 ? 'text-success' : (diff < 0 ? 'text-danger' : 'text-slate-400');
                 const tName = tournamentData.name || "CONSTRU-SANTAMARIA";
 
+                // IMPORTANTE: se agregan %V, PPG y DG/P como KPIs derivados del historial de partidos.
                 statsTable.innerHTML = `
                     <tr class="hover:bg-white/[.03] transition">
                         <td class="stat-cell text-left pl-4 font-extrabold text-white">${tName}</td>
@@ -2345,6 +2568,9 @@
                         <td class="stat-cell text-slate-400">${totalGF}</td>
                         <td class="stat-cell text-slate-400">${totalGC}</td>
                         <td class="stat-cell ${diffClass} font-bold">${diff > 0 ? '+' + diff : diff}</td>
+                        <td class="stat-cell text-success font-bold">${advanced.winPercentage.toFixed(0)}%</td>
+                        <td class="stat-cell text-primary font-bold">${advanced.pointsPerMatch.toFixed(2)}</td>
+                        <td class="stat-cell ${diffClass} font-bold">${formatSignedDecimal(advanced.avgGoalDiff, 1)}</td>
                         <td class="stat-cell text-primary font-extrabold text-lg">${teamStats.pts}</td>
                     </tr>
                 `;
@@ -2357,13 +2583,33 @@
 
             const table = document.getElementById('topScorersTable');
             if (table) {
-                const sortedScorers = Object.values(playerStats).sort((a, b) => b.goals - a.goals).slice(0, 5);
+                const sortedScorers = [...playerList].sort((a, b) => b.goals - a.goals).slice(0, 5);
                 table.innerHTML = sortedScorers.map(p => `
                     <tr>
                         <td class="py-3 text-sm border-b border-white/6">${p.name}</td>
                         <td class="text-right font-extrabold text-success border-b border-white/6">${p.goals} Goles</td>
                     </tr>
                 `).join('');
+            }
+
+            const recentList = document.getElementById('recentMatchesList');
+            if (recentList) {
+                // IMPORTANTE: la racha reciente siempre toma los últimos 5 partidos con resultado definido.
+                recentList.innerHTML = advanced.recentMatches.length ? advanced.recentMatches.map(m => `
+                    <div class="flex items-center justify-between gap-3 py-3 border-b border-white/6">
+                        <div class="min-w-0">
+                            <div class="text-xs text-slate-500">${new Date(m.date).toLocaleDateString()}</div>
+                            <div class="text-lg font-extrabold text-white">
+                                <span class="${m.result === 'Victoria' ? 'text-success' : ''}">${m.goalsScored}</span>
+                                <span class="text-slate-500 mx-1">-</span>
+                                <span class="${m.result === 'Derrota' ? 'text-danger' : ''}">${m.goalsConceded}</span>
+                            </div>
+                        </div>
+                        <div class="w-9 h-9 rounded-full border flex items-center justify-center text-xs font-extrabold ${getResultBadgeClass(m.result)}" title="${m.result}">
+                            ${getResultShort(m.result)}
+                        </div>
+                    </div>
+                `).join('') : '<div class="text-center py-6 text-xs text-slate-500">Sin partidos recientes</div>';
             }
         };
 
@@ -2373,52 +2619,24 @@
 
             tbody.innerHTML = '';
             const matches = tournamentData.matches || [];
-            const statsMap = {};
+            const advanced = calculateAdvancedMetrics(matches);
 
-            players.forEach(p => {
-                statsMap[p.id] = {
-                    pj: 0,
-                    g: 0,
-                    y: 0,
-                    b: 0,
-                    r: 0,
-                    name: p.name,
-                    debt: p.cardDebt || 0
-                };
-            });
-
-            matches.forEach(m => {
-                if (m.playerDetails) {
-                    Object.keys(m.playerDetails).forEach(pid => {
-                        if (statsMap[pid]) {
-                            const details = m.playerDetails[pid];
-                            statsMap[pid].pj++;
-                            statsMap[pid].g += (details.goals || 0);
-                            statsMap[pid].y += (details.yellow || 0);
-                            statsMap[pid].b += (details.blue || 0);
-                            statsMap[pid].r += (details.red || 0);
-                        }
-                    });
-                } else if (m.presentPlayers) {
-                    m.presentPlayers.forEach(pid => {
-                        if (statsMap[pid]) statsMap[pid].pj++;
-                    });
-                }
-            });
-
-            const sorted = Object.values(statsMap).sort((a, b) => b.g - a.g);
+            // IMPORTANTE: la tabla individual hereda goles/P, participación goleadora, tarjetas/P y MVP del cálculo central.
+            const sorted = advanced.playerList.sort((a, b) => b.mvpScore - a.mvpScore || b.goals - a.goals);
 
             sorted.forEach(s => {
-                let avgGoals = s.pj > 0 ? (s.g / s.pj).toFixed(2) : "0.00";
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="py-3 pl-2 font-medium text-white">${s.name}</td>
-                    <td class="text-center text-slate-400">${s.pj}</td>
-                    <td class="text-center font-bold text-success">${s.g}</td>
-                    <td class="text-center text-slate-400 text-[10px]">${avgGoals}</td>
-                    <td class="text-center text-yellow-500">${s.y}</td>
-                    <td class="text-center text-blue-400">${s.b}</td>
-                    <td class="text-center text-red-500">${s.r}</td>
+                    <td class="text-center text-slate-400">${s.matches}</td>
+                    <td class="text-center font-bold text-success">${s.goals}</td>
+                    <td class="text-center text-slate-400 text-[10px]">${s.goalPerMatch.toFixed(2)}</td>
+                    <td class="text-center text-primary text-[10px] font-bold">${s.goalParticipation.toFixed(0)}%</td>
+                    <td class="text-center text-yellow-500">${s.yellow}</td>
+                    <td class="text-center text-blue-400">${s.blue}</td>
+                    <td class="text-center text-red-500">${s.red}</td>
+                    <td class="text-center text-yellow-500 text-[10px]">${s.cardsPerMatch.toFixed(2)}</td>
+                    <td class="text-center text-purple-300 font-bold">${s.mvpScore.toFixed(1)}</td>
                     <td class="text-right text-danger font-mono pr-2">${s.debt > 0 ? formatCOP(s.debt) : '-'}</td>
                 `;
                 tbody.appendChild(tr);
