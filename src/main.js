@@ -86,6 +86,11 @@ window.showView = (viewName) => {
     if (viewName === 'tactics') window.initTactics();
     if (viewName === 'stats') setTimeout(window.renderStatsCharts, 120);
     if (viewName === 'team-ops') window.renderTeamOps();
+    if (viewName === 'finances') {
+        window.renderPlayers();
+        // IMPORTANTE: Finanzas debe refrescarse al abrirse porque depende de datos asincrónicos de Firestore y de un estado vacío seguro si aún no hay jugadores cargados.
+        window.renderFinances();
+    }
 };
 
 // --- TORNEOS ---
