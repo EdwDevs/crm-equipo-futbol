@@ -48,6 +48,7 @@ let activePosIndex = null;
 let charts = {};
 let unsubPlayers = null;
 let unsubTournament = null;
+let lastEmptyPlayersTournament = null;
 
 const {
     downloadCSV,
@@ -199,11 +200,20 @@ window.selectTournament = (tId, tColl = "tournaments", pColl = "players") => {
 function loadData() {
     if (!currentTournament) return;
 
+    // IMPORTANTE: Finanzas depende de que cada jugador tenga el campo `tournament` correcto para aparecer en este snapshot.
     const q = query(collection(db, currentPlayersCollection), where("tournament", "==", currentTournament));
     unsubPlayers = onSnapshot(q, (snapshot) => {
         players = snapshot.docs
             .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
             .sort((a, b) => (a.number || 0) - (b.number || 0));
+
+        if (snapshot.empty && lastEmptyPlayersTournament !== currentTournament) {
+            lastEmptyPlayersTournament = currentTournament;
+            window.showToast("No se encontraron jugadores asociados a este torneo");
+        }
+
+        if (!snapshot.empty) lastEmptyPlayersTournament = null;
+
         window.renderAll();
     });
 
@@ -1701,7 +1711,7 @@ window.renderFinances = () => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td colspan="8" class="py-8 text-center text-slate-400 text-sm">
-                ${players.length === 0 ? 'No hay jugadores cargados para este torneo' : 'No hay jugadores que coincidan con este filtro'}
+                ${players.length === 0 ? 'No se encontraron jugadores asociados a este torneo' : 'No hay jugadores que coincidan con este filtro'}
             </td>
         `;
         tbody.appendChild(tr);
@@ -1961,6 +1971,7 @@ window.savePlayerForm = async () => {
             await setDoc(doc(collection(db, currentPlayersCollection)), {
                 name,
                 number,
+                // IMPORTANTE: Finanzas filtra jugadores por `tournament`; no quitar ni cambiar este campo.
                 tournament: currentTournament,
                 totalPaid: 0,
                 payments: [],
