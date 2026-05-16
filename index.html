@@ -929,6 +929,41 @@
                 <h2 class="text-2xl font-extrabold text-white mt-1">Control Financiero</h2>
             </div>
 
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-6" id="financeSummaryCards">
+                <div class="glass rounded-[24px] p-5 border border-primary/15">
+                    <div class="text-slate-400 text-[10px] uppercase tracking-[.18em] mb-1 font-bold">Total esperado</div>
+                    <div class="text-2xl font-extrabold text-white" id="financeExpectedTotal">$0</div>
+                </div>
+                <div class="glass rounded-[24px] p-5 border border-emerald-500/15">
+                    <div class="text-slate-400 text-[10px] uppercase tracking-[.18em] mb-1 font-bold">Total recaudado</div>
+                    <div class="text-2xl font-extrabold text-success" id="financeCollectedTotal">$0</div>
+                </div>
+                <div class="glass rounded-[24px] p-5 border border-red-500/15">
+                    <div class="text-slate-400 text-[10px] uppercase tracking-[.18em] mb-1 font-bold">Total pendiente</div>
+                    <div class="text-2xl font-extrabold text-danger" id="financePendingTotal">$0</div>
+                </div>
+                <div class="glass rounded-[24px] p-5 border border-yellow-500/15">
+                    <div class="text-slate-400 text-[10px] uppercase tracking-[.18em] mb-1 font-bold">Multas cobradas</div>
+                    <div class="text-2xl font-extrabold text-warning" id="financeFinesCollected">$0</div>
+                </div>
+                <div class="glass rounded-[24px] p-5 border border-sky-500/15">
+                    <div class="text-slate-400 text-[10px] uppercase tracking-[.18em] mb-1 font-bold">Arbitraje pendiente</div>
+                    <div class="text-2xl font-extrabold text-sky-300" id="financeRefPending">$0</div>
+                </div>
+            </div>
+
+            <div class="glass rounded-[24px] p-4 mb-6 border border-white/8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <div>
+                    <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Exportación CSV</div>
+                    <div class="text-sm text-slate-300 mt-1">Descarga jugadores, pagos auditables o deudas recalculadas.</div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button onclick="window.exportPlayersCSV()" class="text-xs bg-white/5 hover:bg-primary text-white px-4 py-3 rounded-2xl transition border border-white/8 font-bold"><i class="fa-solid fa-users mr-2"></i>Jugadores</button>
+                    <button onclick="window.exportPaymentsCSV()" class="text-xs bg-white/5 hover:bg-success text-white px-4 py-3 rounded-2xl transition border border-white/8 font-bold"><i class="fa-solid fa-receipt mr-2"></i>Pagos</button>
+                    <button onclick="window.exportDebtsCSV()" class="text-xs bg-white/5 hover:bg-danger text-white px-4 py-3 rounded-2xl transition border border-white/8 font-bold"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Deudas</button>
+                </div>
+            </div>
+
             <div class="glass-strong rounded-[30px] p-6 mb-6">
                 <h3 class="text-lg font-extrabold text-white mb-5">Registrar Abono</h3>
 
@@ -1114,7 +1149,7 @@
 
             <div class="flex-1 overflow-y-auto pr-2">
                 <div class="mb-4">
-                    <div class="text-xs uppercase text-slate-400 font-bold tracking-[.16em] mb-3">Pagos de inscripción</div>
+                    <div class="text-xs uppercase text-slate-400 font-bold tracking-[.16em] mb-3">Pagos auditables</div>
                     <div id="historyList"></div>
                 </div>
 
@@ -1287,6 +1322,64 @@
             currency: 'COP',
             minimumFractionDigits: 0
         }).format(amount || 0);
+
+        const getPaymentAmount = (payment) => Math.max(0, parseFloat(payment?.amount) || 0);
+
+        const getPaymentOrigin = () => {
+            const user = auth.currentUser;
+            // IMPORTANTE: el origen queda en cada pago para auditoría aun cuando el ingreso sea anónimo.
+            return user?.email || user?.displayName || user?.uid || 'manual/local';
+        };
+
+        const getPlayerPaymentLedger = (playerId) => {
+            const player = players.find(p => String(p.id) === String(playerId));
+            return (player?.payments || [])
+                .map(payment => ({ ...payment, playerId, playerName: player?.name || 'Sin jugador' }))
+                .sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+        };
+
+        const sumPaymentsByType = (playerId, type, matchId = null) => getPlayerPaymentLedger(playerId)
+            .filter(payment => (payment.type || 'inscripcion') === type)
+            .filter(payment => matchId === null || String(payment.matchId || '') === String(matchId))
+            .reduce((sum, payment) => sum + getPaymentAmount(payment), 0);
+
+        const getPlayerTotalPaidFromHistory = (player) => {
+            const ledgerTotal = (player.payments || [])
+                .filter(payment => (payment.type || 'inscripcion') === 'inscripcion')
+                .reduce((sum, payment) => sum + getPaymentAmount(payment), 0);
+            // IMPORTANTE: si aún no existe historial, se conserva compatibilidad con totalPaid antiguo.
+            return ledgerTotal > 0 ? ledgerTotal : Math.max(0, parseFloat(player.totalPaid) || 0);
+        };
+
+        const getFinePaidFromHistory = (playerId, matchId, fallbackPaid = 0) => {
+            const paidFromLedger = sumPaymentsByType(playerId, 'tarjeta', matchId);
+            // IMPORTANTE: el historial de pagos manda; refereePayments queda como respaldo para datos viejos.
+            return paidFromLedger > 0 ? paidFromLedger : Math.max(0, parseFloat(fallbackPaid) || 0);
+        };
+
+        const getRefereePaidFromHistory = (playerId, matchId, fallbackPaid = 0) => {
+            const paidFromLedger = sumPaymentsByType(playerId, 'arbitraje', matchId);
+            // IMPORTANTE: arbitraje también se recalcula desde pagos auditables cuando existan.
+            return paidFromLedger > 0 ? paidFromLedger : Math.max(0, parseFloat(fallbackPaid) || 0);
+        };
+
+        const downloadCSV = (filename, rows) => {
+            if (!rows.length) return window.showToast('No hay datos para exportar', true);
+
+            const headers = Object.keys(rows[0]);
+            const escapeCSV = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+            const csv = [headers.join(','), ...rows.map(row => headers.map(header => escapeCSV(row[header])).join(','))].join('\n');
+            const blob = new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            window.showToast('CSV exportado');
+        };
 
         // IMPORTANTE: centraliza nombres de jugadores para reutilizar datos nuevos como MVP y alineación.
         const getPlayerName = (playerId) => players.find(p => String(p.id) === String(playerId))?.name || 'Sin jugador';
@@ -1760,7 +1853,11 @@
 
             players.forEach(p => {
                 playerDebts[p.id] = 0;
-                playerCredits[p.id] = Math.max(0, p.finesCredit || 0);
+                // IMPORTANTE: abonos de tarjeta sin partido son créditos generales contra multas históricas.
+                const ledgerCredit = (p.payments || [])
+                    .filter(payment => (payment.type || 'inscripcion') === 'tarjeta' && !payment.matchId)
+                    .reduce((sum, payment) => sum + getPaymentAmount(payment), 0);
+                playerCredits[p.id] = Math.max(0, ledgerCredit || p.finesCredit || 0);
             });
 
             const sortedMatches = [...matches].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -1776,16 +1873,20 @@
                     const stats = details[pid] || { yellow: 0, blue: 0, red: 0 };
                     const fine = calculateMatchFine(stats);
 
-                    let finesPaidAmount = Math.max(0, parseFloat(payments[pid]?.finesPaidAmount) || 0);
+                    let fallbackPaid = Math.max(0, parseFloat(payments[pid]?.finesPaidAmount) || 0);
                     if (!payments[pid]?.finesPaidAmount && payments[pid]?.paidFines) {
-                        finesPaidAmount = fine;
+                        fallbackPaid = fine;
                     }
 
+                    // IMPORTANTE: fórmula de deuda de multa por partido = multa generada por tarjetas - pagos auditables de ese partido.
+                    // IMPORTANTE: los pagos del historial tienen prioridad; refereePayments solo respalda registros antiguos sin ledger.
+                    const finesPaidAmount = Math.min(fine, getFinePaidFromHistory(pid, m.id, fallbackPaid));
                     playerDebts[pid] += Math.max(0, fine - finesPaidAmount);
                 });
             });
 
             Object.keys(playerDebts).forEach(pid => {
+                // IMPORTANTE: el crédito histórico se resta al final para cubrir las multas más antiguas sin volver saldos negativos.
                 playerDebts[pid] = Math.max(0, playerDebts[pid] - (playerCredits[pid] || 0));
             });
 
@@ -1804,6 +1905,7 @@
                 const p = players.find(x => x.id === pid);
                 if (p && p.cardDebt !== playerDebts[pid]) {
                     batch.update(doc(collection(db, currentPlayersCollection), pid), { cardDebt: playerDebts[pid] });
+                    p.cardDebt = playerDebts[pid];
                     hasUpdates = true;
                 }
             });
@@ -1839,11 +1941,13 @@
             let totalDebt = 0;
             const cost = tournamentData.totalInscription || 0;
 
+            const debtsFromHistory = calculatePlayerDebts(matches);
             players.forEach(p => {
-                totalPaid += (p.totalPaid || 0);
+                const paidFromHistory = getPlayerTotalPaidFromHistory(p);
+                totalPaid += paidFromHistory;
                 const indCost = players.length > 0 ? cost / players.length : 0;
-                const debt = Math.max(0, indCost - (p.totalPaid || 0));
-                totalDebt += debt + (p.cardDebt || 0);
+                const debt = Math.max(0, indCost - paidFromHistory);
+                totalDebt += debt + (debtsFromHistory[p.id] || 0);
             });
 
             setHidden('statsMatchesEmpty', hasMatches);
@@ -2357,6 +2461,52 @@
             return `${dateLabel}${opponent}${round}${phase} - ${match.goalsScored ?? 0}-${match.goalsConceded ?? 0}`;
         };
 
+        const calculateFinancialSummary = () => {
+            const matches = tournamentData.matches || [];
+            const inscriptionExpected = players.length * (tournamentData.inscriptionPerPlayer || 0);
+            const inscriptionCollected = players.reduce((sum, player) => sum + getPlayerTotalPaidFromHistory(player), 0);
+            let finesExpected = 0;
+            let finesCollected = 0;
+            let refereeExpected = 0;
+            let refereeCollected = 0;
+
+            matches.forEach(match => {
+                const details = match.playerDetails || {};
+                const payments = match.refereePayments || {};
+                const present = match.presentPlayers || [];
+                const perPlayerRef = present.length > 0 ? (match.refereeValue || 0) / present.length : 0;
+
+                present.forEach(playerId => {
+                    const playerFine = calculateMatchFine(details[playerId] || {});
+                    finesExpected += playerFine;
+                    finesCollected += Math.min(playerFine, getFinePaidFromHistory(playerId, match.id, payments[playerId]?.finesPaidAmount));
+
+                    refereeExpected += perPlayerRef;
+                    refereeCollected += Math.min(perPlayerRef, getRefereePaidFromHistory(playerId, match.id, payments[playerId]?.refPaidAmount));
+                });
+            });
+
+            const historicalFineCredits = players.reduce((sum, player) => sum + Math.max(0, parseFloat(player.finesCredit) || 0), 0);
+            const totalExpected = inscriptionExpected + finesExpected + refereeExpected;
+            const totalCollected = inscriptionCollected + finesCollected + refereeCollected + historicalFineCredits;
+
+            // IMPORTANTE: pendiente = esperado - cobrado, separado por rubro para no mezclar saldos derivados antiguos.
+            return {
+                inscriptionExpected,
+                inscriptionCollected,
+                inscriptionPending: Math.max(0, inscriptionExpected - inscriptionCollected),
+                finesExpected,
+                finesCollected: finesCollected + historicalFineCredits,
+                finesPending: Math.max(0, finesExpected - finesCollected - historicalFineCredits),
+                refereeExpected,
+                refereeCollected,
+                refereePending: Math.max(0, refereeExpected - refereeCollected),
+                totalExpected,
+                totalCollected,
+                totalPending: Math.max(0, totalExpected - totalCollected)
+            };
+        };
+
         window.renderAll = () => {
             window.renderPlayers();
             window.renderMatchSelector();
@@ -2435,7 +2585,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <div class="font-extrabold text-white leading-tight truncate">${escapeHTML(p.name)}</div>
-                                    <div class="text-xs text-slate-500 mt-1">Abonado: ${formatCOP(p.totalPaid || 0)}</div>
+                                    <div class="text-xs text-slate-500 mt-1">Abonado: ${formatCOP(getPlayerTotalPaidFromHistory(p))}</div>
                                     ${cardDebtHtml}
                                 </div>
                             </div>
@@ -2698,11 +2848,19 @@
             const statusFilter = document.getElementById('financeStatusFilter')?.value || 'todos';
             let renderedCount = 0;
             const cost = tournamentData.inscriptionPerPlayer || 0;
+            const summary = calculateFinancialSummary();
+
+            safeText('financeExpectedTotal', formatCOP(summary.totalExpected));
+            safeText('financeCollectedTotal', formatCOP(summary.totalCollected));
+            safeText('financePendingTotal', formatCOP(summary.totalPending));
+            safeText('financeFinesCollected', formatCOP(summary.finesCollected));
+            safeText('financeRefPending', formatCOP(summary.refereePending));
 
             players.forEach(p => {
-                const paid = p.totalPaid || 0;
+                // IMPORTANTE: el abonado de inscripción se recalcula desde historial para no depender de totalPaid si quedó desactualizado.
+                const paid = getPlayerTotalPaidFromHistory(p);
                 const debt = cost - paid;
-                const finesDebt = Math.max(0, p.cardDebt || 0);
+                const finesDebt = calculatePlayerDebts(tournamentData.matches || [])[p.id] ?? Math.max(0, p.cardDebt || 0);
                 const totalDebt = Math.max(0, debt) + finesDebt;
                 const isUpToDate = totalDebt <= 0;
 
@@ -2737,12 +2895,59 @@
             if (financesCount) financesCount.textContent = `${renderedCount} jugadores`;
         };
 
+        window.exportPlayersCSV = () => {
+            const rows = players.map(player => ({
+                id: player.id,
+                numero: player.number || '',
+                jugador: player.name || '',
+                costo_inscripcion: tournamentData.inscriptionPerPlayer || 0,
+                abonado_inscripcion: getPlayerTotalPaidFromHistory(player),
+                deuda_multas: calculatePlayerDebts(tournamentData.matches || [])[player.id] || 0,
+                pagos_registrados: (player.payments || []).length
+            }));
+            downloadCSV(`jugadores-${currentTournament || 'torneo'}.csv`, rows);
+        };
+
+        window.exportPaymentsCSV = () => {
+            const rows = players.flatMap(player => (player.payments || []).map(payment => ({
+                id_pago: payment.id || '',
+                fecha: payment.date || '',
+                jugador: player.name || '',
+                jugador_id: player.id,
+                tipo: PAYMENT_TYPE_LABELS[payment.type || 'inscripcion'] || 'Inscripción',
+                monto: getPaymentAmount(payment),
+                partido: payment.matchId ? getMatchLabel(payment.matchId) : '',
+                partido_id: payment.matchId || '',
+                usuario_origen: payment.origin || payment.createdBy || payment.user || 'sin origen'
+            }))).sort((a, b) => new Date(a.fecha || 0) - new Date(b.fecha || 0));
+            downloadCSV(`pagos-${currentTournament || 'torneo'}.csv`, rows);
+        };
+
+        window.exportDebtsCSV = () => {
+            const debts = calculatePlayerDebts(tournamentData.matches || []);
+            const cost = tournamentData.inscriptionPerPlayer || 0;
+            const rows = players.map(player => {
+                const paid = getPlayerTotalPaidFromHistory(player);
+                const inscriptionDebt = Math.max(0, cost - paid);
+                const finesDebt = debts[player.id] || 0;
+                return {
+                    jugador_id: player.id,
+                    jugador: player.name || '',
+                    deuda_inscripcion: inscriptionDebt,
+                    deuda_multas: finesDebt,
+                    deuda_total: inscriptionDebt + finesDebt
+                };
+            });
+            downloadCSV(`deudas-${currentTournament || 'torneo'}.csv`, rows);
+        };
+
         window.renderDashboard = () => {
             const matches = tournamentData.matches || [];
             const advanced = calculateAdvancedMetrics(matches);
-            const totalPaid = players.reduce((acc, p) => acc + (p.totalPaid || 0), 0);
+            const totalPaid = players.reduce((acc, p) => acc + getPlayerTotalPaidFromHistory(p), 0);
             const totalDebt = Math.max(0, (players.length * (tournamentData.inscriptionPerPlayer || 0)) - totalPaid);
-            const totalFinesDebt = players.reduce((acc, p) => acc + Math.max(0, p.cardDebt || 0), 0);
+            const debtsFromHistory = calculatePlayerDebts(matches);
+            const totalFinesDebt = players.reduce((acc, p) => acc + Math.max(0, (debtsFromHistory[p.id] ?? p.cardDebt) || 0), 0);
             const totalPayments = players.reduce((acc, p) => acc + ((p.payments || []).length), 0);
 
             const { teamStats, playerList, totalGF, totalGC, diff } = advanced;
@@ -2982,19 +3187,24 @@
                 if (type === 'arbitraje' && !matchId) return window.showToast("Selecciona un partido para arbitraje", true);
 
                 const p = players.find(x => x.id === id);
+                if (!p) return window.showToast("Jugador no encontrado", true);
                 const newPay = {
                     id: crypto.randomUUID(),
                     date: new Date().toISOString(),
                     amount,
                     type,
-                    matchId: matchId || null
+                    matchId: matchId || null,
+                    playerName: p?.name || '',
+                    origin: getPaymentOrigin(),
+                    createdAt: new Date().toISOString()
                 };
 
                 const updatedPayments = [...(p.payments || []), newPay];
 
                 if (type === 'inscripcion') {
+                    // IMPORTANTE: totalPaid se deriva del historial de inscripción para evitar saldos acumulados incorrectos.
                     await updateDoc(doc(collection(db, currentPlayersCollection), id), {
-                        totalPaid: (p.totalPaid || 0) + amount,
+                        totalPaid: getPlayerTotalPaidFromHistory({ ...p, payments: updatedPayments }),
                         payments: updatedPayments
                     });
                 } else if (type === 'tarjeta') {
@@ -3012,6 +3222,8 @@
                         const playerPayment = { ...(payments[id] || {}) };
                         const currentPaid = Math.max(0, parseFloat(playerPayment.finesPaidAmount) || 0);
                         const newPaid = Math.min(fineTotal, currentPaid + amount);
+                        newPay.amount = Math.max(0, newPaid - currentPaid);
+                        if (newPay.amount <= 0) return window.showToast("La multa ya está cubierta", true);
 
                         playerPayment.finesPaidAmount = newPaid;
                         if ('paidFines' in playerPayment) delete playerPayment.paidFines;
@@ -3047,6 +3259,7 @@
                     const perPlayer = totalPlayers > 0 ? (match.refereeValue || 0) / totalPlayers : 0;
                     const currentPaid = Math.max(0, parseFloat(playerPayment.refPaidAmount) || 0);
                     const newPaid = currentPaid + amount;
+                    newPay.amount = Math.max(0, newPaid - currentPaid);
 
                     playerPayment.refPaidAmount = newPaid;
                     playerPayment.paidRef = perPlayer > 0 ? newPaid >= perPlayer : false;
@@ -3060,12 +3273,63 @@
                     tournamentData.matches = matches;
                 }
 
+                p.payments = updatedPayments;
+                p.totalPaid = getPlayerTotalPaidFromHistory(p);
                 document.getElementById('payAmount').value = '';
+                window.renderFinances();
+                window.renderDashboard();
                 window.showToast('Pago registrado');
             } catch (e) {
                 console.error(e);
                 window.showToast("Error al registrar pago", true);
             }
+        };
+
+        window.printPaymentReceipt = (playerId, paymentId) => {
+            const player = players.find(x => String(x.id) === String(playerId));
+            const payment = (player?.payments || []).find(pay => String(pay.id) === String(paymentId));
+            if (!player || !payment) return window.showToast('Pago no encontrado', true);
+
+            const type = PAYMENT_TYPE_LABELS[payment.type || 'inscripcion'] || 'Inscripción';
+            const matchLabel = payment.matchId ? getMatchLabel(payment.matchId) : 'No aplica';
+            const origin = payment.origin || payment.createdBy || payment.user || 'sin origen';
+            const receiptHtml = `
+                <!doctype html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>Comprobante ${escapeHTML(payment.id || '')}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 32px; color: #111827; }
+                        .receipt { max-width: 640px; border: 1px solid #d1d5db; border-radius: 18px; padding: 28px; }
+                        h1 { margin: 0 0 6px; font-size: 24px; }
+                        .muted { color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+                        .row { display: flex; justify-content: space-between; gap: 20px; border-bottom: 1px solid #e5e7eb; padding: 12px 0; }
+                        .amount { font-size: 30px; font-weight: 800; color: #059669; }
+                        button { margin-top: 24px; padding: 12px 18px; border: 0; border-radius: 12px; background: #111827; color: white; font-weight: 700; cursor: pointer; }
+                        @media print { button { display: none; } body { margin: 0; } .receipt { border: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt">
+                        <div class="muted">Comprobante simple de pago</div>
+                        <h1>${escapeHTML(tournamentData.name || 'Equipo')}</h1>
+                        <div class="amount">${formatCOP(payment.amount)}</div>
+                        <div class="row"><strong>Fecha</strong><span>${escapeHTML(new Date(payment.date).toLocaleString())}</span></div>
+                        <div class="row"><strong>Jugador</strong><span>${escapeHTML(player.name)}</span></div>
+                        <div class="row"><strong>Tipo</strong><span>${escapeHTML(type)}</span></div>
+                        <div class="row"><strong>Partido asociado</strong><span>${escapeHTML(matchLabel)}</span></div>
+                        <div class="row"><strong>Usuario / origen</strong><span>${escapeHTML(origin)}</span></div>
+                        <div class="row"><strong>ID pago</strong><span>${escapeHTML(payment.id || '')}</span></div>
+                        <button onclick="window.print()">Imprimir comprobante</button>
+                    </div>
+                </body>
+                </html>`;
+
+            const receiptWindow = window.open('', '_blank', 'width=720,height=760');
+            if (!receiptWindow) return window.showToast('No se pudo abrir el comprobante', true);
+            receiptWindow.document.write(receiptHtml);
+            receiptWindow.document.close();
         };
 
         window.openPaymentHistory = (playerId) => {
@@ -3077,22 +3341,37 @@
             if (!p.payments || p.payments.length === 0) {
                 list.innerHTML = '<div class="text-center text-slate-500 mt-10">Sin pagos registrados</div>';
             } else {
-                list.innerHTML = p.payments.map(pay => {
+                list.innerHTML = [...p.payments].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).map(pay => {
                     const type = pay.type || 'inscripcion';
                     const typeLabel = escapeHTML(PAYMENT_TYPE_LABELS[type] || 'Inscripción');
                     // IMPORTANTE: getMatchLabel combina datos editables del partido; se sanea antes de innerHTML.
-                    const matchLabel = pay.matchId ? escapeHTML(getMatchLabel(pay.matchId)) : null;
+                    const matchLabel = pay.matchId ? escapeHTML(getMatchLabel(pay.matchId)) : 'Sin partido asociado';
+                    const origin = escapeHTML(pay.origin || pay.createdBy || pay.user || 'sin origen');
+                    const dateLabel = pay.date ? new Date(pay.date).toLocaleString() : 'Sin fecha';
 
                     return `
-                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl mb-2 border border-white/8">
-                            <div>
-                                <div class="font-extrabold text-success">${formatCOP(pay.amount)}</div>
-                                <div class="text-xs text-slate-500">${new Date(pay.date).toLocaleDateString()}</div>
-                                <div class="text-[10px] text-slate-400 uppercase font-bold mt-1">${typeLabel}${matchLabel ? ` · ${matchLabel}` : ''}</div>
+                        <div class="bg-white/5 p-4 rounded-2xl mb-2 border border-white/8">
+                            <div class="flex justify-between items-start gap-3">
+                                <div class="min-w-0">
+                                    <div class="font-extrabold text-success">${formatCOP(pay.amount)}</div>
+                                    <div class="text-xs text-slate-500">${escapeHTML(dateLabel)}</div>
+                                    <div class="text-[10px] text-slate-400 uppercase font-bold mt-1">${typeLabel}</div>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <button title="Comprobante" onclick="window.printPaymentReceipt('${playerId}', '${pay.id}')" class="text-slate-500 hover:text-success px-2">
+                                        <i class="fa-solid fa-print"></i>
+                                    </button>
+                                    <button title="Eliminar pago" onclick="window.deletePayment('${playerId}', '${pay.id}')" class="text-slate-500 hover:text-danger px-2">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <button onclick="window.deletePayment('${playerId}', '${pay.id}')" class="text-slate-500 hover:text-danger px-2">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-[11px] text-slate-400">
+                                <div><span class="text-slate-500">Jugador:</span> ${escapeHTML(p.name)}</div>
+                                <div><span class="text-slate-500">Partido:</span> ${matchLabel}</div>
+                                <div><span class="text-slate-500">Origen:</span> ${origin}</div>
+                                <div><span class="text-slate-500">ID:</span> ${escapeHTML(pay.id || 'sin id')}</div>
+                            </div>
                         </div>
                     `;
                 }).join('');
@@ -3103,7 +3382,7 @@
                 const details = m.playerDetails || {};
                 const fine = calculateMatchFine(details[playerId] || {});
                 const payments = m.refereePayments || {};
-                const paid = Math.max(0, parseFloat(payments[playerId]?.finesPaidAmount) || 0);
+                const paid = getFinePaidFromHistory(playerId, m.id, payments[playerId]?.finesPaidAmount);
 
                 if (fine <= 0 && paid <= 0) return '';
 
@@ -3157,6 +3436,8 @@
                 const playerPayment = { ...(payments[playerId] || {}) };
                 const currentPaid = Math.max(0, parseFloat(playerPayment.finesPaidAmount) || 0);
                 const newPaid = payFull ? fineTotal : Math.min(fineTotal, currentPaid + amount);
+                const paidDelta = Math.max(0, newPaid - currentPaid);
+                if (paidDelta <= 0) return window.showToast("La multa ya está cubierta", true);
 
                 playerPayment.finesPaidAmount = newPaid;
                 if ('paidFines' in playerPayment) delete playerPayment.paidFines;
@@ -3165,8 +3446,23 @@
                 match.refereePayments = payments;
                 matches[matchIndex] = match;
 
+                const p = players.find(x => x.id === playerId);
+                const newPay = {
+                    id: crypto.randomUUID(),
+                    date: new Date().toISOString(),
+                    amount: paidDelta,
+                    type: 'tarjeta',
+                    matchId,
+                    playerName: p?.name || '',
+                    origin: getPaymentOrigin(),
+                    createdAt: new Date().toISOString()
+                };
+                const updatedPayments = [...(p?.payments || []), newPay];
+
                 await updateDoc(doc(collection(db, currentTournamentCollection), currentTournament), { matches });
+                if (p) await updateDoc(doc(collection(db, currentPlayersCollection), playerId), { payments: updatedPayments });
                 tournamentData.matches = matches;
+                if (p) p.payments = updatedPayments;
 
                 await recalculateAllDebts(matches);
                 window.renderFinances();
@@ -3184,13 +3480,13 @@
 
             try {
                 const p = players.find(x => x.id === playerId);
+                if (!p) return window.showToast("Jugador no encontrado", true);
                 const targetPayment = (p.payments || []).find(pay => pay.id === paymentId);
                 if (!targetPayment) return window.showToast("Pago no encontrado", true);
 
                 const newPayments = (p.payments || []).filter(pay => pay.id !== paymentId);
-                const newTotal = newPayments
-                    .filter(pay => (pay.type || 'inscripcion') === 'inscripcion')
-                    .reduce((sum, pay) => sum + pay.amount, 0);
+                // IMPORTANTE: al borrar se recalculan saldos desde el historial restante, no restando acumulados previos.
+                const newTotal = getPlayerTotalPaidFromHistory({ ...p, payments: newPayments });
 
                 const updates = { totalPaid: newTotal, payments: newPayments };
 
@@ -3252,12 +3548,9 @@
 
                 if (updates.finesCredit !== undefined) p.finesCredit = updates.finesCredit;
 
-                if (targetPayment.type === 'tarjeta' && !targetPayment.matchId) {
-                    await recalculateAllDebts(tournamentData.matches || []);
-                    p.cardDebt = Math.max(0, (p.cardDebt || 0) + targetPayment.amount);
-                    window.renderFinances();
-                    window.renderDashboard();
-                }
+                await recalculateAllDebts(tournamentData.matches || []);
+                window.renderFinances();
+                window.renderDashboard();
 
                 window.openPaymentHistory(playerId);
                 window.showToast("Pago eliminado");
@@ -3330,7 +3623,10 @@
                     date: new Date().toISOString(),
                     amount,
                     type: 'tarjeta',
-                    matchId: null
+                    matchId: null,
+                    playerName: p?.name || '',
+                    origin: getPaymentOrigin(),
+                    createdAt: new Date().toISOString()
                 };
 
                 const updatedPayments = [...(p.payments || []), newPay];
