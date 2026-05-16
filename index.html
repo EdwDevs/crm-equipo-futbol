@@ -414,173 +414,129 @@
                 </div>
             </div>
 
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-extrabold text-white flex items-center gap-3">
-                    <i class="fa-solid fa-chart-line text-primary"></i> Resumen General
-                </h2>
-                <span id="dashTournamentName" class="text-xs font-mono text-slate-400 bg-white/5 px-3 py-2 rounded-full border border-white/8">
-                    ...
-                </span>
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
+                <div>
+                    <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Dashboard ejecutivo</div>
+                    <h2 class="text-2xl font-extrabold text-white flex items-center gap-3 mt-1">
+                        <i class="fa-solid fa-chart-line text-primary"></i> Resumen General
+                    </h2>
+                </div>
+                <span id="dashTournamentName" class="text-xs font-mono text-slate-400 bg-white/5 px-3 py-2 rounded-full border border-white/8">...</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="glass metric-card p-5 rounded-[24px] border border-emerald-500/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Recaudado</div>
-                    <div class="text-3xl font-extrabold text-white" id="dashCollected">$0</div>
-                    <div class="text-[11px] text-slate-500 mt-2">Inscripciones</div>
-                </div>
+            <div id="dashboardMatchesEmpty" class="hidden glass rounded-[24px] p-5 mb-6 border border-primary/15 text-slate-400 text-sm">
+                <i class="fa-solid fa-calendar-plus text-primary mr-2"></i> Aún no hay partidos registrados; agrega el primer partido para activar porcentajes, tendencias y rachas.
+            </div>
 
-                <div class="glass metric-card p-5 rounded-[24px] border border-red-500/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Deuda Total</div>
-                    <div class="text-3xl font-extrabold text-white" id="dashDebt">$0</div>
-                    <div class="text-[11px] text-slate-500 mt-2">Inscripción + Multas</div>
-                </div>
-
-                <div class="glass metric-card p-5 rounded-[24px] border border-amber-500/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Promedio Goles</div>
-                    <div class="flex justify-between items-end mt-2">
-                        <div>
-                            <div class="text-2xl font-extrabold text-success">
-                                <i class="fa-solid fa-arrow-up text-xs mr-1"></i><span id="dashAvgGF">0.0</span>
-                            </div>
-                            <div class="text-[10px] text-slate-500 mt-1">Anotados/P</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-extrabold text-red-400">
-                                <i class="fa-solid fa-arrow-down text-xs mr-1"></i><span id="dashAvgGC">0.0</span>
-                            </div>
-                            <div class="text-[10px] text-slate-500 mt-1">Recibidos/P</div>
-                        </div>
+            <section class="mb-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="h-8 w-1 rounded-full bg-primary"></span>
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Estadísticas de equipo</div>
+                        <h3 class="text-xl font-extrabold text-white">Rendimiento colectivo</h3>
                     </div>
                 </div>
 
-                <div class="glass metric-card p-5 rounded-[24px] border border-yellow-500/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Disciplina</div>
-                    <div class="flex justify-between items-center mt-2">
-                        <div>
-                            <div class="text-3xl font-extrabold text-white" id="dashAvgCards">0.0</div>
-                            <div class="text-[10px] text-slate-500 mt-1">Tarjetas/Partido</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xs font-bold text-white truncate w-24" id="dashBadBoyName">-</div>
-                            <div class="text-[10px] text-yellow-500 mt-1">
-                                <span id="dashBadBoyAvg">0.0</span>/P
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="glass metric-card p-5 rounded-[24px] border border-amber-500/10">
+                        <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Promedio Goles</div>
+                        <div class="flex justify-between items-end mt-2">
+                            <div>
+                                <div class="text-2xl font-extrabold text-success"><i class="fa-solid fa-arrow-up text-xs mr-1"></i><span id="dashAvgGF">0.0</span></div>
+                                <div class="text-[10px] text-slate-500 mt-1">Anotados/P</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-extrabold text-red-400"><i class="fa-solid fa-arrow-down text-xs mr-1"></i><span id="dashAvgGC">0.0</span></div>
+                                <div class="text-[10px] text-slate-500 mt-1">Recibidos/P</div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="glass metric-card p-5 rounded-[24px] border border-success/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">% Victorias</div>
-                    <div class="text-3xl font-extrabold text-success" id="dashWinPct">0%</div>
-                    <div class="text-[11px] text-slate-500 mt-2">Partidos ganados / jugados</div>
-                </div>
-
-                <div class="glass metric-card p-5 rounded-[24px] border border-primary/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Puntos/Partido</div>
-                    <div class="text-3xl font-extrabold text-primary" id="dashPPG">0.00</div>
-                    <div class="text-[11px] text-slate-500 mt-2">Sistema 2-1-0</div>
-                </div>
-
-                <div class="glass metric-card p-5 rounded-[24px] border border-amber-500/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">DG Promedio</div>
-                    <div class="text-3xl font-extrabold text-white" id="dashAvgGoalDiff">0.0</div>
-                    <div class="text-[11px] text-slate-500 mt-2">Diferencia de gol / partido</div>
-                </div>
-
-                <div class="glass metric-card p-5 rounded-[24px] border border-purple-500/10">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">MVP Simple</div>
-                    <div class="text-lg font-extrabold text-white truncate" id="dashMvpName">-</div>
-                    <div class="text-[11px] text-purple-300 mt-2">
-                        <span id="dashMvpScore">0.0</span> pts · <span id="dashMvpFormula">G*3 + PJ - T</span>
+                    <div class="glass metric-card p-5 rounded-[24px] border border-success/10">
+                        <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">% Victorias</div>
+                        <div class="text-3xl font-extrabold text-success" id="dashWinPct">0%</div>
+                        <div class="text-[11px] text-slate-500 mt-2">Partidos ganados / jugados</div>
                     </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="glass rounded-[24px] p-5 border border-white/8">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Líder Goles/P</div>
-                    <div class="text-lg font-extrabold text-white truncate" id="dashGoalsPerMatchLeader">-</div>
-                    <div class="text-2xl font-extrabold text-success mt-2"><span id="dashGoalsPerMatchValue">0.00</span></div>
-                </div>
-                <div class="glass rounded-[24px] p-5 border border-white/8">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Mayor Participación Goleadora</div>
-                    <div class="text-lg font-extrabold text-white truncate" id="dashGoalShareLeader">-</div>
-                    <div class="text-2xl font-extrabold text-primary mt-2"><span id="dashGoalShareValue">0%</span></div>
-                </div>
-                <div class="glass rounded-[24px] p-5 border border-white/8">
-                    <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Más Tarjetas/P</div>
-                    <div class="text-lg font-extrabold text-white truncate" id="dashCardsPerMatchLeader">-</div>
-                    <div class="text-2xl font-extrabold text-yellow-500 mt-2"><span id="dashCardsPerMatchValue">0.00</span></div>
-                </div>
-            </div>
-
-            <div class="glass-strong p-6 rounded-[28px] mb-8 border border-white/8 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition duration-500">
-                    <i class="fa-solid fa-ranking-star text-9xl text-white rotate-12"></i>
-                </div>
-
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 relative z-10">
-                    <i class="fa-solid fa-ranking-star text-primary"></i> Rendimiento del Equipo
-                </h3>
-
-                <div class="overflow-x-auto relative z-10">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-white/8">
-                                <th class="stat-header text-left pl-4">Equipo</th>
-                                <th class="stat-header" title="Partidos Jugados">PJ</th>
-                                <th class="stat-header text-success" title="Partidos Ganados">PG</th>
-                                <th class="stat-header text-yellow-500" title="Partidos Empatados">PE</th>
-                                <th class="stat-header text-red-500" title="Partidos Perdidos">PP</th>
-                                <th class="stat-header" title="Goles a Favor">GF</th>
-                                <th class="stat-header" title="Goles en Contra">GC</th>
-                                <th class="stat-header" title="Diferencia de Gol">DG</th>
-                                <th class="stat-header" title="Porcentaje de Victorias">%V</th>
-                                <th class="stat-header" title="Puntos por Partido">PPG</th>
-                                <th class="stat-header" title="Diferencia de Gol Promedio">DG/P</th>
-                                <th class="stat-header text-primary text-base">PTS</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teamStatsTableBody" class="text-slate-300">
-                            <tr>
-                                <td colspan="12" class="text-center py-4 text-xs text-slate-500">Cargando datos...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="mt-5 relative z-10">
-                    <div class="flex justify-between text-[10px] text-slate-400 mb-2 uppercase font-bold tracking-[.16em]">
-                        <span>Victorias</span>
-                        <span>Empates</span>
-                        <span>Derrotas</span>
+                    <div class="glass metric-card p-5 rounded-[24px] border border-primary/10">
+                        <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Puntos/Partido</div>
+                        <div class="text-3xl font-extrabold text-primary" id="dashPPG">0.00</div>
+                        <div class="text-[11px] text-slate-500 mt-2">Sistema 2-1-0</div>
                     </div>
-                    <div class="w-full h-3 bg-white/5 rounded-full flex overflow-hidden border border-white/5" id="performanceBar">
-                        <div class="bg-success h-full w-0" id="barWins"></div>
-                        <div class="bg-yellow-500 h-full w-0" id="barDraws"></div>
-                        <div class="bg-danger h-full w-0" id="barLosses"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="glass rounded-[28px] p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Top Goleadores</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <tbody id="topScorersTable" class="text-slate-300 divide-y divide-white/6"></tbody>
-                        </table>
+                    <div class="glass metric-card p-5 rounded-[24px] border border-amber-500/10">
+                        <div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">DG Promedio</div>
+                        <div class="text-3xl font-extrabold text-white" id="dashAvgGoalDiff">0.0</div>
+                        <div class="text-[11px] text-slate-500 mt-2">Diferencia de gol / partido</div>
                     </div>
                 </div>
 
-                <div class="glass rounded-[28px] p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Racha Reciente</h3>
-                    <div id="recentMatchesList" class="space-y-3"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="glass-strong p-6 rounded-[28px] border border-white/8 relative overflow-hidden lg:col-span-2">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-primary"></i> Rendimiento del Equipo</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-white/8">
+                                        <th class="stat-header text-left pl-4">Equipo</th><th class="stat-header" title="Partidos Jugados">PJ</th><th class="stat-header text-success" title="Partidos Ganados">PG</th><th class="stat-header text-yellow-500" title="Partidos Empatados">PE</th><th class="stat-header text-red-500" title="Partidos Perdidos">PP</th><th class="stat-header" title="Goles a Favor">GF</th><th class="stat-header" title="Goles en Contra">GC</th><th class="stat-header" title="Diferencia de Gol">DG</th><th class="stat-header" title="Porcentaje de Victorias">%V</th><th class="stat-header" title="Puntos por Partido">PPG</th><th class="stat-header" title="Diferencia de Gol Promedio">DG/P</th><th class="stat-header text-primary text-base">PTS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teamStatsTableBody" class="text-slate-300"><tr><td colspan="12" class="text-center py-4 text-xs text-slate-500">Cargando datos...</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="mt-5">
+                            <div class="flex justify-between text-[10px] text-slate-400 mb-2 uppercase font-bold tracking-[.16em]"><span>Victorias</span><span>Empates</span><span>Derrotas</span></div>
+                            <div class="w-full h-3 bg-white/5 rounded-full flex overflow-hidden border border-white/5" id="performanceBar"><div class="bg-success h-full w-0" id="barWins"></div><div class="bg-yellow-500 h-full w-0" id="barDraws"></div><div class="bg-danger h-full w-0" id="barLosses"></div></div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-[28px] p-6 border border-white/8">
+                        <h3 class="text-lg font-bold text-white mb-4">Tendencia DG</h3>
+                        <div class="h-44"><canvas id="dashboardGoalsTrendChart"></canvas></div>
+                        <div id="dashboardResultCards" class="mt-4 space-y-3"></div>
+                    </div>
                 </div>
-            </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass rounded-[28px] p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">Top Goleadores</h3>
+                        <div id="dashboardPlayersEmpty" class="hidden text-center py-6 text-xs text-slate-500">Sin jugadores activos para construir el ranking.</div>
+                        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><tbody id="topScorersTable" class="text-slate-300 divide-y divide-white/6"></tbody></table></div>
+                    </div>
+                    <div class="glass rounded-[28px] p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">Racha Reciente</h3>
+                        <div id="recentMatchesList" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="h-8 w-1 rounded-full bg-purple-500"></span>
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Estadísticas individuales</div>
+                        <h3 class="text-xl font-extrabold text-white">Líderes y disciplina</h3>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="glass rounded-[24px] p-5 border border-white/8"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Líder Goles/P</div><div class="text-lg font-extrabold text-white truncate" id="dashGoalsPerMatchLeader">-</div><div class="text-2xl font-extrabold text-success mt-2"><span id="dashGoalsPerMatchValue">0.00</span></div></div>
+                    <div class="glass rounded-[24px] p-5 border border-white/8"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Mayor Participación Goleadora</div><div class="text-lg font-extrabold text-white truncate" id="dashGoalShareLeader">-</div><div class="text-2xl font-extrabold text-primary mt-2"><span id="dashGoalShareValue">0%</span></div></div>
+                    <div class="glass rounded-[24px] p-5 border border-white/8"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-3 font-bold">Más Tarjetas/P</div><div class="text-lg font-extrabold text-white truncate" id="dashCardsPerMatchLeader">-</div><div class="text-2xl font-extrabold text-yellow-500 mt-2"><span id="dashCardsPerMatchValue">0.00</span></div></div>
+                    <div class="glass metric-card p-5 rounded-[24px] border border-purple-500/10"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">MVP Simple</div><div class="text-lg font-extrabold text-white truncate" id="dashMvpName">-</div><div class="text-[11px] text-purple-300 mt-2"><span id="dashMvpScore">0.0</span> pts · <span id="dashMvpFormula">G*3 + PJ - T</span></div></div>
+                </div>
+            </section>
+
+            <section>
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="h-8 w-1 rounded-full bg-emerald-500"></span>
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Finanzas</div>
+                        <h3 class="text-xl font-extrabold text-white">Recaudo y cartera</h3>
+                    </div>
+                </div>
+                <div id="dashboardPaymentsEmpty" class="hidden glass rounded-[24px] p-5 mb-4 border border-emerald-500/15 text-slate-400 text-sm"><i class="fa-solid fa-receipt text-emerald-400 mr-2"></i> Aún no existen pagos registrados; cuando registres abonos verás el avance de recaudo.</div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="glass metric-card p-5 rounded-[24px] border border-emerald-500/10"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Recaudado</div><div class="text-3xl font-extrabold text-white" id="dashCollected">$0</div><div class="text-[11px] text-slate-500 mt-2">Inscripciones y abonos</div></div>
+                    <div class="glass metric-card p-5 rounded-[24px] border border-red-500/10"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Deuda Total</div><div class="text-3xl font-extrabold text-white" id="dashDebt">$0</div><div class="text-[11px] text-slate-500 mt-2">Inscripción + Multas</div></div>
+                    <div class="glass rounded-[24px] p-5 border border-white/8"><div class="flex justify-between text-[11px] uppercase tracking-[.18em] font-bold text-slate-400 mb-3"><span>Avance recaudo</span><span id="dashCollectionPct">0%</span></div><div class="h-3 rounded-full bg-white/5 overflow-hidden border border-white/8"><div id="dashCollectionBar" class="h-full bg-success w-0"></div></div><div id="dashboardFinanceSummary" class="text-xs text-slate-500 mt-3"></div></div>
+                </div>
+            </section>
         </div>
                 <!-- TACTICS -->
         <div id="view-tactics" class="p-6 max-w-5xl mx-auto hidden fade-in-up">
@@ -787,98 +743,99 @@
                 <h2 class="text-2xl font-extrabold text-white mt-1">Análisis Detallado</h2>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="glass rounded-[28px] p-5 border border-white/8">
-                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Balance de Resultados</h4>
-                    <div class="h-44 relative">
-                        <canvas id="resultsChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="glass rounded-[28px] p-5 border border-white/8 col-span-1 md:col-span-2">
-                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Evolución de Goles</h4>
-                    <div class="h-44 w-full">
-                        <canvas id="goalsTrendChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="glass rounded-[28px] p-5 border border-white/8">
-                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Estado Financiero</h4>
-                    <div class="h-44 relative">
-                        <canvas id="financeChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div class="glass rounded-[28px] p-5 border border-white/8">
-                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Top Goleadores</h4>
-                    <div class="h-64 w-full">
-                        <canvas id="scorersChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="glass rounded-[28px] p-5 border border-white/8">
-                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Disciplina (Tarjetas)</h4>
-                    <div class="h-64 w-full">
-                        <canvas id="cardsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass rounded-[28px] p-5 border border-white/8 mb-8">
-                <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Asistencia a Partidos</h4>
-                <div class="h-52 w-full">
-                    <canvas id="attendanceChart"></canvas>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div class="glass rounded-[28px] p-5 border border-white/8">
-                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Goles por Partido</h4>
-                    <div class="h-64 w-full">
-                        <canvas id="goalsPerMatchChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="glass rounded-[28px] p-5 border border-white/8">
-                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Ranking MVP Simple</h4>
-                    <div class="h-64 w-full">
-                        <canvas id="mvpChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-strong rounded-[30px] p-6 overflow-x-auto">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <section class="mb-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="h-8 w-1 rounded-full bg-primary"></span>
                     <div>
-                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Detalle</div>
-                        <h3 class="text-lg font-extrabold text-white mt-1">Tabla Estadística General</h3>
-                    </div>
-                    <div class="text-xs text-slate-400 glass rounded-full px-4 py-2">
-                        Rendimiento individual consolidado
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Estadísticas de equipo</div>
+                        <h3 class="text-xl font-extrabold text-white">Resultados, goles y asistencia</h3>
                     </div>
                 </div>
+                <div id="statsMatchesEmpty" class="hidden glass rounded-[24px] p-5 mb-4 border border-primary/15 text-slate-400 text-sm">
+                    <i class="fa-solid fa-chart-line text-primary mr-2"></i> Sin partidos registrados: las gráficas de resultados, goles y asistencia aparecerán cuando agregues partidos.
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="glass rounded-[28px] p-5 border border-white/8">
+                        <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Balance de Resultados</h4>
+                        <div class="h-44 relative"><canvas id="statsResultsChart"></canvas></div>
+                    </div>
+                    <div class="glass rounded-[28px] p-5 border border-white/8 col-span-1 md:col-span-2">
+                        <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Evolución de Goles</h4>
+                        <div class="h-44 w-full"><canvas id="statsGoalsTrendChart"></canvas></div>
+                    </div>
+                    <div class="glass rounded-[28px] p-5 border border-white/8">
+                        <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Comparativo de resultados</h4>
+                        <div id="statsResultsCards" class="space-y-3"></div>
+                    </div>
+                </div>
+                <div class="glass rounded-[28px] p-5 border border-white/8">
+                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Asistencia a Partidos</h4>
+                    <div class="h-52 w-full"><canvas id="statsAttendanceChart"></canvas></div>
+                </div>
+            </section>
 
-                <table class="w-full text-left text-sm text-slate-300">
-                    <thead class="text-xs uppercase text-slate-500 border-b border-white/8">
-                        <tr>
-                            <th class="pb-3 pl-2">Jugador</th>
-                            <th class="pb-3 text-center">PJ</th>
-                            <th class="pb-3 text-center text-success">G</th>
-                            <th class="pb-3 text-center text-slate-400 text-[10px]">G/P</th>
-                            <th class="pb-3 text-center text-primary text-[10px]">Part. Gol</th>
-                            <th class="pb-3 text-center text-yellow-500">A</th>
-                            <th class="pb-3 text-center text-blue-400">Az</th>
-                            <th class="pb-3 text-center text-red-500">R</th>
-                            <th class="pb-3 text-center text-yellow-500 text-[10px]">T/P</th>
-                            <th class="pb-3 text-center text-purple-300 text-[10px]">MVP</th>
-                            <th class="pb-3 text-right text-danger">Deuda Multas</th>
-                        </tr>
-                    </thead>
-                    <tbody id="statsTableBody" class="divide-y divide-white/6"></tbody>
-                </table>
-            </div>
+            <section class="mb-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="h-8 w-1 rounded-full bg-purple-500"></span>
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Estadísticas individuales</div>
+                        <h3 class="text-xl font-extrabold text-white">Rankings, eficiencia y disciplina</h3>
+                    </div>
+                </div>
+                <div id="statsPlayersEmpty" class="hidden glass rounded-[24px] p-5 mb-4 border border-purple-500/15 text-slate-400 text-sm">
+                    <i class="fa-solid fa-user-plus text-purple-300 mr-2"></i> Sin jugadores activos: registra jugadores para activar leaderboards y tablas individuales.
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="glass rounded-[28px] p-5 border border-white/8">
+                        <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Top Goleadores</h4>
+                        <div id="statsTopScorersLeaderboard" class="space-y-3"></div>
+                    </div>
+                    <div class="glass rounded-[28px] p-5 border border-white/8">
+                        <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Disciplina (Tarjetas)</h4>
+                        <div id="statsDisciplineBreakdown" class="space-y-3"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="glass rounded-[28px] p-5 border border-white/8">
+                        <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Goles por Partido</h4>
+                        <div class="h-64 w-full"><canvas id="statsGoalsPerMatchChart"></canvas></div>
+                    </div>
+                    <div class="glass rounded-[28px] p-5 border border-white/8">
+                        <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-[.16em] text-center">Ranking MVP Simple</h4>
+                        <div class="h-64 w-full"><canvas id="statsMvpChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="glass-strong rounded-[30px] p-6 overflow-x-auto">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                        <div><div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Detalle</div><h3 class="text-lg font-extrabold text-white mt-1">Tabla Estadística General</h3></div>
+                        <div class="text-xs text-slate-400 glass rounded-full px-4 py-2">Rendimiento individual consolidado</div>
+                    </div>
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="text-xs uppercase text-slate-500 border-b border-white/8">
+                            <tr><th class="pb-3 pl-2">Jugador</th><th class="pb-3 text-center">PJ</th><th class="pb-3 text-center text-success">G</th><th class="pb-3 text-center text-slate-400 text-[10px]">G/P</th><th class="pb-3 text-center text-primary text-[10px]">Part. Gol</th><th class="pb-3 text-center text-yellow-500">A</th><th class="pb-3 text-center text-blue-400">Az</th><th class="pb-3 text-center text-red-500">R</th><th class="pb-3 text-center text-yellow-500 text-[10px]">T/P</th><th class="pb-3 text-center text-purple-300 text-[10px]">MVP</th><th class="pb-3 text-right text-danger">Deuda Multas</th></tr>
+                        </thead>
+                        <tbody id="statsTableBody" class="divide-y divide-white/6"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section>
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="h-8 w-1 rounded-full bg-emerald-500"></span>
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[.22em] text-slate-500 font-bold">Finanzas</div>
+                        <h3 class="text-xl font-extrabold text-white">Pagos, deuda y avance de cartera</h3>
+                    </div>
+                </div>
+                <div id="statsPaymentsEmpty" class="hidden glass rounded-[24px] p-5 mb-4 border border-emerald-500/15 text-slate-400 text-sm">
+                    <i class="fa-solid fa-receipt text-emerald-400 mr-2"></i> No hay pagos registrados; el resumen financiero se actualizará al registrar el primer abono.
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass rounded-[24px] p-5 border border-emerald-500/10"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Recaudado</div><div class="text-2xl font-extrabold text-success" id="statsFinancePaid">$0</div></div>
+                    <div class="glass rounded-[24px] p-5 border border-red-500/10"><div class="text-slate-400 text-[11px] uppercase tracking-[.18em] mb-1 font-bold">Por cobrar</div><div class="text-2xl font-extrabold text-danger" id="statsFinanceDebt">$0</div></div>
+                    <div class="glass rounded-[24px] p-5 border border-white/8"><div class="flex justify-between text-[11px] uppercase tracking-[.18em] font-bold text-slate-400 mb-3"><span>Avance</span><span id="statsFinancePct">0%</span></div><div class="h-3 rounded-full bg-white/5 overflow-hidden border border-white/8"><div id="statsFinanceBar" class="h-full bg-success w-0"></div></div></div>
+                </div>
+            </section>
         </div>
 
         <!-- FINANCES -->
@@ -1155,20 +1112,6 @@
         import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // --- FIX VISUAL / IDs DUPLICADOS EN LOS BLOQUES ---
-        function normalizeDuplicateChartIds() {
-            const resultsCharts = document.querySelectorAll('#resultsChart');
-            if (resultsCharts.length > 1) {
-                resultsCharts[0].id = 'dashboardResultsChart';
-            }
-
-            const trendCharts = document.querySelectorAll('#goalsTrendChart');
-            if (trendCharts.length > 1) {
-                trendCharts[0].id = 'dashboardGoalsTrendChart';
-            }
-        }
-        normalizeDuplicateChartIds();
-
         const firebaseConfig = {
             apiKey: "AIzaSyBXylL77z6EPDy2EuXVLLF_hkW8CyQvns4",
             authDomain: "crm-futbol.firebaseapp.com",
@@ -1232,6 +1175,46 @@
             currency: 'COP',
             minimumFractionDigits: 0
         }).format(amount || 0);
+
+        const setHidden = (id, shouldHide) => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden', shouldHide);
+        };
+
+        const setWidth = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.style.width = `${Math.max(0, Math.min(100, value || 0))}%`;
+        };
+
+        const chartTooltipLabel = (context, formatter = null) => {
+            const label = context.dataset?.label || context.label || 'Valor';
+            const value = context.parsed?.y ?? context.parsed?.x ?? context.parsed ?? context.raw ?? 0;
+            return formatter ? formatter(label, value, context) : `${label}: ${value}`;
+        };
+
+        const renderProgressRows = (containerId, rows, emptyText = 'Sin datos para mostrar') => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (!rows.length) {
+                container.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">${emptyText}</div>`;
+                return;
+            }
+
+            const maxValue = Math.max(...rows.map(row => row.value), 1);
+            container.innerHTML = rows.map((row, index) => `
+                <div class="rounded-2xl bg-white/[.03] border border-white/8 p-3">
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-7 h-7 rounded-xl ${row.badgeClass || 'bg-white/5 text-slate-300'} flex items-center justify-center text-xs font-extrabold">${index + 1}</span>
+                            <span class="text-sm font-bold text-white truncate">${row.label}</span>
+                        </div>
+                        <span class="text-sm font-extrabold ${row.valueClass || 'text-primary'}">${row.display}</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/5 overflow-hidden"><div class="h-full ${row.barClass || 'bg-primary'}" style="width: ${(row.value / maxValue) * 100}%"></div></div>
+                </div>
+            `).join('');
+        };
 
         const calculateMatchFine = (stats = {}) => {
             let fine = 0;
@@ -1692,14 +1675,13 @@
         // --- CHARTS ---
         window.renderStatsCharts = () => {
             const matches = tournamentData.matches || [];
-            if (!matches) return;
 
             [
-                'results', 'cards', 'scorers', 'attendance', 'finance', 'goalsPerMatch', 'mvp',
-                'goalsTrend', 'dashboardResults', 'dashboardGoalsTrend'
+                'results', 'attendance', 'goalsPerMatch', 'mvp',
+                'goalsTrend', 'dashboardGoalsTrend'
             ].forEach(destroyChart);
 
-            // IMPORTANTE: reutilizamos el cálculo avanzado para que las gráficas coincidan con dashboard y tabla.
+            // IMPORTANTE: reutilizamos el cálculo avanzado para que gráficas, dashboard y tabla usen la misma fuente de verdad.
             const advanced = calculateAdvancedMetrics(matches);
             const wins = advanced.teamStats.pg;
             const draws = advanced.teamStats.pe;
@@ -1710,87 +1692,10 @@
             const yellow = advanced.playerList.reduce((acc, p) => acc + p.yellow, 0);
             const blue = advanced.playerList.reduce((acc, p) => acc + p.blue, 0);
             const red = advanced.playerList.reduce((acc, p) => acc + p.red, 0);
-
-            const statsResultsCanvas = document.getElementById('resultsChart');
-            if (statsResultsCanvas) {
-                charts.results = new Chart(statsResultsCanvas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Victorias', 'Empates', 'Derrotas'],
-                        datasets: [{
-                            data: [wins, draws, losses],
-                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: '#94a3b8' }
-                            }
-                        }
-                    }
-                });
-            }
-
-            const dashboardResultsCanvas = document.getElementById('dashboardResultsChart');
-            if (dashboardResultsCanvas) {
-                charts.dashboardResults = new Chart(dashboardResultsCanvas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Victorias', 'Empates', 'Derrotas'],
-                        datasets: [{
-                            data: [wins, draws, losses],
-                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { display: false }
-                        }
-                    }
-                });
-            }
-
-            const ctxCards = document.getElementById('cardsChart');
-            if (ctxCards) {
-                charts.cards = new Chart(ctxCards, {
-                    type: 'polarArea',
-                    data: {
-                        labels: ['Amarillas', 'Azules', 'Rojas'],
-                        datasets: [{
-                            data: [yellow, blue, red],
-                            backgroundColor: [
-                                'rgba(245, 158, 11, 0.8)',
-                                'rgba(59, 130, 246, 0.8)',
-                                'rgba(239, 68, 68, 0.8)'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            r: {
-                                grid: { color: '#334155' },
-                                ticks: { display: false }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: '#94a3b8' }
-                            }
-                        }
-                    }
-                });
-            }
-
             const playerStats = advanced.playerList;
+            const hasMatches = matches.length > 0;
+            const hasPlayers = players.length > 0;
+            const totalPayments = players.reduce((acc, p) => acc + ((p.payments || []).length), 0);
             let totalPaid = 0;
             let totalDebt = 0;
             const cost = tournamentData.totalInscription || 0;
@@ -1802,148 +1707,116 @@
                 totalDebt += debt + (p.cardDebt || 0);
             });
 
-            const ctxScorers = document.getElementById('scorersChart');
-            if (ctxScorers) {
-                const sortedScorers = [...playerStats].sort((a, b) => b.goals - a.goals).slice(0, 10);
-                charts.scorers = new Chart(ctxScorers, {
-                    type: 'bar',
-                    indexAxis: 'y',
+            setHidden('statsMatchesEmpty', hasMatches);
+            setHidden('statsPlayersEmpty', hasPlayers);
+            setHidden('statsPaymentsEmpty', totalPayments > 0);
+
+            const totalResultCount = Math.max(wins + draws + losses, 1);
+            renderProgressRows('statsResultsCards', [
+                { label: 'Victorias', value: wins, display: `${wins} (${((wins / totalResultCount) * 100).toFixed(0)}%)`, badgeClass: 'bg-success/10 text-success', barClass: 'bg-success', valueClass: 'text-success' },
+                { label: 'Empates', value: draws, display: `${draws} (${((draws / totalResultCount) * 100).toFixed(0)}%)`, badgeClass: 'bg-yellow-500/10 text-yellow-500', barClass: 'bg-yellow-500', valueClass: 'text-yellow-500' },
+                { label: 'Derrotas', value: losses, display: `${losses} (${((losses / totalResultCount) * 100).toFixed(0)}%)`, badgeClass: 'bg-danger/10 text-danger', barClass: 'bg-danger', valueClass: 'text-danger' }
+            ], 'Sin resultados definidos');
+
+            // IMPORTANTE: este leaderboard reemplaza un gráfico redundante y enfatiza ranking + proporción relativa de goles.
+            const sortedScorers = [...playerStats].filter(p => p.goals > 0).sort((a, b) => b.goals - a.goals).slice(0, 10);
+            renderProgressRows('statsTopScorersLeaderboard', sortedScorers.map(p => ({
+                label: p.name,
+                value: p.goals,
+                display: `${p.goals} goles`,
+                badgeClass: 'bg-amber-500/10 text-amber-400',
+                barClass: 'bg-amber-500',
+                valueClass: 'text-amber-400'
+            })), hasPlayers ? 'Sin goles registrados' : 'Sin jugadores registrados');
+
+            // IMPORTANTE: disciplina se muestra como barras comparativas para evitar otro gráfico circular con la misma lectura.
+            renderProgressRows('statsDisciplineBreakdown', [
+                { label: 'Amarillas', value: yellow, display: `${yellow} tarjetas`, badgeClass: 'bg-yellow-500/10 text-yellow-500', barClass: 'bg-yellow-500', valueClass: 'text-yellow-500' },
+                { label: 'Azules', value: blue, display: `${blue} tarjetas`, badgeClass: 'bg-blue-500/10 text-blue-400', barClass: 'bg-blue-500', valueClass: 'text-blue-400' },
+                { label: 'Rojas', value: red, display: `${red} tarjetas`, badgeClass: 'bg-danger/10 text-danger', barClass: 'bg-danger', valueClass: 'text-danger' }
+            ].filter(row => row.value > 0), 'Sin tarjetas registradas');
+
+            safeText('statsFinancePaid', formatCOP(totalPaid));
+            safeText('statsFinanceDebt', formatCOP(totalDebt));
+            const financeTotal = totalPaid + totalDebt;
+            const financePct = financeTotal > 0 ? (totalPaid / financeTotal) * 100 : 0;
+            safeText('statsFinancePct', `${financePct.toFixed(0)}%`);
+            setWidth('statsFinanceBar', financePct);
+
+            const statsResultsCanvas = document.getElementById('statsResultsChart');
+            if (statsResultsCanvas) {
+                // IMPORTANTE: balance de resultados calcula distribución sobre partidos con resultado definido, no sobre partidos agendados.
+                charts.results = new Chart(statsResultsCanvas, {
+                    type: 'doughnut',
                     data: {
-                        labels: sortedScorers.map(p => p.name),
-                        datasets: [{
-                            label: 'Goles',
-                            data: sortedScorers.map(p => p.goals),
-                            backgroundColor: '#F59E0B',
-                            barThickness: 14,
-                            borderRadius: 8
-                        }]
+                        labels: ['Victorias', 'Empates', 'Derrotas'],
+                        datasets: [{ data: [wins, draws, losses], backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], borderWidth: 0 }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { ticks: { color: '#94a3b8' } },
-                            y: { ticks: { color: '#94a3b8' } }
-                        },
-                        plugins: { legend: { display: false } }
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#94a3b8' } },
+                            tooltip: { callbacks: { label: (ctx) => chartTooltipLabel(ctx, (label, value) => `${label}: ${value} partidos (${((value / totalResultCount) * 100).toFixed(0)}% del balance)`) } }
+                        }
                     }
                 });
             }
 
-            const ctxAttendance = document.getElementById('attendanceChart');
+            const ctxAttendance = document.getElementById('statsAttendanceChart');
             if (ctxAttendance) {
                 const sortedAttendance = [...playerStats].sort((a, b) => b.matches - a.matches).slice(0, 15);
+                // IMPORTANTE: asistencia cuenta presencias por jugador usando presentPlayers o playerDetails cuando no hay lista explícita.
                 charts.attendance = new Chart(ctxAttendance, {
                     type: 'bar',
                     data: {
                         labels: sortedAttendance.map(p => p.name),
-                        datasets: [{
-                            label: 'Partidos Jugados',
-                            data: sortedAttendance.map(p => p.matches),
-                            backgroundColor: '#3B82F6',
-                            barThickness: 10,
-                            borderRadius: 6
-                        }]
+                        datasets: [{ label: 'Partidos jugados', data: sortedAttendance.map(p => p.matches), backgroundColor: '#3B82F6', barThickness: 10, borderRadius: 6 }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
-                            x: { ticks: { color: '#94a3b8', font: { size: 10 } } },
-                            y: { ticks: { color: '#94a3b8' } }
-                        },
-                        plugins: { legend: { display: false } }
+                        scales: { x: { ticks: { color: '#94a3b8', font: { size: 10 } } }, y: { ticks: { color: '#94a3b8' } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => chartTooltipLabel(ctx, (_, value) => `${value} partidos asistidos`) } } }
                     }
                 });
             }
 
-            const ctxGoalsPerMatch = document.getElementById('goalsPerMatchChart');
+            const ctxGoalsPerMatch = document.getElementById('statsGoalsPerMatchChart');
             if (ctxGoalsPerMatch) {
-                const sortedGoalsPerMatch = [...playerStats]
-                    .filter(p => p.matches > 0)
-                    .sort((a, b) => b.goalPerMatch - a.goalPerMatch)
-                    .slice(0, 10);
-
-                // IMPORTANTE: esta gráfica muestra eficiencia goleadora, no solo volumen total de goles.
+                const sortedGoalsPerMatch = [...playerStats].filter(p => p.matches > 0).sort((a, b) => b.goalPerMatch - a.goalPerMatch).slice(0, 10);
+                // IMPORTANTE: esta gráfica muestra eficiencia goleadora promedio, no solo volumen total de goles.
                 charts.goalsPerMatch = new Chart(ctxGoalsPerMatch, {
                     type: 'bar',
                     indexAxis: 'y',
                     data: {
                         labels: sortedGoalsPerMatch.map(p => p.name),
-                        datasets: [{
-                            label: 'Goles/P',
-                            data: sortedGoalsPerMatch.map(p => Number(p.goalPerMatch.toFixed(2))),
-                            backgroundColor: '#10B981',
-                            barThickness: 14,
-                            borderRadius: 8
-                        }]
+                        datasets: [{ label: 'Goles/P', data: sortedGoalsPerMatch.map(p => Number(p.goalPerMatch.toFixed(2))), backgroundColor: '#10B981', barThickness: 14, borderRadius: 8 }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
-                            x: { ticks: { color: '#94a3b8' } },
-                            y: { ticks: { color: '#94a3b8' } }
-                        },
-                        plugins: { legend: { display: false } }
+                        scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => chartTooltipLabel(ctx, (_, value) => `${value.toFixed(2)} goles promedio por partido`) } } }
                     }
                 });
             }
 
-            const ctxMvp = document.getElementById('mvpChart');
+            const ctxMvp = document.getElementById('statsMvpChart');
             if (ctxMvp) {
-                const sortedMvp = [...playerStats]
-                    .filter(p => p.matches > 0 || p.goals > 0)
-                    .sort((a, b) => b.mvpScore - a.mvpScore)
-                    .slice(0, 10);
-
+                const sortedMvp = [...playerStats].filter(p => p.matches > 0 || p.goals > 0).sort((a, b) => b.mvpScore - a.mvpScore).slice(0, 10);
                 // IMPORTANTE: MVP usa fórmula configurable: goles*peso + PJ*peso + tarjetas*peso.
                 charts.mvp = new Chart(ctxMvp, {
                     type: 'bar',
                     indexAxis: 'y',
                     data: {
                         labels: sortedMvp.map(p => p.name),
-                        datasets: [{
-                            label: 'MVP',
-                            data: sortedMvp.map(p => Number(p.mvpScore.toFixed(1))),
-                            backgroundColor: '#A855F7',
-                            barThickness: 14,
-                            borderRadius: 8
-                        }]
+                        datasets: [{ label: 'MVP', data: sortedMvp.map(p => Number(p.mvpScore.toFixed(1))), backgroundColor: '#A855F7', barThickness: 14, borderRadius: 8 }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
-                            x: { ticks: { color: '#94a3b8' } },
-                            y: { ticks: { color: '#94a3b8' } }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            }
-
-            const ctxFinance = document.getElementById('financeChart');
-            if (ctxFinance) {
-                charts.finance = new Chart(ctxFinance, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Recaudado', 'Por Cobrar'],
-                        datasets: [{
-                            data: [totalPaid, totalDebt],
-                            backgroundColor: ['#10B981', '#EF4444'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: { color: '#94a3b8' }
-                            }
-                        }
+                        scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => chartTooltipLabel(ctx, (_, value) => `${value.toFixed(1)} puntos MVP según fórmula activa`) } } }
                     }
                 });
             }
@@ -1955,55 +1828,32 @@
                 return cumDiff;
             });
 
-            const statsTrendCanvas = document.getElementById('goalsTrendChart');
+            const statsTrendCanvas = document.getElementById('statsGoalsTrendChart');
             if (statsTrendCanvas) {
+                // IMPORTANTE: tendencia acumula diferencia de gol partido a partido para leer momentum colectivo.
                 charts.goalsTrend = new Chart(statsTrendCanvas, {
                     type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Diferencia de Gol Acumulada',
-                            data: trendData,
-                            borderColor: '#F59E0B',
-                            tension: 0.35,
-                            fill: true,
-                            backgroundColor: 'rgba(245, 158, 11, 0.10)'
-                        }]
-                    },
+                    data: { labels, datasets: [{ label: 'Diferencia de Gol Acumulada', data: trendData, borderColor: '#F59E0B', tension: 0.35, fill: true, backgroundColor: 'rgba(245, 158, 11, 0.10)' }] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
-                            x: { ticks: { color: '#94a3b8' } },
-                            y: { ticks: { color: '#94a3b8' } }
-                        },
-                        plugins: { legend: { display: false } }
+                        scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => chartTooltipLabel(ctx, (_, value) => `${value > 0 ? '+' : ''}${value} goles de diferencia acumulada`) } } }
                     }
                 });
             }
 
             const dashboardTrendCanvas = document.getElementById('dashboardGoalsTrendChart');
             if (dashboardTrendCanvas) {
+                // IMPORTANTE: el dashboard usa un canvas con ID único para no depender de normalización de IDs duplicados.
                 charts.dashboardGoalsTrend = new Chart(dashboardTrendCanvas, {
                     type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: trendData,
-                            borderColor: '#F59E0B',
-                            tension: 0.35,
-                            fill: true,
-                            backgroundColor: 'rgba(245, 158, 11, 0.10)'
-                        }]
-                    },
+                    data: { labels, datasets: [{ label: 'DG acumulada', data: trendData, borderColor: '#F59E0B', tension: 0.35, fill: true, backgroundColor: 'rgba(245, 158, 11, 0.10)' }] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
-                            x: { display: false },
-                            y: { display: false }
-                        },
-                        plugins: { legend: { display: false } }
+                        scales: { x: { display: false }, y: { display: false } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => chartTooltipLabel(ctx, (_, value) => `${value > 0 ? '+' : ''}${value} goles de diferencia acumulada`) } } }
                     }
                 });
             }
@@ -2509,8 +2359,12 @@
             const totalPaid = players.reduce((acc, p) => acc + (p.totalPaid || 0), 0);
             const totalDebt = Math.max(0, (players.length * (tournamentData.inscriptionPerPlayer || 0)) - totalPaid);
             const totalFinesDebt = players.reduce((acc, p) => acc + Math.max(0, p.cardDebt || 0), 0);
+            const totalPayments = players.reduce((acc, p) => acc + ((p.payments || []).length), 0);
 
             const { teamStats, playerList, totalGF, totalGC, diff } = advanced;
+            setHidden('dashboardMatchesEmpty', matches.length > 0);
+            setHidden('dashboardPlayersEmpty', players.length > 0);
+            setHidden('dashboardPaymentsEmpty', totalPayments > 0);
             const avgGF = advanced.avgGF.toFixed(1);
             const avgGC = advanced.avgGC.toFixed(1);
             const avgCards = advanced.avgCards.toFixed(1);
@@ -2551,6 +2405,19 @@
             safeText('dashGoalShareValue', `${goalShareLeader.goalParticipation.toFixed(0)}%`);
             safeText('dashCardsPerMatchLeader', cardsPerMatchLeader.name);
             safeText('dashCardsPerMatchValue', cardsPerMatchLeader.cardsPerMatch.toFixed(2));
+            const financeTarget = totalPaid + totalDebt + totalFinesDebt;
+            const collectionPct = financeTarget > 0 ? (totalPaid / financeTarget) * 100 : 0;
+            safeText('dashCollectionPct', `${collectionPct.toFixed(0)}%`);
+            safeText('dashboardFinanceSummary', `${formatCOP(totalPaid)} recaudado de ${formatCOP(financeTarget)} proyectados`);
+            setWidth('dashCollectionBar', collectionPct);
+
+            // IMPORTANTE: estas cards reemplazan el doughnut duplicado y muestran conteos + porcentaje contextual del balance.
+            const totalResultCount = Math.max(teamStats.pj, 1);
+            renderProgressRows('dashboardResultCards', [
+                { label: 'Victorias', value: teamStats.pg, display: `${teamStats.pg} · ${((teamStats.pg / totalResultCount) * 100).toFixed(0)}%`, badgeClass: 'bg-success/10 text-success', barClass: 'bg-success', valueClass: 'text-success' },
+                { label: 'Empates', value: teamStats.pe, display: `${teamStats.pe} · ${((teamStats.pe / totalResultCount) * 100).toFixed(0)}%`, badgeClass: 'bg-yellow-500/10 text-yellow-500', barClass: 'bg-yellow-500', valueClass: 'text-yellow-500' },
+                { label: 'Derrotas', value: teamStats.pp, display: `${teamStats.pp} · ${((teamStats.pp / totalResultCount) * 100).toFixed(0)}%`, badgeClass: 'bg-danger/10 text-danger', barClass: 'bg-danger', valueClass: 'text-danger' }
+            ], 'Sin resultados definidos');
 
             const statsTable = document.getElementById('teamStatsTableBody');
             if (statsTable) {
@@ -2583,13 +2450,14 @@
 
             const table = document.getElementById('topScorersTable');
             if (table) {
-                const sortedScorers = [...playerList].sort((a, b) => b.goals - a.goals).slice(0, 5);
-                table.innerHTML = sortedScorers.map(p => `
+                const sortedScorers = [...playerList].filter(p => p.goals > 0).sort((a, b) => b.goals - a.goals).slice(0, 5);
+                // IMPORTANTE: el ranking de dashboard se oculta con estado vacío si todavía no existen goles.
+                table.innerHTML = sortedScorers.length ? sortedScorers.map(p => `
                     <tr>
                         <td class="py-3 text-sm border-b border-white/6">${p.name}</td>
                         <td class="text-right font-extrabold text-success border-b border-white/6">${p.goals} Goles</td>
                     </tr>
-                `).join('');
+                `).join('') : '<tr><td colspan="2" class="text-center py-6 text-xs text-slate-500">Sin goles registrados</td></tr>';
             }
 
             const recentList = document.getElementById('recentMatchesList');
@@ -2623,6 +2491,10 @@
 
             // IMPORTANTE: la tabla individual hereda goles/P, participación goleadora, tarjetas/P y MVP del cálculo central.
             const sorted = advanced.playerList.sort((a, b) => b.mvpScore - a.mvpScore || b.goals - a.goals);
+            if (!sorted.length) {
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-xs text-slate-500">Sin jugadores registrados para calcular estadísticas individuales.</td></tr>';
+                return;
+            }
 
             sorted.forEach(s => {
                 const tr = document.createElement('tr');
